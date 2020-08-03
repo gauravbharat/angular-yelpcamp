@@ -40,6 +40,9 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+.env
+node_modules
+/node_modules
 
 # System Files
 .DS_Store

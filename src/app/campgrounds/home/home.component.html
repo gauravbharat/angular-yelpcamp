@@ -1,0 +1,47 @@
+<app-header></app-header>
+<mat-card>
+  <h1 class="mat-display-1">
+    Welcome to YelpCamp!
+  </h1>
+  <h3>View our hand-picked campgrounds from all over the world</h3>
+  <button mat-raised-button color="accent">Add New Campground</button>
+  <!-- <mat-form-field> -->
+  <br />
+  <form class="campground-search">
+    <mat-form-field class="example-full-width">
+      <!-- <mat-label>Search </mat-label> -->
+      <input matInput placeholder="Campground search..." />
+    </mat-form-field>
+    <button mat-button>Search</button>
+  </form>
+</mat-card>
+<mat-grid-list cols="4" rowHeight="2:2.5">
+  <mat-grid-tile>
+    <mat-card>
+      <img
+        class="campground-preview-image"
+        mat-card-image
+        src="https://res.cloudinary.com/garyd/image/upload/v1581789527/bk3qcxwqtk5lnmzqqxh1.jpg"
+        alt="Campground Preview Image"
+      />
+      <div class="campground-preview-cta">
+        <mat-card-title class="campground-preview-title"
+          >Darjeeling</mat-card-title
+        >
+        <!-- <mat-card-actions> -->
+        <button
+          class="campground-preview-button"
+          mat-raised-button
+          color="accent"
+        >
+          Know More
+        </button>
+      </div>
+
+      <!-- </mat-card-actions> -->
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>2</mat-grid-tile>
+  <mat-grid-tile>3</mat-grid-tile>
+  <mat-grid-tile>4</mat-grid-tile>
+</mat-grid-list>

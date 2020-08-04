@@ -1,0 +1,50 @@
+.campground-create {
+  width: 60%;
+  margin: 5px auto;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.campground-create-header {
+  margin-bottom: 1rem;
+  font-weight: 300;
+}
+
+mat-form-field {
+  width: 80%;
+  margin-top: 1rem;
+}
+
+form {
+  margin-top: 20px;
+}
+
+.campground-back-link {
+  width: 60%;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.campground-create-submit {
+  margin-top: 2rem;
+  width: 80%;
+}
+
+.show-image-path {
+  width: 65%;
+  margin-left: 10px;
+}
+
+input[type="file"] {
+  visibility: hidden;
+  width: 0;
+}
+
+.image-preview {
+  height: 5rem;
+  margin: 1rem 0;
+}
+
+.image-preview img {
+  height: 100%;
+}

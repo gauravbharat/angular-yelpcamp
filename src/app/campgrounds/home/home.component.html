@@ -1,10 +1,12 @@
 <app-header></app-header>
 <mat-card>
-  <h1 class="mat-display-1">
+  <h1 class="mat-display-2">
     Welcome to YelpCamp!
   </h1>
   <h3>View our hand-picked campgrounds from all over the world</h3>
-  <button mat-raised-button color="accent">Add New Campground</button>
+  <button mat-raised-button color="accent" [routerLink]="['/campgrounds/new']">
+    Add New Campground
+  </button>
   <!-- <mat-form-field> -->
   <br />
   <form class="campground-search">
@@ -15,8 +17,31 @@
     <button mat-button>Search</button>
   </form>
 </mat-card>
-<mat-grid-list cols="4" rowHeight="2:2.5">
-  <mat-grid-tile>
+<mat-grid-list cols="4" rowHeight="2:2.5" gutterSize=".5rem">
+  <mat-grid-tile *ngFor="let campground of campgrounds">
+    <mat-card>
+      <img
+        class="campground-preview-image"
+        mat-card-image
+        [src]="campground.image"
+        alt="Campground Preview Image"
+      />
+      <div class="campground-preview-cta">
+        <mat-card-title class="campground-preview-title">{{
+          campground.name
+        }}</mat-card-title>
+        <button
+          class="campground-preview-button"
+          mat-raised-button
+          color="accent"
+        >
+          Know More
+        </button>
+      </div>
+    </mat-card>
+  </mat-grid-tile>
+  <!-- HARD CODED FOR CSS SETUP -->
+  <!-- <mat-grid-tile>
     <mat-card>
       <img
         class="campground-preview-image"
@@ -28,7 +53,6 @@
         <mat-card-title class="campground-preview-title"
           >Darjeeling</mat-card-title
         >
-        <!-- <mat-card-actions> -->
         <button
           class="campground-preview-button"
           mat-raised-button
@@ -37,11 +61,94 @@
           Know More
         </button>
       </div>
-
-      <!-- </mat-card-actions> -->
     </mat-card>
   </mat-grid-tile>
-  <mat-grid-tile>2</mat-grid-tile>
-  <mat-grid-tile>3</mat-grid-tile>
-  <mat-grid-tile>4</mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card>
+      <img
+        class="campground-preview-image"
+        mat-card-image
+        src="https://res.cloudinary.com/garyd/image/upload/v1581789643/pipximdxt1eootiym1qn.jpg"
+        alt="Campground Preview Image"
+      />
+      <div class="campground-preview-cta">
+        <mat-card-title class="campground-preview-title"
+          >Gavilgarh Fort</mat-card-title
+        >
+        <button
+          class="campground-preview-button"
+          mat-raised-button
+          color="accent"
+        >
+          Know More
+        </button>
+      </div>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card>
+      <img
+        class="campground-preview-image"
+        mat-card-image
+        src="https://res.cloudinary.com/garyd/image/upload/v1581789783/veh4kycuxckrw0f9x9n1.jpg"
+        alt="Campground Preview Image"
+      />
+      <div class="campground-preview-cta">
+        <mat-card-title class="campground-preview-title"
+          >Harold Point - Killbear Park</mat-card-title
+        >
+        <button
+          class="campground-preview-button"
+          mat-raised-button
+          color="accent"
+        >
+          Know More
+        </button>
+      </div>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card>
+      <img
+        class="campground-preview-image"
+        mat-card-image
+        src="https://res.cloudinary.com/garyd/image/upload/v1581789990/mqe3pjikgpqpjlk2lxru.jpg"
+        alt="Campground Preview Image"
+      />
+      <div class="campground-preview-cta">
+        <mat-card-title class="campground-preview-title"
+          >Diveagar Backwater</mat-card-title
+        >
+        <button
+          class="campground-preview-button"
+          mat-raised-button
+          color="accent"
+        >
+          Know More
+        </button>
+      </div>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card>
+      <img
+        class="campground-preview-image"
+        mat-card-image
+        src="https://res.cloudinary.com/garyd/image/upload/v1583585088/vjh8mlyqcou4n3o4ipoq.jpg"
+        alt="Campground Preview Image"
+      />
+      <div class="campground-preview-cta">
+        <mat-card-title class="campground-preview-title"
+          >Camp Vibes</mat-card-title
+        >
+        <button
+          class="campground-preview-button"
+          mat-raised-button
+          color="accent"
+        >
+          Know More
+        </button>
+      </div>
+    </mat-card>
+  </mat-grid-tile> -->
 </mat-grid-list>

@@ -6,8 +6,8 @@ mat-card {
   background-color: #e9ecef;
 }
 
-.mat-display-1 {
-  font-weight: 700;
+.mat-display-2 {
+  font-weight: 300;
   margin-bottom: 1rem;
 }
 
@@ -30,10 +30,17 @@ mat-grid-list mat-card {
   padding: 0;
   border-radius: 5px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .campground-preview-image {
-  background-size: cover;
+  /* background-size: cover;
+  overflow: hidden; */
+  object-fit: cover;
+  width: 100%;
+  height: 60%;
 }
 
 .campground-preview-cta {
@@ -41,6 +48,14 @@ mat-grid-list mat-card {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+.campground-preview-title {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1rem;
 }
 
 .campground-preview-button {

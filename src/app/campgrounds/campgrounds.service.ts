@@ -20,36 +20,54 @@ export class CampgroundsService {
 
   constructor(private http: HttpClient) {}
 
-  getCampgrounds() {
+  getCampgrounds(
+    campgroundsPerPage: number,
+    currentPage: number,
+    search: string
+  ) {
+    const queryParms = `?pagesize=${campgroundsPerPage}&page=${currentPage}${
+      search ? `&search=${search}` : ''
+    }`;
+
+    // console.log(queryParms);
+
     this.http
       .get<{ message: string; campgrounds: any; maxCampgrounds: number }>(
-        `${BACKEND_URL}`
+        `${BACKEND_URL}${queryParms}`
       )
       .pipe(
         map((campgroundsData) => {
           return {
-            mappedPosts: campgroundsData.campgrounds.map((campground) => {
-              return {
-                _id: campground._id,
-                name: campground.name,
-                price: Number(campground.price),
-                image: campground.image,
-                location: campground?.location,
-                comments: campground?.comments,
-                author: {
-                  id: campground?.author.id,
-                  username: campground?.author.username,
-                },
-              };
-            }),
-            maxCampgrounds: campgroundsData.maxCampgrounds,
+            mappedCampgrounds: campgroundsData?.campgrounds.map(
+              (campground) => {
+                return {
+                  _id: campground._id,
+                  name: campground.name,
+                  price: +campground.price,
+                  image: campground.image,
+                  location: campground?.location,
+                  comments: campground?.comments,
+                  author: {
+                    id: campground?.author.id,
+                    username: campground?.author.username,
+                  },
+                };
+              }
+            ),
+            maxCampgrounds: campgroundsData?.maxCampgrounds,
           };
         })
       )
       .subscribe((transformedData) => {
-        // console.log(transformedData.mappedPosts);
+        if (!transformedData.mappedCampgrounds) {
+          transformedData.mappedCampgrounds = [];
+        }
+        if (!transformedData.maxCampgrounds) {
+          transformedData.maxCampgrounds = 0;
+        }
+        // console.log(transformedData.mappedCampgrounds);
         // console.log(transformedData.maxCampgrounds);
-        this.campgrounds = transformedData.mappedPosts;
+        this.campgrounds = transformedData.mappedCampgrounds;
         this.campgroundsUpdated.next({
           campgrounds: [...this.campgrounds],
           maxCampgrounds: transformedData.maxCampgrounds,

@@ -1,9 +1,13 @@
 mat-card {
   box-sizing: border-box;
   width: 60%;
-  margin: 1rem auto;
-  padding: 2rem;
+  margin: 10px auto;
+  padding: 32px;
   background-color: #e9ecef;
+}
+
+mat-spinner {
+  margin: auto;
 }
 
 .mat-display-2 {
@@ -15,14 +19,18 @@ mat-card {
   margin-top: 1rem;
 }
 
-.campground-search button {
+.campground-search button[type="submit"] {
   margin-left: 0.5rem;
 }
 
 mat-grid-list {
   width: 60%;
-  margin: 2rem auto;
+  margin: 15px auto;
 }
+
+/* mat-paginator {
+  margin-top: 15px;
+} */
 
 mat-grid-list mat-card {
   width: 100%;
@@ -60,4 +68,8 @@ mat-grid-list mat-card {
 
 .campground-preview-button {
   margin-top: 5px;
+}
+
+.paginator {
+  width: 80%;
 }

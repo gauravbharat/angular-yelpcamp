@@ -1,7 +1,7 @@
 <app-header></app-header>
 <div class="campground-create">
   <h1 class="mat-display-1 campground-create-header">
-    Create a New Campground
+    {{ formHeading }}
   </h1>
   <mat-divider color="accent"></mat-divider>
   <!-- <hr class="campground-create-hr" /> -->
@@ -16,21 +16,34 @@
         type="text"
         [formControlName]="['campgroundName']"
         placeholder="Campground Name"
+        [disabled]="isLoading"
       />
       <mat-error *ngIf="form.get('campgroundName').invalid"
-        >Please enter a campground name of at least 6 characters.</mat-error
+        >Please enter a campground name of at least 6 characters or max 30
+        characters.</mat-error
       >
     </mat-form-field>
+
+    <div class="spinner">
+      <mat-spinner *ngIf="isLoading"></mat-spinner>
+    </div>
+
     <mat-form-field>
       <input
         matInput
         type="number"
         [formControlName]="['campgroundPrice']"
         placeholder="Price in $"
+        [disabled]="isLoading"
       />
     </mat-form-field>
     <div class="campground-create-image">
-      <button mat-raised-button type="button" (click)="filePicker.click()">
+      <button
+        mat-raised-button
+        type="button"
+        (click)="filePicker.click()"
+        [disabled]="isLoading"
+      >
         Pick Image
       </button>
 
@@ -38,7 +51,9 @@
         <input
           matInput
           type="text"
-          placeholder="Picked image name..."
+          [placeholder]="
+            imagePreview ? 'Picked image name...' : 'Last saved image path..'
+          "
           value="{{ displayImageName }}"
           disabled
         />
@@ -54,7 +69,10 @@
     <div
       class="image-preview"
       *ngIf="
-        imagePreview && imagePreview !== '' && form.get('campgroundImage').valid
+        !isEditMode() &&
+        imagePreview &&
+        imagePreview !== '' &&
+        form.get('campgroundImage').valid
       "
     >
       <img [src]="imagePreview" [alt]="form.value.campgroundName" />
@@ -66,6 +84,7 @@
         type="text"
         [formControlName]="['campgroundDescription']"
         placeholder="Campground Description"
+        [disabled]="isLoading"
       ></textarea>
       <mat-error *ngIf="form.get('campgroundDescription').invalid"
         >Please briefly describe the campground site.</mat-error
@@ -77,6 +96,7 @@
         type="text"
         [formControlName]="['campgroundLocation']"
         placeholder="Campground Location (e.g. Yosemite National Park, CA)"
+        [disabled]="isLoading"
       />
       <mat-error *ngIf="form.get('campgroundLocation').invalid"
         >Please help others with the campground location.</mat-error
@@ -88,12 +108,14 @@
       class="campground-create-submit"
       color="primary"
       type="submit"
+      [disabled]="isLoading"
     >
       Submit
     </button>
     <br />
   </form>
 </div>
+
 <div class="campground-back-link">
   <a
     mat-button

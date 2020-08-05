@@ -15,6 +15,6 @@ export interface Campground {
     id: string;
     username: string;
   };
-  created: Date;
-  comments: ICommentsArray;
+  created?: Date;
+  comments?: ICommentsArray;
 }

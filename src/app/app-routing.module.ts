@@ -9,6 +9,10 @@ const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'campgrounds', component: HomeComponent },
   { path: 'campgrounds/new', component: CampgroundCreateComponent },
+  {
+    path: 'campgrounds/edit/:campgroundId',
+    component: CampgroundCreateComponent,
+  },
 ];
 
 @NgModule({

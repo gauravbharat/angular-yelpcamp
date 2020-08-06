@@ -34,24 +34,36 @@ export class CampgroundCreateComponent implements OnInit {
 
   ngOnInit() {
     this.form = new FormGroup({
-      campgroundName: new FormControl(null, {
-        validators: [
-          Validators.required,
-          Validators.minLength(6),
-          Validators.maxLength(30),
-        ],
-      }),
-      campgroundPrice: new FormControl(null),
-      campgroundImage: new FormControl(null, {
-        validators: [Validators.required],
-      }),
-      campgroundDescription: new FormControl(null, {
-        validators: [Validators.required],
-      }),
-      campgroundLocation: new FormControl(null, {
-        validators: [Validators.required],
-        asyncValidators: [mimeType],
-      }),
+      campgroundName: new FormControl(
+        { value: null, disabled: false },
+        {
+          validators: [
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(30),
+          ],
+        }
+      ),
+      campgroundPrice: new FormControl({ value: null, disabled: false }),
+      campgroundImage: new FormControl(
+        { value: null, disabled: false },
+        {
+          validators: [Validators.required],
+        }
+      ),
+      campgroundDescription: new FormControl(
+        { value: null, disabled: false },
+        {
+          validators: [Validators.required],
+        }
+      ),
+      campgroundLocation: new FormControl(
+        { value: null, disabled: false },
+        {
+          validators: [Validators.required],
+          asyncValidators: [mimeType],
+        }
+      ),
     });
 
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
@@ -60,10 +72,13 @@ export class CampgroundCreateComponent implements OnInit {
         this.formHeading = 'Edit Campground';
         this.campgroundId = paramMap.get('campgroundId');
         this.isLoading = true;
+        this.disableFormControls(true);
+
         this.campgroundsService.getCampground(this.campgroundId).subscribe(
           (campgroundData) => {
             // stop spinner
             this.isLoading = false;
+            this.disableFormControls(false);
 
             // console.log(campgroundData);
 
@@ -108,17 +123,24 @@ export class CampgroundCreateComponent implements OnInit {
 
     if (this.form.invalid) return;
 
+    console.log('passed form validation!');
+
+    /** IMPORTANT! Before programmatically disabling the reactive form controls,
+     * store form control values in local varaibles or the form control values would
+     * return UNDEFINED
+     */
+    const name = this.form.value.campgroundName;
+    const price = this.form.value.campgroundPrice;
+    const description = this.form.value.campgroundDescription;
+    const location = this.form.value.campgroundLocation;
+    const image = this.form.value.campgroundImage;
+
     this.isLoading = true;
+    this.disableFormControls(true);
 
     if (this.mode === 'create') {
       this.campgroundsService
-        .createCampground(
-          this.form.value.campgroundName,
-          this.form.value.campgroundPrice,
-          this.form.value.campgroundDescription,
-          this.form.value.campgroundLocation,
-          this.form.value.campgroundImage
-        )
+        .createCampground(name, price, description, location, image)
         .subscribe(
           (result) => {
             this.form.reset();
@@ -126,6 +148,8 @@ export class CampgroundCreateComponent implements OnInit {
             this.campgroundsService.redirectToCampgrounds();
           },
           (error) => {
+            this.isLoading = false;
+            this.disableFormControls(false);
             console.log('error creating campground', error);
           }
         );
@@ -133,11 +157,11 @@ export class CampgroundCreateComponent implements OnInit {
       this.campgroundsService
         .updateCampground(
           this.campgroundId,
-          this.form.value.campgroundName,
-          this.form.value.campgroundPrice,
-          this.form.value.campgroundDescription,
-          this.form.value.campgroundLocation,
-          this.form.value.campgroundImage
+          name,
+          price,
+          description,
+          location,
+          image
         )
         .subscribe(
           (response) => {
@@ -146,6 +170,8 @@ export class CampgroundCreateComponent implements OnInit {
             this.campgroundsService.redirectToCampgrounds();
           },
           (error) => {
+            this.isLoading = false;
+            this.disableFormControls(false);
             console.log('error editing campground', error);
           }
         );
@@ -175,5 +201,20 @@ export class CampgroundCreateComponent implements OnInit {
 
   isEditMode(): boolean {
     return this.mode === 'edit';
+  }
+
+  disableFormControls(condition: boolean) {
+    // disable for condition === true
+    if (condition) {
+      this.form.controls.campgroundName.disable();
+      this.form.controls.campgroundPrice.disable();
+      this.form.controls.campgroundDescription.disable();
+      this.form.controls.campgroundLocation.disable();
+    } else {
+      this.form.controls.campgroundName.enable();
+      this.form.controls.campgroundPrice.enable();
+      this.form.controls.campgroundDescription.enable();
+      this.form.controls.campgroundLocation.enable();
+    }
   }
 }

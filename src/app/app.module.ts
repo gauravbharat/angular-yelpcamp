@@ -12,8 +12,11 @@ import { CampgroundsModule } from './campgrounds/campgrounds.module';
 import { AppComponent } from './app.component';
 import { LandingComponent } from './landing/landing.component';
 
+/** Custom Directive - add to declarations */
+import { DisableControlDirective } from './utils/disable-control.directive';
+
 @NgModule({
-  declarations: [AppComponent, LandingComponent],
+  declarations: [AppComponent, LandingComponent, DisableControlDirective],
   imports: [
     BrowserModule,
     AppRoutingModule,

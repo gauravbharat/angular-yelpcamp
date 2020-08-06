@@ -157,6 +157,11 @@ export class CampgroundsService {
     return this.http.put(`${BACKEND_URL}/edit/${_id}`, editCampData);
   }
 
+  // 06082020 - Delete campground
+  deleteCampground(campgroundId: string) {
+    return this.http.delete(`${BACKEND_URL}/${campgroundId}`);
+  }
+
   redirectToCampgrounds() {
     this.router.navigate(['/campgrounds']);
   }

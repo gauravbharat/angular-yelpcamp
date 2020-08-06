@@ -16,7 +16,6 @@
         type="text"
         [formControlName]="['campgroundName']"
         placeholder="Campground Name"
-        [disabled]="isLoading"
       />
       <mat-error *ngIf="form.get('campgroundName').invalid"
         >Please enter a campground name of at least 6 characters or max 30
@@ -34,7 +33,6 @@
         type="number"
         [formControlName]="['campgroundPrice']"
         placeholder="Price in $"
-        [disabled]="isLoading"
       />
     </mat-form-field>
     <div class="campground-create-image">
@@ -84,7 +82,6 @@
         type="text"
         [formControlName]="['campgroundDescription']"
         placeholder="Campground Description"
-        [disabled]="isLoading"
       ></textarea>
       <mat-error *ngIf="form.get('campgroundDescription').invalid"
         >Please briefly describe the campground site.</mat-error
@@ -96,7 +93,6 @@
         type="text"
         [formControlName]="['campgroundLocation']"
         placeholder="Campground Location (e.g. Yosemite National Park, CA)"
-        [disabled]="isLoading"
       />
       <mat-error *ngIf="form.get('campgroundLocation').invalid"
         >Please help others with the campground location.</mat-error
@@ -118,6 +114,7 @@
 
 <div class="campground-back-link">
   <a
+    [disabled]="isLoading"
     mat-button
     color="primary"
     class=".mat-body-strong campground-page-link"

@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  box-sizing: border-box;
+}
+
+.image {
+  height: 100vh;
+  background-size: cover;
+  width: auto;
+  background-image: url("../../assets/images/404-page-not-found.jpg");
+  background-position: 50% 50%;
+}
+
+div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+}
+
+a {
+  text-decoration: none;
+  color: #c5bcbc;
+  padding-bottom: 10px;
+  padding-left: 5px;
+}

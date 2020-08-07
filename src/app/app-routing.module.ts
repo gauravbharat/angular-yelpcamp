@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { LandingComponent } from './landing/landing.component';
 import { HomeComponent } from './campgrounds/home/home.component';
+// import { PageNotFoundComponent } from './pagenotfound/pagenotfound.component';
 
 const routes: Routes = [
   {
@@ -14,6 +15,13 @@ const routes: Routes = [
   },
   { path: 'campgrounds', component: HomeComponent },
   { path: '', component: LandingComponent },
+  {
+    path: '**',
+    loadChildren: () =>
+      import('./pagenotfound/pagenotfound.module').then(
+        (m) => m.PageNotFoundModule
+      ),
+  },
 ];
 
 @NgModule({

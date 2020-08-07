@@ -3,9 +3,15 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { LandingComponent } from './landing/landing.component';
 import { HomeComponent } from './campgrounds/home/home.component';
-// import { PageNotFoundComponent } from './pagenotfound/pagenotfound.component';
 
 const routes: Routes = [
+  {
+    path: 'campgrounds/show/:campgroundId',
+    loadChildren: () =>
+      import('./campgrounds/show-campground/show-campground.module').then(
+        (m) => m.ShowCampgroundModule
+      ),
+  },
   {
     path: 'campgrounds/process',
     loadChildren: () =>

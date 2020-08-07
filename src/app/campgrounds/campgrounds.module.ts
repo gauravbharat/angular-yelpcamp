@@ -6,12 +6,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularMaterialModule } from '../angular-material.module';
 
 import { HomeComponent } from './home/home.component';
-import { HeaderComponent } from './header/header.component';
-import { CampgroundCreateComponent } from './campground-create/campground-create.component';
+import { HeaderModule } from '../header/header.module';
 
 @NgModule({
-  declarations: [HomeComponent, HeaderComponent, CampgroundCreateComponent],
+  declarations: [HomeComponent],
   imports: [
+    HeaderModule,
     CommonModule,
     RouterModule,
     AngularMaterialModule,

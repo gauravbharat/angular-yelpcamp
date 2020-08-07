@@ -1,18 +1,25 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { CampgroundsService } from '../campgrounds.service';
+import { Campground } from '../campground.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   templateUrl: './show-campground.component.html',
   styleUrls: ['./show-campground.component.css'],
 })
-export class ShowCampgroundComponent implements OnInit {
+export class ShowCampgroundComponent implements OnInit, OnDestroy {
   private campgroundId: string;
+  campground: Campground;
+
+  private campListFromServiceSub$: Subscription;
+  private getCampFromServerSub$: Subscription;
 
   constructor(
     private campgroundsService: CampgroundsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -23,12 +30,54 @@ export class ShowCampgroundComponent implements OnInit {
 
         console.log(this.campgroundId);
 
-        // this.campgroundsService.getCampground(this.campgroundId).subscribe(
-        //   (campgroundData) => {
+        this.campListFromServiceSub$ = this.campgroundsService.campgroundsList.subscribe(
+          (campgroundsList) => {
+            this.campground = campgroundsList.find(
+              (campground) => campground._id === this.campgroundId
+            );
 
-        //   }
-        // )
+            // console.log('campground daata from service', this.campground);
+          },
+          (error) => {
+            console.log(
+              `error getting campground records from campgrounds service object for id ${this.campgroundId}`,
+              error
+            );
+          }
+        );
+
+        // If User refreshed the page or any other reason, fetch from database
+        if (!this.campground) {
+          this.getCampFromServerSub$ = this.campgroundsService
+            .getCampground(this.campgroundId)
+            .subscribe(
+              (campgroundData) => {
+                // console.log(campgroundData);
+                this.campground = campgroundData;
+                // console.log('campground daata from database', this.campground);
+              },
+              (error) => {
+                // Some server error or campground may have been deleted (by some other admin user?)
+                // route back to home page
+                console.log(
+                  `error getting campground from server for campground id ${this.campgroundId}`,
+                  error
+                );
+                this.campgroundsService.redirectToCampgrounds();
+              }
+            );
+        }
       }
     });
+  }
+
+  ngOnDestroy() {
+    // unsubscribe from services subscribed to in ngOnInit()
+    this.campListFromServiceSub$?.unsubscribe();
+    this.getCampFromServerSub$?.unsubscribe();
+  }
+
+  onDelete(id: string) {
+    this.campgroundsService.deleteCampground(id);
   }
 }

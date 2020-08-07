@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 //Observables and operators
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Campground } from './campground.model';
@@ -20,6 +20,13 @@ export class CampgroundsService {
     campgrounds: Campground[];
     maxCampgrounds: number;
   }>();
+
+  // 07082020 - Show Campgrounds
+  // Trying to get data stored in service instead of fetching from
+  private campgroundsListSource: BehaviorSubject<
+    Campground[]
+  > = new BehaviorSubject<Campground[]>([]);
+  campgroundsList = this.campgroundsListSource.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -50,6 +57,7 @@ export class CampgroundsService {
                   price: +campground.price,
                   image: campground.image,
                   location: campground?.location,
+                  description: campground?.description,
                   comments: campground?.comments,
                   author: {
                     id: null, //campground?.author.id,
@@ -76,6 +84,8 @@ export class CampgroundsService {
           campgrounds: [...this.campgrounds],
           maxCampgrounds: transformedData.maxCampgrounds,
         });
+
+        this.campgroundsListSource.next([...this.campgrounds]); // 07082020 - Show Campgrounds
       });
   }
 
@@ -159,7 +169,15 @@ export class CampgroundsService {
 
   // 06082020 - Delete campground
   deleteCampground(campgroundId: string) {
-    return this.http.delete(`${BACKEND_URL}/${campgroundId}`);
+    return this.http.delete(`${BACKEND_URL}/${campgroundId}`).subscribe(
+      (result) => {
+        this.redirectToCampgrounds();
+        // console.log('Campground deleted!');
+      },
+      (error) => {
+        console.log('Error deleting campground', error);
+      }
+    );
   }
 
   redirectToCampgrounds() {

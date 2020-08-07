@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.container {
+  margin-top: 30px;
+  width: 80%;
+  text-align: center;
+}
+
+.action-buttons {
+  text-align: right;
+}
+
+.campground-info {
+  text-align: left;
+}
+
+mat-card-title {
+  width: auto;
+  background-color: #f0eeee;
+  padding: 5px;
+  border: 1px solid #f0eeee;
+  border-radius: 2px;
+}
+
+.price {
+  float: right;
+}

@@ -119,11 +119,11 @@ export class CampgroundCreateComponent implements OnInit {
   }
 
   async onFormSubmit() {
-    console.log('inside onFormSubmit');
+    // console.log('inside onFormSubmit');
 
     if (this.form.invalid) return;
 
-    console.log('passed form validation!');
+    // console.log('passed form validation!');
 
     /** IMPORTANT! Before programmatically disabling the reactive form controls,
      * store form control values in local varaibles or the form control values would

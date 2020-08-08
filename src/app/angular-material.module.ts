@@ -12,6 +12,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
   exports: [
@@ -27,6 +28,7 @@ import { MatChipsModule } from '@angular/material/chips';
     MatIconModule,
     MatAutocompleteModule,
     MatChipsModule,
+    MatProgressBarModule,
   ],
 })
 export class AngularMaterialModule {}

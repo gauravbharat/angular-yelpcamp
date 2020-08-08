@@ -13,17 +13,18 @@
       >
     </li>
     <li>
-      <a mat-button routerLink="['/auth/login']" routerLinkActive="mat-accent"
+      <a mat-button [routerLink]="['/auth/login']" routerLinkActive="mat-accent"
         >Login</a
       >
     </li>
     <li>
       <a
         mat-button
-        routerLink="['/auth/register']"
+        [routerLink]="['/auth/register']"
         routerLinkActive="mat-accent"
         >Register</a
       >
     </li>
   </ul>
 </mat-toolbar>
+<mat-divider></mat-divider>

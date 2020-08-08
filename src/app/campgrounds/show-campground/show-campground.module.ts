@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AngularMaterialModule } from '../../angular-material.module';
@@ -12,6 +13,7 @@ import { HeaderModule } from '../../header/header.module';
   imports: [
     ShowCampgroundRoutingModule,
     HeaderModule,
+    CommonModule,
     FlexLayoutModule,
     AngularMaterialModule,
   ],

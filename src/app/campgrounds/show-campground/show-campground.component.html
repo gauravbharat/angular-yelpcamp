@@ -1,41 +1,52 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  *ngIf="isLoading"
+></mat-progress-bar>
 <app-header></app-header>
-<div
-  class="camp-container"
-  fxLayout="row"
-  fxLayout.xs="column"
-  fxLayoutAlign="space-around"
->
-  <div class="side-panel" fxFlex="20%">
-    <h1 class="side-panel-title">Campground</h1>
-  </div>
-  <div class="main-panel" fxFlex="80%">
-    <mat-card>
-      <img mat-card-image [src]="campground?.image" [alt]="campground?.name" />
-      <div class="campground-info">
-        <mat-card-title
-          >{{ campground?.name
-          }}<span class="price"
-            >${{ campground?.price }}/night</span
-          ></mat-card-title
-        >
-        <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
-        <mat-card-content>{{ campground?.description }}</mat-card-content>
-      </div>
+<div class="container" *ngIf="!isLoading">
+  <div
+    class="camp-container"
+    fxLayout="row"
+    fxLayout.xs="column"
+    fxLayoutAlign="space-around"
+  >
+    <div class="side-panel" fxFlex="20%">
+      <h1 class="side-panel-title">Campground</h1>
+    </div>
+    <div class="main-panel" fxFlex="80%">
+      <mat-card>
+        <img
+          mat-card-image
+          [src]="campground?.image"
+          [alt]="campground?.name"
+        />
+        <div class="campground-info">
+          <mat-card-title
+            >{{ campground?.name
+            }}<span class="price"
+              >${{ campground?.price }}/night</span
+            ></mat-card-title
+          >
+          <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
+          <mat-card-content>{{ campground?.description }}</mat-card-content>
+        </div>
 
-      <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
-      <mat-divider></mat-divider>
-      <mat-card-actions class="action-buttons">
-        <a
-          mat-button
-          color="primary"
-          [routerLink]="['/campgrounds/process/edit', campground?._id]"
-          >EDIT</a
-        >
-        <button mat-button color="warn" (click)="onDelete(campground?._id)">
-          DELETE
-        </button>
-      </mat-card-actions>
-    </mat-card>
+        <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
+        <mat-divider></mat-divider>
+        <mat-card-actions class="action-buttons">
+          <a
+            mat-button
+            color="primary"
+            [routerLink]="['/campgrounds/process/edit', campground?._id]"
+            >EDIT</a
+          >
+          <button mat-button color="warn" (click)="onDelete(campground?._id)">
+            DELETE
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
   </div>
+  <div class="comments-container"></div>
 </div>
-<div class="comments-container"></div>

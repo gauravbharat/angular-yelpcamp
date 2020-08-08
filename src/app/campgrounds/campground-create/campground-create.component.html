@@ -1,4 +1,10 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  *ngIf="isLoading"
+></mat-progress-bar>
 <app-header></app-header>
+
 <div class="campground-create">
   <h1 class="mat-display-1 campground-create-header">
     {{ formHeading }}
@@ -16,23 +22,26 @@
         type="text"
         [formControlName]="['campgroundName']"
         placeholder="Campground Name"
+        #campgroundName
       />
+      <mat-hint align="end">{{ campgroundName.value.length }} / 30</mat-hint>
       <mat-error *ngIf="form.get('campgroundName').invalid"
         >Please enter a campground name of at least 6 characters or max 30
         characters.</mat-error
       >
     </mat-form-field>
 
-    <div class="spinner">
+    <!-- <div class="spinner">
       <mat-spinner *ngIf="isLoading"></mat-spinner>
-    </div>
+    </div> -->
 
     <mat-form-field>
+      <mat-label>Price in $</mat-label>
       <input
         matInput
         type="number"
         [formControlName]="['campgroundPrice']"
-        placeholder="Price in $"
+        placeholder="Ex. $5.99"
       />
     </mat-form-field>
     <div class="campground-create-image">
@@ -83,16 +92,20 @@
         [formControlName]="['campgroundDescription']"
         placeholder="Campground Description"
       ></textarea>
+      <!-- <mat-hint align="start"
+        ><strong>Don't disclose personal info</strong>
+      </mat-hint> -->
       <mat-error *ngIf="form.get('campgroundDescription').invalid"
         >Please briefly describe the campground site.</mat-error
       >
     </mat-form-field>
     <mat-form-field>
+      <mat-label>Campground Location</mat-label>
       <input
         matInput
         type="text"
         [formControlName]="['campgroundLocation']"
-        placeholder="Campground Location (e.g. Yosemite National Park, CA)"
+        placeholder="Ex. Yosemite National Park, CA"
       />
       <mat-error *ngIf="form.get('campgroundLocation').invalid"
         >Please help others with the campground location.</mat-error

@@ -1,0 +1,81 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  *ngIf="isLoading"
+></mat-progress-bar>
+<app-header></app-header>
+
+<div class="login-container" *ngIf="!isLoading">
+  <h1 class="mat-display-1">
+    Please sign in
+  </h1>
+  <mat-card>
+    <form #loginForm="ngForm" (submit)="onLogin(loginForm)">
+      <mat-form-field appearance="fill">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          type="text"
+          name="username"
+          ngModel
+          #usernameInput="ngModel"
+        />
+        <mat-error *ngIf="usernameInput.invalid"
+          >Please enter a valid username.</mat-error
+        >
+      </mat-form-field>
+      <h3 style="text-align: center;">OR</h3>
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          type="text"
+          name="email"
+          placeholder="Ex. john@doe.com"
+          email
+          ngModel
+          #emailInput="ngModel"
+        />
+        <mat-error *ngIf="emailInput.invalid"
+          >Please enter a valid email.</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          name="password"
+          required
+          ngModel
+          #passwordInput="ngModel"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="hide = !hide"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hide"
+          type="button"
+        >
+          <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+        </button>
+        <mat-error *ngIf="passwordInput.invalid"
+          >Please enter a valid password.</mat-error
+        >
+      </mat-form-field>
+      <div class="submit-btn">
+        <mat-divider></mat-divider>
+        <button
+          mat-raised-button
+          color="accent"
+          type="submit"
+          *ngIf="!isLoading"
+        >
+          Login
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>

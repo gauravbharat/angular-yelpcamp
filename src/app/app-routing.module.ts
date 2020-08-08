@@ -5,6 +5,15 @@ import { LandingComponent } from './landing/landing.component';
 import { HomeComponent } from './campgrounds/home/home.component';
 
 const routes: Routes = [
+  { path: '', component: LandingComponent },
+  { path: 'campgrounds', component: HomeComponent },
+  {
+    path: 'campgrounds/process',
+    loadChildren: () =>
+      import('./campgrounds/campground-create/campground-create.module').then(
+        (m) => m.CampgroundCreateModule
+      ),
+  },
   {
     path: 'campgrounds/show/:campgroundId',
     loadChildren: () =>
@@ -13,14 +22,9 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'campgrounds/process',
-    loadChildren: () =>
-      import('./campgrounds/campground-create/campground-create.module').then(
-        (m) => m.CampgroundCreateModule
-      ),
+    path: 'auth',
+    loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
   },
-  { path: 'campgrounds', component: HomeComponent },
-  { path: '', component: LandingComponent },
   {
     path: '**',
     loadChildren: () =>

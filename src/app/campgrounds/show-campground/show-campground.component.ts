@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./show-campground.component.css'],
 })
 export class ShowCampgroundComponent implements OnInit, OnDestroy {
+  isLoading = false;
   private campgroundId: string;
   campground: Campground;
 
@@ -23,6 +24,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.isLoading = true;
     // Get the campground id passed as paramter
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has('campgroundId')) {
@@ -35,10 +37,11 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
             this.campground = campgroundsList.find(
               (campground) => campground._id === this.campgroundId
             );
-
+            this.isLoading = false;
             // console.log('campground daata from service', this.campground);
           },
           (error) => {
+            this.isLoading = false;
             console.log(
               `error getting campground records from campgrounds service object for id ${this.campgroundId}`,
               error
@@ -55,8 +58,10 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
                 // console.log(campgroundData);
                 this.campground = campgroundData;
                 // console.log('campground daata from database', this.campground);
+                this.isLoading = false;
               },
               (error) => {
+                this.isLoading = false;
                 // Some server error or campground may have been deleted (by some other admin user?)
                 // route back to home page
                 console.log(

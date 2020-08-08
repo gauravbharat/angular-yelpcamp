@@ -1,0 +1,121 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  *ngIf="isLoading"
+></mat-progress-bar>
+<app-header></app-header>
+
+<div class="register-container" *ngIf="!isLoading">
+  <h1 class="mat-display-1">
+    Please sign up
+  </h1>
+  <mat-card>
+    <form #registerForm="ngForm" (submit)="onRegister(registerForm)">
+      <mat-form-field appearance="fill">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          type="text"
+          name="username"
+          required
+          ngModel
+          #usernameInput="ngModel"
+          maxlength="15"
+          #username
+        />
+        <mat-hint align="start"
+          >An alternative to login, instead of email ID.
+          Case-sensitive.</mat-hint
+        >
+        <mat-hint align="end">{{ username.value.length }} / 15</mat-hint>
+        <mat-error *ngIf="usernameInput.invalid"
+          >Please enter a unique username.</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          type="text"
+          name="email"
+          placeholder="Ex. john@doe.com"
+          required
+          email
+          ngModel
+          #emailInput="ngModel"
+        />
+        <mat-hint
+          >Enter a valid e-mail ID to help you recover your password, just in
+          case.</mat-hint
+        >
+        <mat-error *ngIf="emailInput.invalid"
+          >Please enter a valid email.</mat-error
+        >
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="hide ? 'password' : 'text'"
+          name="password"
+          required
+          ngModel
+          #passwordInput="ngModel"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          (click)="hide = !hide"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hide"
+          type="button"
+        >
+          <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+        </button>
+        <mat-error *ngIf="passwordInput.invalid"
+          >Please enter a valid password.</mat-error
+        >
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>First Name</mat-label>
+        <input
+          matInput
+          type="text"
+          name="firstname"
+          required
+          ngModel
+          #firstnameInput="ngModel"
+        />
+        <mat-error *ngIf="firstnameInput.invalid"
+          >Please enter your first name.</mat-error
+        >
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Last Name</mat-label>
+        <input
+          matInput
+          type="text"
+          name="lastname"
+          required
+          ngModel
+          #lastnameInput="ngModel"
+        />
+        <mat-error *ngIf="lastnameInput.invalid"
+          >Please enter your last name.</mat-error
+        >
+      </mat-form-field>
+      <div class="submit-btn">
+        <mat-divider></mat-divider>
+        <button
+          mat-raised-button
+          color="accent"
+          type="submit"
+          *ngIf="!isLoading"
+        >
+          Register
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>

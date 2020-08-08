@@ -2,7 +2,7 @@
   display: block;
 }
 
-.container {
+.camp-container {
   margin-top: 30px;
   width: 80%;
   text-align: center;
@@ -26,4 +26,11 @@ mat-card-title {
 
 .price {
   float: right;
+}
+
+.comments-container {
+  margin: 30px auto;
+  width: 80%;
+  height: 20px;
+  border: 1px solid #f0eeee;
 }

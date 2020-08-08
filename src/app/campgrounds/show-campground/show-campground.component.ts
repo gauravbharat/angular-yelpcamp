@@ -28,7 +28,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
       if (paramMap.has('campgroundId')) {
         this.campgroundId = paramMap.get('campgroundId');
 
-        console.log(this.campgroundId);
+        // console.log(this.campgroundId);
 
         this.campListFromServiceSub$ = this.campgroundsService.campgroundsList.subscribe(
           (campgroundsList) => {

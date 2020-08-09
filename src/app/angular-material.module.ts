@@ -7,12 +7,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   exports: [
@@ -23,12 +23,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatInputModule,
     MatGridListModule,
     MatDividerModule,
-    MatProgressSpinnerModule,
     MatPaginatorModule,
     MatIconModule,
     MatAutocompleteModule,
     MatChipsModule,
     MatProgressBarModule,
+    MatSnackBarModule,
   ],
 })
 export class AngularMaterialModule {}

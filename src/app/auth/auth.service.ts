@@ -28,7 +28,10 @@ export class AuthService {
   private currentUser: CurrentUser | null;
 
   // Set listener for auth status change, initialize to false
-  private authStatusListener = new BehaviorSubject<boolean>(false);
+  private authStatusListener = new BehaviorSubject<{
+    isUserAuthenticated: boolean;
+    username: string;
+  }>({ isUserAuthenticated: false, username: null });
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -57,12 +60,18 @@ export class AuthService {
         (result) => {
           console.log(result);
           this.currentUser = result.newUser;
-          this.authStatusListener.next(true);
+          this.authStatusListener.next({
+            isUserAuthenticated: true,
+            username: this.currentUser.username,
+          });
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
           console.log('error in user signup', error);
-          this.authStatusListener.next(false);
+          this.authStatusListener.next({
+            isUserAuthenticated: false,
+            username: null,
+          });
         }
       );
   }
@@ -82,12 +91,18 @@ export class AuthService {
       .subscribe(
         (response) => {
           this.currentUser = response.userData;
-          this.authStatusListener.next(true);
+          this.authStatusListener.next({
+            isUserAuthenticated: true,
+            username: this.currentUser.username,
+          });
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
           console.log('error logging in', error);
-          this.authStatusListener.next(false);
+          this.authStatusListener.next({
+            isUserAuthenticated: false,
+            username: null,
+          });
         }
       );
   }
@@ -95,6 +110,9 @@ export class AuthService {
   logout() {
     this.currentUser = null;
     this.isAuthenticated = false;
-    this.authStatusListener.next(false);
+    this.authStatusListener.next({
+      isUserAuthenticated: false,
+      username: null,
+    });
   }
 }

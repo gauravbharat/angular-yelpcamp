@@ -32,7 +32,10 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
 
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
-      .subscribe((authStatus) => (this.isUserAuthenticated = authStatus));
+      .subscribe(
+        (authStatus) =>
+          (this.isUserAuthenticated = authStatus.isUserAuthenticated)
+      );
 
     // Get the campground id passed as paramter
     this.route.paramMap.subscribe((paramMap: ParamMap) => {

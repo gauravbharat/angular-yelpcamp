@@ -2,7 +2,16 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
+/** Auth service */
 import { AuthService } from '../auth.service';
+
+/** Material Snackbar */
+import {
+  MatSnackBar,
+  MatSnackBarHorizontalPosition,
+  MatSnackBarVerticalPosition,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
 
 @Component({
   templateUrl: './login.component.html',
@@ -14,12 +23,40 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private authStatusSub$: Subscription;
 
-  constructor(private authService: AuthService) {}
+  /** Material Snackbar */
+  private horizontalPosition: MatSnackBarHorizontalPosition = 'center';
+  private verticalPosition: MatSnackBarVerticalPosition = 'top';
+  private matSnackBarRef: MatSnackBarRef<any>;
+
+  constructor(
+    private authService: AuthService,
+    private _snackbar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
-      .subscribe((authstatus) => {
+      .subscribe((authStatus) => {
+        // console.log(authStatus);
+
+        /** 09082020 - Snackbar specific code */
+        if (authStatus.isUserAuthenticated) {
+          this.matSnackBarRef = this._snackbar.open(
+            `Welcome to YelpCamp, ${authStatus.username}!`,
+            'x',
+            {
+              duration: 3000,
+              horizontalPosition: this.horizontalPosition,
+              verticalPosition: this.verticalPosition,
+            }
+          );
+
+          this.matSnackBarRef.onAction().subscribe(() => {
+            this.matSnackBarRef.dismiss();
+          });
+        }
+        /** 09082020 - Snackbar specific code - end */
+
         // listen to auth status change, which should happen on calling the auth service login
         // method in onLogin() below. Success or failure, stop the loading spinner/progress-bar
         this.isLoading = false;

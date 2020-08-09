@@ -18,7 +18,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     /** Set flag on privileged access of select controls */
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
-      .subscribe((authStatus) => (this.isUserAuthenticated = authStatus));
+      .subscribe(
+        (authStatus) =>
+          (this.isUserAuthenticated = authStatus.isUserAuthenticated)
+      );
   }
 
   ngOnDestroy() {

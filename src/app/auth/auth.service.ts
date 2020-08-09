@@ -6,14 +6,26 @@ import { BehaviorSubject } from 'rxjs';
 import { AuthData, User } from './auth-data.model';
 import { environment } from '../../environments/environment';
 
-const BACKEND_URL = `${environment.apiUrl}/user`;
+const BACKEND_URL = `${environment.apiUrl}/users`;
+
+interface CurrentUser {
+  userId: string;
+  email: string;
+  username: string;
+  isAdmin: boolean;
+  avatar?: string;
+  followers?: string[];
+  notifications?: string[];
+  isPublisher?: boolean;
+  isRequestedAdmin?: boolean;
+  token: string;
+  tokenTimer: any;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isAuthenticated = false;
-  private userId: string;
-  private token: string;
-  private tokenTimer: any;
+  private currentUser: CurrentUser | null;
 
   // Set listener for auth status change, initialize to false
   private authStatusListener = new BehaviorSubject<boolean>(false);
@@ -21,13 +33,13 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   getToken() {
-    return this.token;
+    return this.currentUser?.token;
   }
   getIsAuth() {
     return this.isAuthenticated;
   }
   getUserId() {
-    return this.userId;
+    return this.currentUser?.userId;
   }
 
   getAuthStatusListener() {
@@ -36,15 +48,23 @@ export class AuthService {
   }
 
   register(userData: User) {
-    this.http.post(`${BACKEND_URL}/signup`, userData).subscribe(
-      () => {
-        this.router.navigate(['/']);
-      },
-      (error) => {
-        console.log('error in user signup', error);
-        this.authStatusListener.next(false);
-      }
-    );
+    this.http
+      .post<{ message: string; newUser: CurrentUser }>(
+        `${BACKEND_URL}/signup`,
+        userData
+      )
+      .subscribe(
+        (result) => {
+          console.log(result);
+          this.currentUser = result.newUser;
+          this.authStatusListener.next(true);
+          this.router.navigate(['/campgrounds']);
+        },
+        (error) => {
+          console.log('error in user signup', error);
+          this.authStatusListener.next(false);
+        }
+      );
   }
 
   login(username: string, email: string, password: string) {
@@ -55,18 +75,26 @@ export class AuthService {
     };
 
     this.http
-      .post<{ token: string; expiresIn: number; userId: string }>(
+      .post<{ message: string; userData: CurrentUser }>(
         `${BACKEND_URL}/login`,
         authData
       )
       .subscribe(
         (response) => {
-          console.log(response);
+          this.currentUser = response.userData;
+          this.authStatusListener.next(true);
+          this.router.navigate(['/campgrounds']);
         },
         (error) => {
           console.log('error logging in', error);
           this.authStatusListener.next(false);
         }
       );
+  }
+
+  logout() {
+    this.currentUser = null;
+    this.isAuthenticated = false;
+    this.authStatusListener.next(false);
   }
 }

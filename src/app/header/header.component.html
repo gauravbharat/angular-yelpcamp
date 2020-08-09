@@ -12,18 +12,21 @@
         >Home</a
       >
     </li>
-    <li>
+    <li *ngIf="!isUserAuthenticated">
       <a mat-button [routerLink]="['/auth/login']" routerLinkActive="mat-accent"
         >Login</a
       >
     </li>
-    <li>
+    <li *ngIf="!isUserAuthenticated">
       <a
         mat-button
         [routerLink]="['/auth/register']"
         routerLinkActive="mat-accent"
         >Register</a
       >
+    </li>
+    <li *ngIf="isUserAuthenticated">
+      <button mat-button (click)="onLogout()">Logout</button>
     </li>
   </ul>
 </mat-toolbar>

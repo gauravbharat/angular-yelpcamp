@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 
 import { MatPaginator } from '@angular/material/paginator';
 
+import { AuthService } from '../../auth/auth.service';
 import { Campground } from '../campground.model';
 import { CampgroundsService } from '../campgrounds.service';
 import { PageEvent } from '@angular/material/paginator';
@@ -13,8 +14,10 @@ import { PageEvent } from '@angular/material/paginator';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  isUserAuthenticated = false;
   campgrounds: Campground[] = [];
   private campgroundsSubscription$: Subscription;
+  private authStatusSub$: Subscription;
 
   isLoading = false;
   totalCampgrounds = 0;
@@ -27,10 +30,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   searchMode = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(public campgroundsService: CampgroundsService) {}
+  constructor(
+    private campgroundsService: CampgroundsService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.isLoading = true;
+
+    /** Set flag on privileged access of select controls */
+    this.authStatusSub$ = this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => (this.isUserAuthenticated = authStatus));
+
     this.getCampgrounds();
 
     this.campgroundsSubscription$ = this.campgroundsService
@@ -49,6 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.campgroundsSubscription$.unsubscribe();
+    this.authStatusSub$.unsubscribe();
   }
 
   getCampgrounds() {

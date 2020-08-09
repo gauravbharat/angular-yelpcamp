@@ -60,8 +60,8 @@ export class CampgroundsService {
                   description: campground?.description,
                   comments: campground?.comments,
                   author: {
-                    id: null, //campground?.author.id,
-                    username: null, //campground?.author.username,
+                    id: campground?.author?.id,
+                    username: campground?.author?.username,
                   },
                 };
               }

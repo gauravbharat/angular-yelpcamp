@@ -20,14 +20,14 @@
           required
           ngModel
           #usernameInput="ngModel"
-          maxlength="15"
+          maxlength="30"
           #username
         />
         <mat-hint align="start"
           >An alternative to login, instead of email ID.
           Case-sensitive.</mat-hint
         >
-        <mat-hint align="end">{{ username.value.length }} / 15</mat-hint>
+        <mat-hint align="end">{{ username.value.length }} / 30</mat-hint>
         <mat-error *ngIf="usernameInput.invalid"
           >Please enter a unique username.</mat-error
         >

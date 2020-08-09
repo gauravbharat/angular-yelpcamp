@@ -44,10 +44,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
       isRequestedAdmin: false,
     };
 
-    console.log(userData);
-
-    return;
-
     this.isLoading = true;
     this.authService.register(userData);
   }

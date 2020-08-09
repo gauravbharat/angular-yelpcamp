@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
+import { AuthService } from '../../auth/auth.service';
 import { CampgroundsService } from '../campgrounds.service';
 import { Campground } from '../campground.model';
 import { Subscription } from 'rxjs';
@@ -10,14 +11,17 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./show-campground.component.css'],
 })
 export class ShowCampgroundComponent implements OnInit, OnDestroy {
+  isUserAuthenticated = false;
   isLoading = false;
   private campgroundId: string;
   campground: Campground;
 
   private campListFromServiceSub$: Subscription;
   private getCampFromServerSub$: Subscription;
+  private authStatusSub$: Subscription;
 
   constructor(
+    private authService: AuthService,
     private campgroundsService: CampgroundsService,
     private route: ActivatedRoute,
     private router: Router
@@ -25,6 +29,11 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoading = true;
+
+    this.authStatusSub$ = this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => (this.isUserAuthenticated = authStatus));
+
     // Get the campground id passed as paramter
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has('campgroundId')) {
@@ -78,6 +87,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe from services subscribed to in ngOnInit()
+    this.authStatusSub$.unsubscribe();
     this.campListFromServiceSub$?.unsubscribe();
     this.getCampFromServerSub$?.unsubscribe();
   }

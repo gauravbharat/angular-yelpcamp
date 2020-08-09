@@ -10,6 +10,7 @@
   </h1>
   <h3>View our hand-picked campgrounds from all over the world</h3>
   <button
+    [disabled]="!isUserAuthenticated"
     mat-raised-button
     color="accent"
     [routerLink]="['/campgrounds/process/new']"

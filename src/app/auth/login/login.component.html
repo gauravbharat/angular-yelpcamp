@@ -12,20 +12,6 @@
   <mat-card>
     <form #loginForm="ngForm" (submit)="onLogin(loginForm)">
       <mat-form-field appearance="fill">
-        <mat-label>Username</mat-label>
-        <input
-          matInput
-          type="text"
-          name="username"
-          ngModel
-          #usernameInput="ngModel"
-        />
-        <mat-error *ngIf="usernameInput.invalid"
-          >Please enter a valid username.</mat-error
-        >
-      </mat-form-field>
-      <h3 style="text-align: center;">OR</h3>
-      <mat-form-field appearance="fill">
         <mat-label>Email</mat-label>
         <input
           matInput
@@ -41,6 +27,23 @@
         >
       </mat-form-field>
 
+      <h3 style="text-align: center;">OR</h3>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          type="text"
+          name="username"
+          ngModel
+          #usernameInput="ngModel"
+          maxlength="30"
+        />
+        <mat-hint align="end">{{ usernameInput.value?.length }} / 30</mat-hint>
+        <mat-error *ngIf="usernameInput.invalid"
+          >Please enter a valid username.</mat-error
+        >
+      </mat-form-field>
       <mat-form-field appearance="fill">
         <mat-label>Password</mat-label>
         <input

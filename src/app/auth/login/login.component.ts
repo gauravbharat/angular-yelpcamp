@@ -6,12 +6,9 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../auth.service';
 
 /** Material Snackbar */
-import {
-  MatSnackBar,
-  MatSnackBarHorizontalPosition,
-  MatSnackBarVerticalPosition,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { SnackBarComponent } from '../../error/snackbar.component';
+import { configSuccess, configFailure } from '../../error/snackbar.config';
 
 @Component({
   templateUrl: './login.component.html',
@@ -23,11 +20,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private authStatusSub$: Subscription;
 
-  /** Material Snackbar */
-  private horizontalPosition: MatSnackBarHorizontalPosition = 'center';
-  private verticalPosition: MatSnackBarVerticalPosition = 'top';
-  private matSnackBarRef: MatSnackBarRef<any>;
-
   constructor(
     private authService: AuthService,
     private _snackbar: MatSnackBar
@@ -38,10 +30,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       (authStatus) => {
         /** 09082020 - Snackbar specific code */
         if (authStatus.isUserAuthenticated) {
-          this.showFlashMessage(`Welcome to YelpCamp, ${authStatus.username}!`);
+          this.showFlashMessage(
+            `Welcome to YelpCamp, ${authStatus.username}!`,
+            configSuccess
+          );
         }
         if (authStatus.error) {
-          this.showFlashMessage(authStatus.error);
+          this.showFlashMessage(authStatus.error, configFailure);
         }
 
         // listen to auth status change, which should happen on calling the auth service login
@@ -50,7 +45,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       (error) => {
         console.log(error);
-        this.showFlashMessage('Error logging in!');
       }
     );
   }
@@ -72,15 +66,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /** 09082020 - Snackbar specific code */
-  showFlashMessage(message: string) {
-    this.matSnackBarRef = this._snackbar.open(message, 'x', {
-      duration: 3000,
-      horizontalPosition: this.horizontalPosition,
-      verticalPosition: this.verticalPosition,
-    });
-
-    this.matSnackBarRef.onAction().subscribe(() => {
-      this.matSnackBarRef.dismiss();
+  showFlashMessage(message: string, config: MatSnackBarConfig) {
+    this._snackbar.openFromComponent(SnackBarComponent, {
+      data: message,
+      ...config,
     });
   }
 }

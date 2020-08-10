@@ -102,7 +102,7 @@ export class AuthService {
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
-          console.log('error logging in', error);
+          // console.log('error logging in', error);
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,

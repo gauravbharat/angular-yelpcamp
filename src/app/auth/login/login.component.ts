@@ -35,9 +35,11 @@ export class LoginComponent implements OnInit, OnDestroy {
             configSuccess
           );
         }
+
+        /** Now handled by global ErrorInteceptor
         if (authStatus.error) {
           this.showFlashMessage(authStatus.error, configFailure);
-        }
+        } */
 
         // listen to auth status change, which should happen on calling the auth service login
         // method in onLogin() below. Success or failure, stop the loading spinner/progress-bar

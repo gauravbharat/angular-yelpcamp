@@ -14,6 +14,7 @@ import { LandingComponent } from './landing/landing.component';
 
 /** HTTP Interceptors */
 import { AuthInteceptor } from './auth/auth.interceptor';
+import { ErrorInterceptor } from './error/error.interceptor';
 
 @NgModule({
   declarations: [AppComponent, LandingComponent],
@@ -27,6 +28,7 @@ import { AuthInteceptor } from './auth/auth.interceptor';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

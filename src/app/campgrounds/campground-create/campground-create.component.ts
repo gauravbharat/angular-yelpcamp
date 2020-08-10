@@ -105,7 +105,7 @@ export class CampgroundCreateComponent implements OnInit {
           },
           (error) => {
             this.isLoading = false;
-            console.log(error);
+            // console.log(error);
             this.campgroundsService.redirectToCampgrounds();
           }
         );

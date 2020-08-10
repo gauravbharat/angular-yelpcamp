@@ -31,7 +31,8 @@ export class AuthService {
   private authStatusListener = new BehaviorSubject<{
     isUserAuthenticated: boolean;
     username: string;
-  }>({ isUserAuthenticated: false, username: null });
+    error: string;
+  }>({ isUserAuthenticated: false, username: null, error: null });
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -63,6 +64,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: true,
             username: this.currentUser.username,
+            error: null,
           });
           this.router.navigate(['/campgrounds']);
         },
@@ -71,6 +73,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,
+            error: 'Error in registration process!',
           });
         }
       );
@@ -94,6 +97,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: true,
             username: this.currentUser.username,
+            error: null,
           });
           this.router.navigate(['/campgrounds']);
         },
@@ -102,6 +106,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,
+            error: 'Login failed, invalid credentials!',
           });
         }
       );
@@ -113,6 +118,7 @@ export class AuthService {
     this.authStatusListener.next({
       isUserAuthenticated: false,
       username: null,
+      error: null,
     });
   }
 }

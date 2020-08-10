@@ -34,33 +34,25 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.authStatusSub$ = this.authService
-      .getAuthStatusListener()
-      .subscribe((authStatus) => {
-        // console.log(authStatus);
-
+    this.authStatusSub$ = this.authService.getAuthStatusListener().subscribe(
+      (authStatus) => {
         /** 09082020 - Snackbar specific code */
         if (authStatus.isUserAuthenticated) {
-          this.matSnackBarRef = this._snackbar.open(
-            `Welcome to YelpCamp, ${authStatus.username}!`,
-            'x',
-            {
-              duration: 3000,
-              horizontalPosition: this.horizontalPosition,
-              verticalPosition: this.verticalPosition,
-            }
-          );
-
-          this.matSnackBarRef.onAction().subscribe(() => {
-            this.matSnackBarRef.dismiss();
-          });
+          this.showFlashMessage(`Welcome to YelpCamp, ${authStatus.username}!`);
         }
-        /** 09082020 - Snackbar specific code - end */
+        if (authStatus.error) {
+          this.showFlashMessage(authStatus.error);
+        }
 
         // listen to auth status change, which should happen on calling the auth service login
         // method in onLogin() below. Success or failure, stop the loading spinner/progress-bar
         this.isLoading = false;
-      });
+      },
+      (error) => {
+        console.log(error);
+        this.showFlashMessage('Error logging in!');
+      }
+    );
   }
 
   ngOnDestroy() {
@@ -77,5 +69,18 @@ export class LoginComponent implements OnInit, OnDestroy {
       form.value.email,
       form.value.password
     );
+  }
+
+  /** 09082020 - Snackbar specific code */
+  showFlashMessage(message: string) {
+    this.matSnackBarRef = this._snackbar.open(message, 'x', {
+      duration: 3000,
+      horizontalPosition: this.horizontalPosition,
+      verticalPosition: this.verticalPosition,
+    });
+
+    this.matSnackBarRef.onAction().subscribe(() => {
+      this.matSnackBarRef.dismiss();
+    });
   }
 }

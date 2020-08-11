@@ -9,10 +9,10 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
 
 @NgModule({
   exports: [
@@ -25,10 +25,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatDividerModule,
     MatPaginatorModule,
     MatIconModule,
-    MatAutocompleteModule,
-    MatChipsModule,
     MatProgressBarModule,
     MatSnackBarModule,
+    MatAutocompleteModule,
+    MatChipsModule,
   ],
 })
 export class AngularMaterialModule {}

@@ -6,6 +6,17 @@ import { Campground } from '../campground.model';
 import { mimeType } from '../../utils/mime-type.validator';
 import { CampgroundsService } from '../campgrounds.service';
 
+/** Material Chips Auto-complete related imports */
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { ElementRef, ViewChild } from '@angular/core';
+import {
+  MatAutocomplete,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+
 @Component({
   selector: 'app-campground-create',
   templateUrl: './campground-create.component.html',
@@ -22,6 +33,45 @@ export class CampgroundCreateComponent implements OnInit {
   form: FormGroup;
   displayImageName: string;
   imagePreview: string;
+
+  /** Material Chips Auto-complete related vars */
+  visible = true;
+  selectable = true;
+  removable = true;
+  separatorKeysCodes: number[] = [ENTER, COMMA];
+  filteredAmenities: Observable<string[]>;
+  amenities: string[] = ['Tents'];
+  allAmenities: string[] = [
+    'Tents',
+    'Yoga Classes',
+    'Upgraded Yurts',
+    'Communal Campground Kitchens',
+    'Coffee Cafes',
+    'Stargazing Tours',
+    'Live Music',
+    'Food Trucks',
+    'Swimming Pool',
+    'Breakfast',
+    'Lunch',
+    'Dinner',
+    'Games',
+    'Zip Lines',
+    'Hayrides',
+    'Game Rooms',
+    'Craft Brewing & Bars',
+    'Summer Movie Nights',
+    'Rental Cabins & RVs',
+    'Toilet Only',
+    'Toilet & Shower',
+    'Electrical Outlets',
+    'Internet & WiFi',
+    'Wildlife Safari',
+    'Campfire',
+    'Barbeque, Fire Rings, Grills',
+    'Drinking Water',
+    'Pets Allowed',
+    'Signage',
+  ];
 
   /** Dependency Injection: Inject -
    * Campground Service
@@ -64,6 +114,7 @@ export class CampgroundCreateComponent implements OnInit {
           asyncValidators: [mimeType],
         }
       ),
+      amenitiesCtrl: new FormControl(),
     });
 
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
@@ -216,5 +267,18 @@ export class CampgroundCreateComponent implements OnInit {
       this.form.controls.campgroundDescription.enable();
       this.form.controls.campgroundLocation.enable();
     }
+  }
+
+  /** Material Chips Auto-complete related methods */
+  onAddChip(event: MatChipInputEvent): void {
+    //
+  }
+
+  onRemoveChip(amenity: string): void {
+    //
+  }
+
+  onSelectedChip(event: MatAutocompleteSelectedEvent): void {
+    //
   }
 }

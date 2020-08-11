@@ -111,6 +111,39 @@
         >Please help others with the campground location.</mat-error
       >
     </mat-form-field>
+    <mat-form-field class="chip-list">
+      <mat-chip-list #chipList aria-label="Amenity selection">
+        <mat-chip
+          *ngFor="let amenity of amenities"
+          [selectable]="selectable"
+          [removable]="removable"
+          (removed)="onRemoveChip(amenity)"
+        >
+          {{ amenity }}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input
+          placeholder="Select amenities offered..."
+          #fruitInput
+          [formControlName]="['amenitiesCtrl']"
+          [matAutocomplete]="auto"
+          [matChipInputFor]="chipList"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="onAddChip($event)"
+        />
+      </mat-chip-list>
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="onSelectedChip($event)"
+      >
+        <mat-option
+          *ngFor="let amenity of filteredAmenities | async"
+          [value]="amenity"
+        >
+          {{ amenity }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
     <br />
     <button
       mat-raised-button

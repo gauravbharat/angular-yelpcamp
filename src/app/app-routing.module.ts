@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { AuthGuard } from './auth/auth.guard';
+
 import { LandingComponent } from './landing/landing.component';
 import { HomeComponent } from './campgrounds/home/home.component';
 
@@ -13,6 +15,7 @@ const routes: Routes = [
       import('./campgrounds/campground-create/campground-create.module').then(
         (m) => m.CampgroundCreateModule
       ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'campgrounds/show/:campgroundId',
@@ -37,5 +40,6 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
+  providers: [AuthGuard],
 })
 export class AppRoutingModule {}

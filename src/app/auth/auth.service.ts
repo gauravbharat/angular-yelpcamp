@@ -69,6 +69,7 @@ export class AuthService {
         (result) => {
           console.log(result);
           this.currentUser = result.newUser;
+          this.isAuthenticated = true;
           this.authStatusListener.next({
             isUserAuthenticated: true,
             username: this.currentUser.username,
@@ -79,6 +80,7 @@ export class AuthService {
         },
         (error) => {
           console.log('error in user signup', error);
+          this.isAuthenticated = false;
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,
@@ -103,6 +105,7 @@ export class AuthService {
       .subscribe(
         (response) => {
           this.currentUser = response.userData;
+          this.isAuthenticated = true;
           this.authStatusListener.next({
             isUserAuthenticated: true,
             username: this.currentUser.username,
@@ -113,6 +116,7 @@ export class AuthService {
         },
         (error) => {
           // console.log('error logging in', error);
+          this.isAuthenticated = false;
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,
@@ -152,6 +156,7 @@ export class AuthService {
             // console.log("this.dbService.getByKey('currentUser', 1)", userData);
             if (userData) {
               this.currentUser = userData;
+              this.isAuthenticated = true;
               this.authStatusListener.next({
                 isUserAuthenticated: true,
                 username: this.currentUser.username,

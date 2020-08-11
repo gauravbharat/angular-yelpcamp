@@ -1,4 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -17,6 +24,8 @@ import { configSuccess, configFailure } from '../../error/snackbar.config';
 export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   hide = true;
+  email: string;
+  username: string;
 
   private authStatusSub$: Subscription;
 

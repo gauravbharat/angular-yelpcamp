@@ -16,11 +16,13 @@
         <input
           matInput
           type="text"
+          [(ngModel)]="email"
           name="email"
           placeholder="Ex. john@doe.com"
           email
           ngModel
           #emailInput="ngModel"
+          [disabled]="username?.length > 0"
         />
         <mat-error *ngIf="emailInput.invalid"
           >Please enter a valid email.</mat-error
@@ -34,10 +36,12 @@
         <input
           matInput
           type="text"
+          [(ngModel)]="username"
           name="username"
           ngModel
           #usernameInput="ngModel"
           maxlength="30"
+          [disabled]="email?.length > 0"
         />
         <mat-hint align="end">{{ usernameInput.value?.length }} / 30</mat-hint>
         <mat-error *ngIf="usernameInput.invalid"

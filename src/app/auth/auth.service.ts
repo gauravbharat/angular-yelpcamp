@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 import { AuthData, User } from './auth-data.model';
 import { environment } from '../../environments/environment';
@@ -9,6 +10,7 @@ import { environment } from '../../environments/environment';
 const BACKEND_URL = `${environment.apiUrl}/users`;
 
 interface CurrentUser {
+  id: number;
   userId: string;
   email: string;
   username: string;
@@ -19,13 +21,15 @@ interface CurrentUser {
   isPublisher?: boolean;
   isRequestedAdmin?: boolean;
   token: string;
-  tokenTimer: any;
+  expiresIn: number;
+  tokenTimer?: any;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isAuthenticated = false;
   private currentUser: CurrentUser | null;
+  private indexedDbStore = 'currentUser';
 
   // Set listener for auth status change, initialize to false
   private authStatusListener = new BehaviorSubject<{
@@ -34,7 +38,11 @@ export class AuthService {
     error: string;
   }>({ isUserAuthenticated: false, username: null, error: null });
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private dbService: NgxIndexedDBService
+  ) {}
 
   getToken() {
     return this.currentUser?.token;
@@ -66,6 +74,7 @@ export class AuthService {
             username: this.currentUser.username,
             error: null,
           });
+          this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
@@ -99,6 +108,7 @@ export class AuthService {
             username: this.currentUser.username,
             error: null,
           });
+          this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
@@ -113,6 +123,8 @@ export class AuthService {
   }
 
   logout() {
+    clearTimeout(this.currentUser?.tokenTimer);
+    this.clearAuthData();
     this.currentUser = null;
     this.isAuthenticated = false;
     this.authStatusListener.next({
@@ -120,5 +132,121 @@ export class AuthService {
       username: null,
       error: null,
     });
+  }
+
+  /** Auto-login user if we have the auth-data available in localStorage
+   * But check that the token is not expired
+   * Call this from app component
+   */
+  autoLoginUser() {
+    const authInformation = this.getAuthData();
+    if (authInformation) {
+      const now = new Date();
+      const expiresIn =
+        authInformation.expirationDate.getTime() - now.getTime();
+
+      if (expiresIn > 0) {
+        // if token is not expired yet
+        this.dbService.getByKey(this.indexedDbStore, 1).then(
+          (userData) => {
+            // console.log("this.dbService.getByKey('currentUser', 1)", userData);
+            if (userData) {
+              this.currentUser = userData;
+              this.authStatusListener.next({
+                isUserAuthenticated: true,
+                username: this.currentUser.username,
+                error: null,
+              });
+              this.setTimerAndStorage();
+              this.router.navigate(['/campgrounds']);
+              return;
+            }
+          },
+          (error) => {
+            console.log(
+              "error getting persisted user login from user's browser",
+              error
+            );
+          }
+        );
+      }
+    }
+
+    return this.logout();
+  }
+
+  private setTimerAndStorage() {
+    // Logout user after token expiry
+    this.setAuthTimer(this.currentUser.expiresIn);
+
+    //Persist login data in localStorage
+    const now = new Date();
+    const expirationDate = new Date(
+      now.getTime() + this.currentUser.expiresIn * 1000
+    );
+    this.clearAuthData();
+    this.saveAuthData(
+      this.currentUser.token,
+      expirationDate,
+      this.currentUser.userId
+    );
+  }
+
+  /** Force logout user on token expiry */
+  private setAuthTimer(duration: number) {
+    this.currentUser.tokenTimer = setTimeout(() => {
+      this.logout();
+    }, duration * 1000);
+  }
+
+  /** localStorage and indexedDB specific code */
+  private saveAuthData(token: string, expirationDate: Date, userId: string) {
+    localStorage.setItem('token', token);
+    //serialized expiration date stored
+    localStorage.setItem('expiration', expirationDate.toISOString());
+    localStorage.setItem('userId', userId);
+
+    // Store
+    this.currentUser.id = 1; // for indexedDB keyPath
+    this.dbService.add(this.indexedDbStore, this.currentUser).then(
+      () => {
+        // console.log('valued added in indexedDB');
+      },
+      (error) => {
+        console.log("error persisting user login in user's browser", error);
+      }
+    );
+  }
+
+  private clearAuthData() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('expiration');
+    localStorage.removeItem('userId');
+    this.dbService.delete(this.indexedDbStore, 1).then(
+      () => {},
+      (error) => {
+        console.log(
+          "error deleting persisted user login from user's browser",
+          error
+        );
+      }
+    );
+  }
+
+  private getAuthData() {
+    const token = localStorage.getItem('token');
+    const expirationDate = localStorage.getItem('expiration');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !expirationDate) {
+      return;
+    }
+
+    // De-serialize expiration date
+    return {
+      token,
+      expirationDate: new Date(expirationDate),
+      userId,
+    };
   }
 }

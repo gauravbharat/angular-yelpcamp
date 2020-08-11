@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -15,7 +8,7 @@ import { AuthService } from '../auth.service';
 /** Material Snackbar */
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { SnackBarComponent } from '../../error/snackbar.component';
-import { configSuccess, configFailure } from '../../error/snackbar.config';
+import { configSuccess } from '../../error/snackbar.config';
 
 @Component({
   templateUrl: './login.component.html',

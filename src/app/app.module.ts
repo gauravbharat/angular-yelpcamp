@@ -16,6 +16,20 @@ import { LandingComponent } from './landing/landing.component';
 import { AuthInteceptor } from './auth/auth.interceptor';
 import { ErrorInterceptor } from './error/error.interceptor';
 
+/** IndexedDB specific code to persist user auth data object */
+import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
+const dbConfig: DBConfig = {
+  name: 'angular-yelpcamp-user',
+  version: 1,
+  objectStoresMeta: [
+    {
+      store: 'currentUser',
+      storeConfig: { keyPath: 'id', autoIncrement: false },
+      storeSchema: [],
+    },
+  ],
+};
+
 @NgModule({
   declarations: [AppComponent, LandingComponent],
   imports: [
@@ -25,6 +39,7 @@ import { ErrorInterceptor } from './error/error.interceptor';
     BrowserAnimationsModule,
     AngularMaterialModule,
     CampgroundsModule,
+    NgxIndexedDBModule.forRoot(dbConfig),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },

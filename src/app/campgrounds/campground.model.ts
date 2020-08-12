@@ -17,6 +17,6 @@ export interface Campground {
 }
 
 export interface AmenityList {
-  _id: number;
+  _id: string;
   name: string;
 }

@@ -136,6 +136,7 @@ export class AuthService {
       username: null,
       error: null,
     });
+    this.router.navigate(['/campgrounds']);
   }
 
   /** Auto-login user if we have the auth-data available in localStorage
@@ -163,7 +164,7 @@ export class AuthService {
                 error: null,
               });
               this.setTimerAndStorage();
-              this.router.navigate(['/campgrounds']);
+              // this.router.navigate(['/campgrounds']); //bug
               return;
             }
           },
@@ -175,9 +176,9 @@ export class AuthService {
           }
         );
       }
+    } else {
+      return this.logout();
     }
-
-    return this.logout();
   }
 
   private setTimerAndStorage() {

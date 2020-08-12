@@ -1,7 +1,3 @@
-interface ICommentsArray {
-  [index: number]: string;
-}
-
 export interface Campground {
   _id: string;
   name: string;
@@ -16,5 +12,11 @@ export interface Campground {
     username: string;
   };
   created?: Date;
-  comments?: ICommentsArray;
+  comments?: string[];
+  amenities?: AmenityList[] | string[];
+}
+
+export interface AmenityList {
+  _id: number;
+  name: string;
 }

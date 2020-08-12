@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 
 import { AuthService } from '../../auth/auth.service';
 import { CampgroundsService } from '../campgrounds.service';
@@ -23,8 +23,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private campgroundsService: CampgroundsService,
-    private route: ActivatedRoute,
-    private router: Router
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {

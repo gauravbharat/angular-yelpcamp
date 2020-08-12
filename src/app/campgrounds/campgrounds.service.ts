@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Campground } from './campground.model';
+import { Campground, AmenityList } from './campground.model';
 import { environment } from '../../environments/environment';
 
 const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
@@ -30,11 +30,20 @@ export class CampgroundsService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  getAllAmenities() {
+    /** Get the list of all campground amenities from the database */
+    return this.http.get<{ message: string; amenitiesList: AmenityList[] }>(
+      `${BACKEND_URL}/amenities`
+    );
+  }
+
   getCampgrounds(
     campgroundsPerPage: number,
     currentPage: number,
     search: string
   ) {
+    // console.log('campground service getCampgrounds');
+
     const queryParms = `?pagesize=${campgroundsPerPage}&page=${currentPage}${
       search ? `&search=${search}` : ''
     }`;
@@ -63,6 +72,7 @@ export class CampgroundsService {
                     id: campground?.author?.id,
                     username: campground?.author?.username,
                   },
+                  amenities: campground?.amenities,
                 };
               }
             ),
@@ -90,6 +100,8 @@ export class CampgroundsService {
   }
 
   getCampground(campgroundId: string) {
+    // console.log('campground service getCampground by ID');
+
     /** Instead of getting the edit-campground record from the array, fetch it from database.
      * NOW, the campground-create component expects a post synchronously from this asynchornous call
      * So, pass the subscription instead to campground-create and get the campground values there */
@@ -101,6 +113,7 @@ export class CampgroundsService {
       description: string;
       location: string;
       image: string;
+      amenities: AmenityList[] | null | undefined;
     }>(`${BACKEND_URL}/${campgroundId}`);
   }
 
@@ -115,7 +128,8 @@ export class CampgroundsService {
     price: number,
     description: string,
     location: string,
-    image: File
+    image: File,
+    amenities: string[] | null | undefined
   ) {
     // Instead of sending json object 'post', send form data to include image file
     // FormData is a JavaScript object
@@ -125,6 +139,7 @@ export class CampgroundsService {
     newCampData.append('description', description);
     newCampData.append('location', location);
     newCampData.append('image', image, name.substring(0, 6));
+    amenities && newCampData.append('amenities', JSON.stringify(amenities));
 
     return this.http.post<{ campgroundId: string; campground: Campground }>(
       `${BACKEND_URL}/create`,
@@ -139,12 +154,14 @@ export class CampgroundsService {
     price: number,
     description: string,
     location: string,
-    image: File | string
+    image: File | string,
+    amenities: string[] | null | undefined
   ) {
     let editCampData: Campground | FormData;
 
     /** If user have update the image, send FormData object
-     * else a normal object of type I/F Campground */
+     * else a normal object of type I/F Campground.
+     * Stringify amenities array and parse in server */
     if (typeof image === 'object') {
       editCampData = new FormData();
       editCampData.append('_id', _id);
@@ -153,6 +170,7 @@ export class CampgroundsService {
       editCampData.append('description', description);
       editCampData.append('location', location);
       editCampData.append('image', image, name.substring(0, 6));
+      amenities && editCampData.append('amenities', JSON.stringify(amenities));
     } else {
       editCampData = {
         _id,
@@ -161,6 +179,7 @@ export class CampgroundsService {
         description,
         location,
         image,
+        amenities,
       };
     }
 

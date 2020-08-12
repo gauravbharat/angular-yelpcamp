@@ -31,6 +31,13 @@
           <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
           <mat-card-content>{{ campground?.description }}</mat-card-content>
         </div>
+        <div class="chips-display">
+          <mat-chip-list aria-label="Amenities available">
+            <mat-chip *ngFor="let amenity of campground?.amenities">{{
+              amenity.name
+            }}</mat-chip>
+          </mat-chip-list>
+        </div>
 
         <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
         <mat-divider *ngIf="isUserAuthenticated"></mat-divider>

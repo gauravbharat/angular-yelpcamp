@@ -92,9 +92,9 @@
         [formControlName]="['campgroundDescription']"
         placeholder="Campground Description"
       ></textarea>
-      <!-- <mat-hint align="start"
-        ><strong>Don't disclose personal info</strong>
-      </mat-hint> -->
+      <mat-hint align="start"
+        >Please briefly describe the campground site
+      </mat-hint>
       <mat-error *ngIf="form.get('campgroundDescription').invalid"
         >Please briefly describe the campground site.</mat-error
       >
@@ -107,42 +107,25 @@
         [formControlName]="['campgroundLocation']"
         placeholder="Ex. Yosemite National Park, CA"
       />
+      <mat-hint align="start"
+        >Please help others with the campground location</mat-hint
+      >
       <mat-error *ngIf="form.get('campgroundLocation').invalid"
         >Please help others with the campground location.</mat-error
       >
     </mat-form-field>
-    <mat-form-field class="chip-list">
-      <mat-chip-list #chipList aria-label="Amenity selection">
-        <mat-chip
-          *ngFor="let amenity of amenities"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="onRemoveChip(amenity)"
-        >
-          {{ amenity }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <input
-          placeholder="Select amenities offered..."
-          #fruitInput
-          [formControlName]="['amenitiesCtrl']"
-          [matAutocomplete]="auto"
-          [matChipInputFor]="chipList"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          (matChipInputTokenEnd)="onAddChip($event)"
-        />
-      </mat-chip-list>
-      <mat-autocomplete
-        #auto="matAutocomplete"
-        (optionSelected)="onSelectedChip($event)"
-      >
+    <mat-form-field>
+      <mat-label>Campground Amenities</mat-label>
+      <mat-select [formControlName]="['campgroundAmenities']" multiple>
         <mat-option
-          *ngFor="let amenity of filteredAmenities | async"
-          [value]="amenity"
+          *ngFor="let amenity of amenitiesList"
+          [value]="amenity._id"
+          >{{ amenity.name }}</mat-option
         >
-          {{ amenity }}
-        </mat-option>
-      </mat-autocomplete>
+      </mat-select>
+      <mat-hint align="start"
+        ><strong>Please select campground amenities</strong>
+      </mat-hint>
     </mat-form-field>
     <br />
     <button

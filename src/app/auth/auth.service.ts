@@ -35,8 +35,9 @@ export class AuthService {
   private authStatusListener = new BehaviorSubject<{
     isUserAuthenticated: boolean;
     username: string;
+    userId: string;
     error: string;
-  }>({ isUserAuthenticated: false, username: null, error: null });
+  }>({ isUserAuthenticated: false, username: null, userId: null, error: null });
 
   constructor(
     private http: HttpClient,
@@ -73,6 +74,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: true,
             username: this.currentUser.username,
+            userId: this.currentUser.userId,
             error: null,
           });
           this.setTimerAndStorage();
@@ -84,6 +86,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,
+            userId: null,
             error: 'Error in registration process!',
           });
         }
@@ -109,6 +112,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: true,
             username: this.currentUser.username,
+            userId: this.currentUser.userId,
             error: null,
           });
           this.setTimerAndStorage();
@@ -120,6 +124,7 @@ export class AuthService {
           this.authStatusListener.next({
             isUserAuthenticated: false,
             username: null,
+            userId: null,
             error: 'Login failed, invalid credentials!',
           });
         }
@@ -134,6 +139,7 @@ export class AuthService {
     this.authStatusListener.next({
       isUserAuthenticated: false,
       username: null,
+      userId: null,
       error: null,
     });
     this.router.navigate(['/campgrounds']);
@@ -161,6 +167,7 @@ export class AuthService {
               this.authStatusListener.next({
                 isUserAuthenticated: true,
                 username: this.currentUser.username,
+                userId: this.currentUser.userId,
                 error: null,
               });
               this.setTimerAndStorage();

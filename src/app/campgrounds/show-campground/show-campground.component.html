@@ -40,10 +40,12 @@
         </div>
 
         <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
-        <mat-divider *ngIf="isUserAuthenticated"></mat-divider>
+        <mat-divider
+          *ngIf="isUserAuthenticated && campground?.author?.id === userId"
+        ></mat-divider>
         <mat-card-actions class="action-buttons">
           <button
-            *ngIf="isUserAuthenticated"
+            *ngIf="isUserAuthenticated && campground?.author?.id === userId"
             mat-button
             color="primary"
             [routerLink]="['/campgrounds/process/edit', campground?._id]"
@@ -51,7 +53,7 @@
             EDIT
           </button>
           <button
-            *ngIf="isUserAuthenticated"
+            *ngIf="isUserAuthenticated && campground?.author?.id === userId"
             mat-button
             color="warn"
             (click)="onDelete(campground?._id)"

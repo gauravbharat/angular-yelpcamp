@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 export class ShowCampgroundComponent implements OnInit, OnDestroy {
   isUserAuthenticated = false;
   isLoading = false;
+  userId: string;
   private campgroundId: string;
   campground: Campground;
 
@@ -31,10 +32,10 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
 
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
-      .subscribe(
-        (authStatus) =>
-          (this.isUserAuthenticated = authStatus.isUserAuthenticated)
-      );
+      .subscribe((authStatus) => {
+        this.isUserAuthenticated = authStatus.isUserAuthenticated;
+        this.userId = authStatus.userId;
+      });
 
     // Get the campground id passed as paramter
     this.route.paramMap.subscribe((paramMap: ParamMap) => {

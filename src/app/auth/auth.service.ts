@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
@@ -30,6 +30,7 @@ export class AuthService {
   private isAuthenticated = false;
   private currentUser: CurrentUser | null;
   private indexedDbStore = 'currentUser';
+  private currentUrl: string;
 
   // Set listener for auth status change, initialize to false
   private authStatusListener = new BehaviorSubject<{
@@ -43,7 +44,16 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private dbService: NgxIndexedDBService
-  ) {}
+  ) {
+    /** Get the current url to navigate user to campgrounds page on logout ONLY IF
+     * user is on the camgpround create or edit form page
+     */
+    router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.currentUrl = event.url;
+      }
+    });
+  }
 
   getToken() {
     return this.currentUser?.token;
@@ -142,7 +152,9 @@ export class AuthService {
       userId: null,
       error: null,
     });
-    this.router.navigate(['/campgrounds']);
+    if (this.currentUrl.includes('/campgrounds/process/')) {
+      this.router.navigate(['/campgrounds']);
+    }
   }
 
   /** Auto-login user if we have the auth-data available in localStorage

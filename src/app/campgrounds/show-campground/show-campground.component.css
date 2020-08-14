@@ -28,13 +28,139 @@ mat-card-title {
   float: right;
 }
 
-.comments-container {
-  margin: 30px auto;
-  width: 80%;
-  height: 20px;
-  border: 1px solid #f0eeee;
-}
-
 .chips-display {
   padding-bottom: 20px;
 }
+
+.mat-card-image {
+  padding-top: 10px;
+  /* object-fit: cover; */
+  max-width: 100%;
+
+  /* max-height: 70%; */
+  /* height: auto; */
+  /* height: fit-content; */
+  object-fit: contain;
+  max-height: 100%;
+}
+
+.campground-image {
+  height: 500px;
+  overflow: hidden;
+}
+
+.container {
+  margin-bottom: 50px;
+}
+
+.comments-container {
+  margin-top: 20px;
+  padding: 10px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.camp-submitted-by {
+  text-align: left;
+  font-style: italic;
+  margin-bottom: 5px;
+}
+
+.camp-submitted-by .camp-author {
+  font-weight: 700;
+}
+
+.comments-list-expand-collapse {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  /* align-items: flex-end; */
+}
+
+mat-expansion-panel-header,
+mat-panel-description {
+  /* flex-basis: 0; */
+}
+
+mat-expansion-panel-header {
+  padding: 0 15px;
+  align-items: center;
+  /* margin-top: 15px; */
+}
+
+mat-panel-title {
+  flex: 0 0 auto;
+  /* font-weight: 700; */
+}
+
+.comment-title-author-avatar img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.commet-author-avatar img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.comment-author-name {
+  margin-left: 5px;
+  text-align: center;
+  vertical-align: auto;
+}
+
+.comment-author-name .author-name {
+  font-weight: 700;
+}
+
+.comment-author-name .last-edited {
+  /* font-weight: 300; */
+  font-style: italic;
+  font-size: 12px;
+  color: #8f8888;
+}
+
+.mat-expansion-panel-header-description {
+  /* flex: 0 0 auto; */
+  /* align-self: flex-end; */
+}
+
+mat-panel-description .comment-text-overview {
+  text-align: left;
+  white-space: nowrap;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.container-expanded-panel {
+  display: flex;
+  align-items: center;
+}
+
+.container-comment-edit {
+  margin-left: 10px;
+  flex: 1;
+}
+
+.edit-comment-form {
+  display: flex;
+}
+
+.edit-comment-form input {
+  flex-grow: 2;
+}
+
+.edit-comment-form button {
+  flex-grow: 1;
+}
+
+/* .container-comment-edit mat-form-input {
+  width: 100%;
+} */

@@ -114,6 +114,7 @@ export class CampgroundsService {
       location: string;
       image: string;
       amenities: AmenityList[] | null | undefined;
+      comments: string[];
     }>(`${BACKEND_URL}/${campgroundId}`);
   }
 

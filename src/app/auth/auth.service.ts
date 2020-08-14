@@ -37,8 +37,15 @@ export class AuthService {
     isUserAuthenticated: boolean;
     username: string;
     userId: string;
+    userAvatar: string;
     error: string;
-  }>({ isUserAuthenticated: false, username: null, userId: null, error: null });
+  }>({
+    isUserAuthenticated: false,
+    username: null,
+    userId: null,
+    userAvatar: null,
+    error: null,
+  });
 
   constructor(
     private http: HttpClient,
@@ -85,6 +92,7 @@ export class AuthService {
             isUserAuthenticated: true,
             username: this.currentUser.username,
             userId: this.currentUser.userId,
+            userAvatar: this.currentUser.avatar,
             error: null,
           });
           this.setTimerAndStorage();
@@ -97,6 +105,7 @@ export class AuthService {
             isUserAuthenticated: false,
             username: null,
             userId: null,
+            userAvatar: null,
             error: 'Error in registration process!',
           });
         }
@@ -123,6 +132,7 @@ export class AuthService {
             isUserAuthenticated: true,
             username: this.currentUser.username,
             userId: this.currentUser.userId,
+            userAvatar: this.currentUser.avatar,
             error: null,
           });
           this.setTimerAndStorage();
@@ -135,6 +145,7 @@ export class AuthService {
             isUserAuthenticated: false,
             username: null,
             userId: null,
+            userAvatar: null,
             error: 'Login failed, invalid credentials!',
           });
         }
@@ -150,9 +161,10 @@ export class AuthService {
       isUserAuthenticated: false,
       username: null,
       userId: null,
+      userAvatar: null,
       error: null,
     });
-    if (this.currentUrl.includes('/campgrounds/process/')) {
+    if (this.currentUrl?.includes('/campgrounds/process/')) {
       this.router.navigate(['/campgrounds']);
     }
   }
@@ -180,6 +192,7 @@ export class AuthService {
                 isUserAuthenticated: true,
                 username: this.currentUser.username,
                 userId: this.currentUser.userId,
+                userAvatar: this.currentUser.avatar,
                 error: null,
               });
               this.setTimerAndStorage();

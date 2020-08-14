@@ -12,8 +12,21 @@ export interface Campground {
     username: string;
   };
   created?: Date;
-  comments?: string[];
+  comments?: Comments[] | string[];
   amenities?: AmenityList[] | string[];
+}
+
+interface Comments {
+  author?: {
+    avatar: string;
+    id: string;
+    username: string;
+  };
+  created: string;
+  edited: string;
+  isEdited: boolean;
+  text: string;
+  _id: string;
 }
 
 export interface AmenityList {

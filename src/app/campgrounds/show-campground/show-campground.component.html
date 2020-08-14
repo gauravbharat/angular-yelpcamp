@@ -11,16 +11,20 @@
     fxLayout.xs="column"
     fxLayoutAlign="space-around"
   >
-    <div class="side-panel" fxFlex="20%">
+    <div class="side-panel" fxFlex="30%">
       <h1 class="side-panel-title">Campground</h1>
     </div>
-    <div class="main-panel" fxFlex="80%">
+
+    <div class="main-panel" fxFlex="70%">
       <mat-card>
-        <img
-          mat-card-image
-          [src]="campground?.image"
-          [alt]="campground?.name"
-        />
+        <div class="campground-image">
+          <img
+            mat-card-image
+            [src]="campground?.image"
+            [alt]="campground?.name"
+          />
+        </div>
+
         <div class="campground-info">
           <mat-card-title
             >{{ campground?.name
@@ -38,7 +42,11 @@
             }}</mat-chip>
           </mat-chip-list>
         </div>
-
+        <div class="camp-submitted-by">
+          Submitted by
+          <span class="camp-author">{{ campground?.author?.username }}</span
+          >, {{ getLastEdited(campground?.created) }}
+        </div>
         <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
         <mat-divider
           *ngIf="isUserAuthenticated && campground?.author?.id === userId"
@@ -62,7 +70,220 @@
           </button>
         </mat-card-actions>
       </mat-card>
+
+      <mat-card class="comments-container">
+        <!-- <div class="comments-add-button">
+          <button mat-mini-fab color="primary" aria-label="Add Comments">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div> -->
+
+        <h2>Comments <mat-icon>comment</mat-icon></h2>
+        <!-- <mat-divider></mat-divider> -->
+        <div class="comments-container-add">
+          <mat-expansion-panel
+            (opened)="addCommentOpenState = true"
+            (closed)="addCommentOpenState = false"
+            [disabled]="!isUserAuthenticated"
+            #mepNewComment="matExpansionPanel"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Add Comment
+              </mat-panel-title>
+              <mat-panel-description *ngIf="!isUserAuthenticated">
+                You need to login before you can comment.
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <form
+              #newCommentForm="ngForm"
+              (submit)="onNewCommentSubmit(newCommentForm, mepNewComment)"
+            >
+              <mat-form-field>
+                <input
+                  matInput
+                  type="text"
+                  name="addCommentInput"
+                  [(ngModel)]="newComment"
+                  placeholder="Your comment here*"
+                />
+                <button
+                  mat-button
+                  *ngIf="newComment"
+                  type="submit"
+                  color="primary"
+                  matSuffix
+                  mat-icon-button
+                  aria-label="Save"
+                >
+                  <mat-icon>add_task</mat-icon>
+                </button>
+                <button
+                  mat-button
+                  *ngIf="newComment"
+                  color="warn"
+                  matSuffix
+                  mat-icon-button
+                  aria-label="Clear"
+                  (click)="newComment = ''"
+                >
+                  <mat-icon>clear</mat-icon>
+                </button>
+                <mat-hint>*Do not disclose personal data</mat-hint>
+              </mat-form-field>
+            </form>
+          </mat-expansion-panel>
+        </div>
+        <br />
+        <mat-divider></mat-divider>
+        <br />
+        <div class="comments-container-list">
+          <div class="comments-list-expand-collapse">
+            <button mat-button (click)="onAccordionToggle(true)">
+              Expand All <mat-icon>expand_more</mat-icon>
+            </button>
+            <button mat-button (click)="onAccordionToggle(false)">
+              Collapse All <mat-icon>expand_less</mat-icon>
+            </button>
+          </div>
+          <mat-accordion multi>
+            <mat-expansion-panel
+              *ngFor="
+                let comment of campground?.comments;
+                trackBy: trackByMethod;
+                let i = index
+              "
+              #mep="matExpansionPanel"
+              (expandedChange)="mep.expanded = $event"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div
+                    class="comment-title-author-avatar"
+                    *ngIf="!mep.expanded && !accordionExpanded"
+                  >
+                    <img
+                      [src]="comment?.author?.avatar"
+                      [title]="comment?.author?.username"
+                    />
+                  </div>
+                  <div class="comment-author-name">
+                    <span class="author-name">
+                      {{ comment?.author?.username }}
+                    </span>
+                    <span class="last-edited">
+                      &#9679;
+                      {{ getLastEdited(comment?.edited) }}
+                      {{ comment?.isEdited ? "(edited)" : "" }}
+                    </span>
+                  </div>
+                </mat-panel-title>
+                <mat-panel-description
+                  *ngIf="!mep.expanded && !accordionExpanded"
+                >
+                  <div class="comment-text-overview">
+                    {{ comment.text }}
+                  </div>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <ng-template matExpansionPanelContent>
+                <div class="container-expanded-panel">
+                  <div class="commet-author-avatar">
+                    <img
+                      [src]="comment?.author?.avatar"
+                      [title]="comment?.author?.username"
+                    />
+                  </div>
+                  <div class="container-comment-edit">
+                    <form class="edit-comment-form" #editCommentForm="ngForm">
+                      <mat-form-field>
+                        <input
+                          matInput
+                          type="text"
+                          name="editedComment"
+                          [value]="comment.text"
+                          #editCommentInput="matInput"
+                          [disabled]="
+                            editButton._elementRef.nativeElement.innerText ===
+                            'edit_task'
+                          "
+                        />
+                      </mat-form-field>
+                      <button
+                        [disabled]="
+                          !isUserAuthenticated ||
+                          !editCommentInput.value ||
+                          userId != comment?.author?.id
+                        "
+                        mat-button
+                        color="primary"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Edit"
+                        (click)="
+                          onCommentEdit(
+                            editButton._elementRef,
+                            comment._id,
+                            editCommentInput.value
+                          )
+                        "
+                        #editButton="matButton"
+                      >
+                        <mat-icon>edit_task</mat-icon>
+                      </button>
+                      <button
+                        mat-button
+                        type="button"
+                        *ngIf="
+                          editButton._elementRef.nativeElement.innerText !==
+                          'edit_task'
+                        "
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Restore"
+                        (click)="
+                          (editCommentInput.value = comment.text) &&
+                            toggleEditButton(editButton._elementRef)
+                        "
+                        [disabled]="!isUserAuthenticated"
+                      >
+                        <mat-icon>restore</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        *ngIf="
+                          editButton._elementRef.nativeElement.innerText ===
+                          'edit_task'
+                        "
+                        [disabled]="
+                          !isUserAuthenticated ||
+                          !editCommentInput.value ||
+                          (userId !== comment?.author?.id &&
+                            userId !== campground?.author?.id)
+                        "
+                        mat-button
+                        color="warn"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Delete"
+                        (click)="onCommentDelete(comment._id)"
+                      >
+                        <mat-icon>delete_task</mat-icon>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </ng-template>
+            </mat-expansion-panel>
+          </mat-accordion>
+          <br />
+        </div>
+      </mat-card>
     </div>
   </div>
-  <div class="comments-container"></div>
 </div>
+
+<!-- fxLayout="column"
+fxLayout.xs="row"
+fxLayoutAlign="space-around" -->

@@ -80,6 +80,7 @@
 .landing-ripple-container {
   cursor: pointer;
   text-align: center;
+  outline: none;
 
   /* width: 300px;
   height: 300px;

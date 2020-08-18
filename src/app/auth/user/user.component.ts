@@ -84,8 +84,9 @@ export class UserComponent implements OnInit, OnDestroy {
             },
             (error) => {
               this.displayCoUser = null;
-              console.log('error: displaying co-user details', error);
+              // console.log('error: displaying co-user details', error);
               this.isLoading = false;
+              this.authService.redirectToCampgrounds();
             }
           );
         } else {
@@ -130,9 +131,9 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this._authStatusSub$.unsubscribe();
-    this._userRouteChangedSub$.unsubscribe();
-    this._userUpdateSub$.unsubscribe();
+    this?._authStatusSub$?.unsubscribe();
+    this?._userRouteChangedSub$?.unsubscribe();
+    this?._userUpdateSub$?.unsubscribe();
   }
 
   toggleUserFollow(isFollow: boolean): void {

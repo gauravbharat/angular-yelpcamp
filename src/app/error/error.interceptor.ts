@@ -13,10 +13,14 @@ import { throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackBarComponent } from './snackbar.component';
 import { configFailure } from './snackbar.config';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private _snackbar: MatSnackBar) {}
+  constructor(
+    private _snackbar: MatSnackBar,
+    private authService: AuthService
+  ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     return next.handle(req).pipe(
@@ -25,6 +29,9 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         if (httpError.error.message) {
           errorMessage = httpError.error.message;
+          if (errorMessage.includes('Please try signing-in again')) {
+            this.authService.logout();
+          }
         }
 
         this._snackbar.openFromComponent(SnackBarComponent, {

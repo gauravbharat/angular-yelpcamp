@@ -16,6 +16,9 @@ import { LandingComponent } from './landing/landing.component';
 import { AuthInteceptor } from './auth/auth.interceptor';
 import { ErrorInterceptor } from './error/error.interceptor';
 
+/** Custom Util Directives and Pipes */
+import { TextTruncateEllipsisDirective } from './utils/text-ellipsis.directive';
+
 /** IndexedDB specific code to persist user auth data object */
 import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
 const dbConfig: DBConfig = {
@@ -31,7 +34,7 @@ const dbConfig: DBConfig = {
 };
 
 @NgModule({
-  declarations: [AppComponent, LandingComponent],
+  declarations: [TextTruncateEllipsisDirective, AppComponent, LandingComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

@@ -133,7 +133,7 @@
       class="campground-create-submit"
       color="primary"
       type="submit"
-      [disabled]="isLoading"
+      [disabled]="isLoading || !form.valid"
     >
       Submit
     </button>

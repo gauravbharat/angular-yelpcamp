@@ -16,8 +16,6 @@ import { CommentsService } from '../comments.service';
 import { Campground } from '../campground.model';
 import { Subscription } from 'rxjs';
 import { NgForm } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import { MatInput } from '@angular/material/input';
 
 @Component({
   templateUrl: './show-campground.component.html',
@@ -30,6 +28,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   username: string;
   userAvatar: string;
   private campgroundId: string;
+  private isSuperAdmin = false;
   campground: Campground;
 
   addCommentOpenState = false;
@@ -59,6 +58,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
         this.userId = authStatus.userId;
         this.username = authStatus.username;
         this.userAvatar = authStatus.userAvatar;
+        this.isSuperAdmin = authStatus.isSuperAdmin;
       });
 
     // Get the campground id passed as paramter
@@ -94,6 +94,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   }
 
   onNewCommentSubmit(form: NgForm, mep: MatExpansionPanel): void {
+    this.isLoading = true;
     this.commentsService
       .createComment(
         this.campground._id,
@@ -139,6 +140,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
     this.toggleEditButton(elementRef);
 
     if (commentId && text && currentButtonLabel === 'save_task') {
+      this.isLoading = true;
       this.commentsService
         .editComment(commentId, this.campgroundId, this.userId, text)
         .subscribe(
@@ -156,6 +158,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   }
 
   onCommentDelete(commentId: string): void {
+    this.isLoading = true;
     this.commentsService
       .deleteComment(commentId, this.campgroundId, this.userId)
       .subscribe(
@@ -181,6 +184,10 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
     }
   }
 
+  getIsSuperAdmin(): boolean {
+    return this.isSuperAdmin;
+  }
+
   private _getCampgroundFromService() {
     this.campListFromServiceSub$ = this.campgroundsService.campgroundsList.subscribe(
       (campgroundsList) => {
@@ -188,7 +195,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
           (campground) => campground._id === this.campgroundId
         );
         this.isLoading = false;
-        console.log('campground daata from service', this.campground);
+        // console.log('campground daata from service', this.campground);
       },
       (error) => {
         this.isLoading = false;
@@ -207,7 +214,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
         (campgroundData) => {
           // console.log(campgroundData);
           this.campground = campgroundData;
-          console.log('campground daata from database', this.campground);
+          // console.log('campground daata from database', this.campground);
           this.isLoading = false;
         },
         (error) => {

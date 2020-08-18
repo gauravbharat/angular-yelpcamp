@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
-import { User } from '../auth-data.model';
+import { RegisterUser } from '../auth-data.model';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -33,11 +33,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
   onRegister(form: NgForm) {
     if (form.invalid) return;
 
-    const userData: User = {
+    const userData: RegisterUser = {
       username: form.value.username,
       password: form.value.password,
-      firstName: form.value.firstname,
-      lastName: form.value.lastname,
+      firstname: form.value.firstname,
+      lastname: form.value.lastname,
       email: form.value.email,
       isAdmin: true,
       isPublisher: true,

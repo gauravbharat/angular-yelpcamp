@@ -44,7 +44,14 @@
         </div>
         <div class="camp-submitted-by">
           Submitted by
-          <span class="camp-author">{{ campground?.author?.username }}</span
+          <a
+            [routerLink]="
+              userId === campground?.author?.id
+                ? ['/user/current']
+                : ['/user/other', campground?.author?.id]
+            "
+            class="camp-author"
+            >{{ campground?.author?.username }}</a
           >, {{ getLastEdited(campground?.created) }}
         </div>
         <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
@@ -182,6 +189,7 @@
                   *ngIf="!mep.expanded && !accordionExpanded"
                 >
                   <div class="comment-text-overview">
+                    <!-- <div ayTextTruncateEllipsis> -->
                     {{ comment.text }}
                   </div>
                 </mat-panel-description>
@@ -191,6 +199,11 @@
                 <div class="container-expanded-panel">
                   <div class="commet-author-avatar">
                     <img
+                      [routerLink]="
+                        userId === comment?.author?.id
+                          ? ['/user/current']
+                          : ['/user/other', comment?.author?.id]
+                      "
                       [src]="comment?.author?.avatar"
                       [title]="comment?.author?.username"
                     />

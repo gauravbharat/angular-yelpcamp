@@ -9,7 +9,7 @@
         mat-button
         [routerLink]="['/campgrounds']"
         routerLinkActive="mat-accent"
-        >Home</a
+        ><mat-icon>home</mat-icon></a
       >
     </li>
     <li *ngIf="!isUserAuthenticated">
@@ -25,8 +25,66 @@
         >Register</a
       >
     </li>
+    <!-- <li *ngIf="isUserAuthenticated">
+      <a
+        mat-button
+        class="header-notifications"
+        [matMenuTriggerFor]="notificationsMenu"
+        routerLinkActive="mat-accent"
+      >
+        <mat-icon [matBadge]="notificationsCount" matBadgeColor="warn">
+          {{
+            notificationsCount > 0 ? "notifications_active" : "notifications"
+          }}
+        </mat-icon>
+        <span class="cdk-visually-hidden">
+          Notifications icon with overlaid badge showing the number
+          {{ notificationsCount }}
+        </span>
+      </a>
+      <mat-menu #notificationsMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>notifications</mat-icon> View past notifications
+        </button>
+      </mat-menu>
+    </li> -->
     <li *ngIf="isUserAuthenticated">
-      <button mat-button (click)="onLogout()">Logout</button>
+      <a
+        mat-button
+        class="header-username"
+        [matMenuTriggerFor]="userMenu"
+        routerLinkActive="mat-accent"
+      >
+        <div
+          class="user-avatar-badge"
+          [matBadge]="notificationsCount"
+          matBadgeColor="warn"
+          matBadgeOverlap="true"
+        >
+          <img [src]="avatar" [alt]="username" />
+        </div>
+
+        <span class="cdk-visually-hidden">
+          User avatar icon with overlaid badge showing the number
+          {{ notificationsCount }}
+        </span>
+      </a>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item [routerLink]="['/user/current']">
+          <mat-icon>settings</mat-icon> Settings
+        </button>
+        <button mat-menu-item [routerLink]="['/user/campgrounds']">
+          <mat-icon>terrain</mat-icon> View Own Campgrounds
+        </button>
+        <button mat-menu-item [routerLink]="['/user/notifications']">
+          <mat-icon>notifications</mat-icon> View past notifications
+        </button>
+      </mat-menu>
+    </li>
+    <li *ngIf="isUserAuthenticated">
+      <button mat-button (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+      </button>
     </li>
   </ul>
 </mat-toolbar>

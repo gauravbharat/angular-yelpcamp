@@ -1,7 +1,14 @@
 /** 11082020 - Added Route Guard
  * Add CanActivate interface to protect routes from unauthorized access
  * using browser address bar
- * Add this service as a provider in the App Routing module */
+ * Add this service as a provider in the App Routing module
+ *
+ * 18082020 - Refactored to return a Promise of boolean,
+ * fixed a bug of app randomly showing the login page, for Auth Guard routes,
+ * even when the user was authenticated.
+ * Had to use async-await to hold on checking the auth status and returning a
+ * value for the Auth Guard to proceed.
+ * OnInit was not triggered, but canActivate at first alwasys*/
 
 import { Injectable } from '@angular/core';
 import {
@@ -10,24 +17,35 @@ import {
   RouterStateSnapshot,
   Router,
 } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private authStatusSub$: Subscription;
+  private isUserAuthenticated = false;
+
   constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(
+  async canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): boolean | Observable<boolean> | Promise<boolean> {
-    const isUserAuthenticated = this.authService.getIsAuth();
+  ): Promise<boolean> {
+    this.authStatusSub$ = await this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => {
+        this.isUserAuthenticated = authStatus.isUserAuthenticated;
 
-    if (!isUserAuthenticated) {
-      this.router.navigate(['/auth/login']);
-    }
+        // console.log('inside canActivate()', this.isUserAuthenticated);
+        if (!this.isUserAuthenticated) {
+          this.router.navigate(['/auth/login']);
+        }
+      });
 
-    return isUserAuthenticated;
+    await this.authStatusSub$.unsubscribe();
+    return new Promise((resolve) => {
+      resolve(this.isUserAuthenticated);
+    });
   }
 }

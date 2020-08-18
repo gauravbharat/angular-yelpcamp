@@ -10,6 +10,9 @@ import { AuthService } from '../auth/auth.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isUserAuthenticated = false;
+  notificationsCount = 9;
+  username: string;
+  avatar: string;
   private authStatusSub$: Subscription;
 
   constructor(private authService: AuthService) {}
@@ -18,10 +21,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     /** Set flag on privileged access of select controls */
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
-      .subscribe(
-        (authStatus) =>
-          (this.isUserAuthenticated = authStatus.isUserAuthenticated)
-      );
+      .subscribe((authStatus) => {
+        this.isUserAuthenticated = authStatus.isUserAuthenticated;
+        this.username = authStatus.username;
+        this.avatar = authStatus.userAvatar;
+      });
   }
 
   ngOnDestroy() {

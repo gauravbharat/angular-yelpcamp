@@ -1,0 +1,93 @@
+.container-user {
+  margin: 30px auto;
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+  /* justify-content: center;
+  align-items: center; */
+}
+
+.container-side-panel {
+  /* flex-grow: 1; */
+}
+
+/* LEFT SIDE PANEL (user avatar, etc.) */
+mat-card img {
+  width: 253px;
+  height: 153px;
+  object-fit: cover;
+  overflow: hidden;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.author-username {
+  font-style: italic;
+}
+
+.follow-button {
+  width: 100%;
+}
+
+.topright {
+  transition: 0.5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  font-size: 2em;
+  z-index: 1;
+}
+
+.imagehandler:hover img {
+  transition: 0.5s ease;
+  opacity: 0.3;
+  backface-visibility: hidden;
+}
+
+.imagehandler:hover button {
+  opacity: 1;
+}
+
+/* RIGHT SIDE PANEL (user settings, campgrounds, etc.) */
+
+.container-tabs {
+  margin-left: 10px;
+  width: 100%;
+}
+
+.user-settings-form {
+  margin: 20px 20px;
+}
+
+.user-settings-form mat-form-field {
+  width: 100%;
+}
+
+.user-settings-form button[type="submit"] {
+  margin-top: 15px;
+  width: 100%;
+}
+
+.button-change-password {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.co-user-campground-list,
+.current-user-campground-list {
+  line-height: 30px;
+  font-size: 18px;
+}
+
+.co-user-campground-list a,
+.current-user-campground-list a {
+  text-decoration: none;
+}
+
+.co-user-campground-list a:hover,
+.current-user-campground-list a:hover {
+  text-decoration: underline;
+}

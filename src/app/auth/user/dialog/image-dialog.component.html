@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>Change Avatar</h1>
+<div mat-dialog-content>
+  <!-- <p>Change User Avatar</p> -->
+  <mat-form-field>
+    <mat-label>New Avatar Link</mat-label>
+    <input matInput [(ngModel)]="data.message" />
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button
+    mat-button
+    color="primary"
+    [mat-dialog-close]="data.message"
+    cdkFocusInitial
+  >
+    Update
+  </button>
+  <button mat-button color="warn" (click)="onNoClick()">Cancel</button>
+</div>

@@ -28,6 +28,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // console.trace('login component loaded');
+
     this.authStatusSub$ = this.authService.getAuthStatusListener().subscribe(
       (authStatus) => {
         /** 09082020 - Snackbar specific code */
@@ -36,6 +38,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             `Welcome to YelpCamp, ${authStatus.username}!`,
             configSuccess
           );
+          this.authService.redirectToCampgrounds();
         }
 
         /** Now handled by global ErrorInteceptor

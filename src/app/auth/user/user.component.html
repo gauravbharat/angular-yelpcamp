@@ -1,0 +1,177 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  *ngIf="isLoading"
+></mat-progress-bar>
+<app-header></app-header>
+<div class="container-user">
+  <div class="container-side-panel">
+    <mat-card>
+      <div [ngClass]="!showCoUser ? 'imagehandler' : ''">
+        <img
+          mat-card-image
+          [src]="showCoUser ? displayCoUser?.avatar : currentUser?.avatar"
+          [alt]="showCoUser ? displayCoUser?.username : currentUser?.username"
+        />
+        <button
+          mat-icon-button
+          class="topright"
+          color="primary"
+          *ngIf="!showCoUser"
+          [disabled]="isLoading"
+        >
+          <mat-icon
+            [inline]="true"
+            aria-hidden="false"
+            aria-label="change user avatar camera icon"
+            (click)="!isLoading && onUpdateUserAvatar()"
+            >camera_alt</mat-icon
+          >
+        </button>
+      </div>
+      <mat-card-title>
+        {{ showCoUser ? displayCoUser?.firstname : currentUser?.firstname }}
+        {{ showCoUser ? displayCoUser?.lastname : currentUser?.lastname }}
+      </mat-card-title>
+      <mat-card-subtitle class="author-username"
+        >@{{
+          showCoUser ? displayCoUser?.username : currentUser?.username
+        }}</mat-card-subtitle
+      >
+      <mat-card-subtitle>{{
+        showCoUser ? displayCoUser?.email : currentUser?.email
+      }}</mat-card-subtitle>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="follow-button"
+        *ngIf="isUserAuthenticated && showCoUser && !isCurrentUserFollower()"
+        (click)="toggleUserFollow(true)"
+      >
+        Follow
+      </button>
+      <button
+        mat-stroked-button
+        color="primary"
+        class="follow-button"
+        *ngIf="isUserAuthenticated && showCoUser && isCurrentUserFollower()"
+        (click)="toggleUserFollow(false)"
+      >
+        Following
+      </button>
+    </mat-card>
+    <br />
+    <mat-card>
+      <mat-card-subtitle>Recent Activites</mat-card-subtitle>
+    </mat-card>
+  </div>
+  <div class="container-tabs">
+    <div class="current-user-details" *ngIf="!showCoUser">
+      <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectIndex">
+        <mat-tab label="Settings">
+          <form
+            #userSettings="ngForm"
+            class="user-settings-form"
+            (ngSubmit)="updateUserData(userSettings)"
+          >
+            <mat-form-field>
+              <input
+                matInput
+                type="text"
+                [value]="currentUsername"
+                placeholder="@username"
+                required
+                disabled
+              />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>First Name</mat-label>
+              <input
+                matInput
+                type="text"
+                name="firstname"
+                [(ngModel)]="firstname"
+                required
+              />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Last Name</mat-label>
+              <input
+                matInput
+                type="text"
+                name="lastname"
+                [(ngModel)]="lastname"
+                required
+              />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                type="email"
+                name="email"
+                [(ngModel)]="email"
+                required
+                email
+              />
+              <mat-hint
+                >Enter a valid e-mail ID to help your recover your password,
+                just in case</mat-hint
+              >
+            </mat-form-field>
+            <button
+              mat-stroked-button
+              type="submit"
+              color="primary"
+              [disabled]="!userSettings.valid || isLoading"
+            >
+              Update
+            </button>
+            <button
+              mat-stroked-button
+              class="button-change-password"
+              color="primary"
+              type="button"
+              (click)="onChangePassword()"
+              [disabled]="isLoading"
+            >
+              Change Password
+            </button>
+          </form>
+        </mat-tab>
+        <mat-tab label="Campgrounds">
+          <ul class="current-user-campground-list">
+            <li *ngFor="let campground of displayCurrentUserCampgrounds">
+              <a
+                [routerLink]="['/campgrounds/show/', campground.campgroundId]"
+                >{{ campground.campgroundName }}</a
+              >
+            </li>
+          </ul>
+        </mat-tab>
+        <mat-tab label="Notifications">Content 3</mat-tab>
+      </mat-tab-group>
+    </div>
+    <div class="co-user-details" *ngIf="showCoUser">
+      <mat-expansion-panel [disabled]="displayCoUserCampgrounds?.length <= 0">
+        <mat-expansion-panel-header>
+          <mat-panel-title
+            >{{
+              displayCoUserCampgrounds?.length > 0
+                ? "Campgrounds"
+                : "No Campgrounds"
+            }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ul class="co-user-campground-list">
+          <li *ngFor="let campground of displayCoUserCampgrounds">
+            <a [routerLink]="['/campgrounds/show/', campground.campgroundId]">{{
+              campground.campgroundName
+            }}</a>
+          </li>
+        </ul>
+      </mat-expansion-panel>
+    </div>
+  </div>
+</div>

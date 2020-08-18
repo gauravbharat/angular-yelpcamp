@@ -4,32 +4,20 @@ import { Router, NavigationEnd } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
-import { AuthData, User } from './auth-data.model';
+import { AuthData, RegisterUser, CurrentUser } from './auth-data.model';
 import { environment } from '../../environments/environment';
+import { last } from 'rxjs/operators';
 
 const BACKEND_URL = `${environment.apiUrl}/users`;
 
-interface CurrentUser {
-  id: number;
-  userId: string;
-  email: string;
-  username: string;
-  isAdmin: boolean;
-  avatar?: string;
-  followers?: string[];
-  notifications?: string[];
-  isPublisher?: boolean;
-  isRequestedAdmin?: boolean;
-  token: string;
-  expiresIn: number;
-  tokenTimer?: any;
-}
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly indexedDbStore = 'currentUser';
+  private readonly UPDATE_USER = 'UPDATE_USER';
+  private readonly RESET_USER = 'RESET_USER';
+
   private isAuthenticated = false;
   private currentUser: CurrentUser | null;
-  private indexedDbStore = 'currentUser';
   private currentUrl: string;
 
   // Set listener for auth status change, initialize to false
@@ -38,13 +26,20 @@ export class AuthService {
     username: string;
     userId: string;
     userAvatar: string;
+    isSuperAdmin: boolean;
     error: string;
   }>({
     isUserAuthenticated: false,
     username: null,
     userId: null,
     userAvatar: null,
+    isSuperAdmin: false,
     error: null,
+  });
+  private userUpdateListener = new BehaviorSubject<{
+    updatedUser: CurrentUser | null;
+  }>({
+    updatedUser: null,
   });
 
   constructor(
@@ -65,19 +60,21 @@ export class AuthService {
   getToken() {
     return this.currentUser?.token;
   }
-  getIsAuth() {
-    return this.isAuthenticated;
-  }
   getUserId() {
     return this.currentUser?.userId;
   }
 
   getAuthStatusListener() {
     // Subscibe here people
+    // console.trace('auth status listened');
     return this.authStatusListener.asObservable();
   }
 
-  register(userData: User) {
+  getUserUpdatesListener() {
+    return this.userUpdateListener.asObservable();
+  }
+
+  register(userData: RegisterUser) {
     this.http
       .post<{ message: string; newUser: CurrentUser }>(
         `${BACKEND_URL}/signup`,
@@ -87,27 +84,18 @@ export class AuthService {
         (result) => {
           console.log(result);
           this.currentUser = result.newUser;
-          this.isAuthenticated = true;
-          this.authStatusListener.next({
-            isUserAuthenticated: true,
-            username: this.currentUser.username,
-            userId: this.currentUser.userId,
-            userAvatar: this.currentUser.avatar,
-            error: null,
-          });
+          this._updateListeners(this.UPDATE_USER, false, null);
           this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
           console.log('error in user signup', error);
-          this.isAuthenticated = false;
-          this.authStatusListener.next({
-            isUserAuthenticated: false,
-            username: null,
-            userId: null,
-            userAvatar: null,
-            error: 'Error in registration process!',
-          });
+          this.currentUser = null;
+          this._updateListeners(
+            this.RESET_USER,
+            false,
+            'Error in registration process!'
+          );
         }
       );
   }
@@ -127,27 +115,18 @@ export class AuthService {
       .subscribe(
         (response) => {
           this.currentUser = response.userData;
-          this.isAuthenticated = true;
-          this.authStatusListener.next({
-            isUserAuthenticated: true,
-            username: this.currentUser.username,
-            userId: this.currentUser.userId,
-            userAvatar: this.currentUser.avatar,
-            error: null,
-          });
+          this._updateListeners(this.UPDATE_USER, false, null);
           this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);
         },
         (error) => {
           // console.log('error logging in', error);
-          this.isAuthenticated = false;
-          this.authStatusListener.next({
-            isUserAuthenticated: false,
-            username: null,
-            userId: null,
-            userAvatar: null,
-            error: 'Login failed, invalid credentials!',
-          });
+          this.currentUser = null;
+          this._updateListeners(
+            this.RESET_USER,
+            false,
+            'Login failed, invalid credentials!'
+          );
         }
       );
   }
@@ -156,17 +135,97 @@ export class AuthService {
     clearTimeout(this.currentUser?.tokenTimer);
     this.clearAuthData();
     this.currentUser = null;
-    this.isAuthenticated = false;
-    this.authStatusListener.next({
-      isUserAuthenticated: false,
-      username: null,
-      userId: null,
-      userAvatar: null,
-      error: null,
-    });
-    if (this.currentUrl?.includes('/campgrounds/process/')) {
+    this._updateListeners(this.RESET_USER, false, null);
+
+    /** On logout, navigate user away from following pages -
+     * create/edit campground
+     * ANY user details page */
+    if (
+      this.currentUrl?.includes('/campgrounds/process/') ||
+      this.currentUrl?.includes('/user')
+    ) {
       this.router.navigate(['/campgrounds']);
     }
+  }
+
+  /** User UPDATE specific requests, from user component. Because we need to update the central data
+   * as well as push latest data to the observers
+   */
+  updateUserAvatar(userId: string, avatar: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.http
+        .put<{ message: string }>(`${BACKEND_URL}/avatar/me`, {
+          userId,
+          avatar,
+        })
+        .subscribe(
+          (result) => {
+            this.currentUser.avatar = avatar;
+            // Update the local store as well
+            this._updateListeners(this.UPDATE_USER, true, null);
+            resolve('User avatar updated!');
+          },
+          (error) => {
+            console.log('authservice: update user avatar', error);
+            reject('Error updating user avatar!');
+          }
+        );
+    });
+  }
+
+  updateUserData(
+    userId: string,
+    firstname: string,
+    lastname: string,
+    email: string
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.http
+        .put(`${BACKEND_URL}/detail/me`, {
+          userId,
+          firstname,
+          lastname,
+          email,
+        })
+        .subscribe(
+          (result) => {
+            this.currentUser.firstname = firstname;
+            this.currentUser.lastname = lastname;
+            this.currentUser.email = email;
+
+            // Update the local store as well
+            this._updateListeners(this.UPDATE_USER, true, null);
+            resolve('User update successful!');
+          },
+          (error) => {
+            reject('User update failed!');
+          }
+        );
+    });
+  }
+
+  updateUserPassword(
+    userId: string,
+    oldpass: string,
+    newpass: string
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.http
+        .put(`${BACKEND_URL}/pwd/me`, {
+          userId,
+          oldpass,
+          newpass,
+        })
+        .subscribe(
+          (response) => {
+            resolve('Password changed!');
+          },
+          (error) => {
+            console.log('auth: user pw change', error);
+            reject(error.message);
+          }
+        );
+    });
   }
 
   /** Auto-login user if we have the auth-data available in localStorage
@@ -179,7 +238,6 @@ export class AuthService {
       const now = new Date();
       const expiresIn =
         authInformation.expirationDate.getTime() - now.getTime();
-
       if (expiresIn > 0) {
         // if token is not expired yet
         this.dbService.getByKey(this.indexedDbStore, 1).then(
@@ -187,16 +245,10 @@ export class AuthService {
             // console.log("this.dbService.getByKey('currentUser', 1)", userData);
             if (userData) {
               this.currentUser = userData;
-              this.isAuthenticated = true;
-              this.authStatusListener.next({
-                isUserAuthenticated: true,
-                username: this.currentUser.username,
-                userId: this.currentUser.userId,
-                userAvatar: this.currentUser.avatar,
-                error: null,
-              });
-              this.setTimerAndStorage();
+              this._updateListeners(this.UPDATE_USER, false, null);
+              // this.setTimerAndStorage(); //BUG - conflicts with JWT token expiry
               // this.router.navigate(['/campgrounds']); //bug
+
               return;
             }
           },
@@ -205,6 +257,7 @@ export class AuthService {
               "error getting persisted user login from user's browser",
               error
             );
+            return this.logout();
           }
         );
       }
@@ -286,5 +339,58 @@ export class AuthService {
       expirationDate: new Date(expirationDate),
       userId,
     };
+  }
+
+  private _updateAuthData() {
+    this.dbService
+      .update(this.indexedDbStore, this.currentUser)
+      .then((result) => {
+        // console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  private _updateListeners(
+    update: string,
+    updateLocalStore: boolean,
+    error: any
+  ): void {
+    // isAuthenticated TRUE, as long as this.UPDATE_USER is sent
+    this.isAuthenticated = update === this.UPDATE_USER;
+
+    if (this.isAuthenticated) {
+      this.authStatusListener.next({
+        isUserAuthenticated: this.isAuthenticated,
+        username: this.currentUser.username,
+        userId: this.currentUser.userId,
+        userAvatar: this.currentUser.avatar,
+        isSuperAdmin: this.currentUser?.isSuperAdmin,
+        error,
+      });
+      this.userUpdateListener.next({
+        updatedUser: this.currentUser,
+      });
+    } else {
+      this.authStatusListener.next({
+        isUserAuthenticated: false,
+        username: null,
+        userId: null,
+        userAvatar: null,
+        isSuperAdmin: false,
+        error,
+      });
+      this?.userUpdateListener.next({
+        updatedUser: null,
+      });
+    }
+
+    /** UPDATE local store as well for the latest current user values */
+    updateLocalStore && this._updateAuthData();
+  }
+
+  redirectToCampgrounds() {
+    this.router.navigate(['/campgrounds']);
   }
 }

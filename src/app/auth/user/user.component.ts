@@ -149,8 +149,8 @@ export class UserComponent implements OnInit, OnDestroy {
           (result) => {
             this._snackbar.openFromComponent(SnackBarComponent, {
               data: isFollow
-                ? `You are now following ${this.currentUsername}!`
-                : `You unfollowed ${this.currentUsername}!`,
+                ? `You are now following ${this.displayCoUser.username}!`
+                : `You unfollowed ${this.displayCoUser.username}!`,
               ...configSuccess,
             });
 

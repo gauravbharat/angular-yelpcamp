@@ -102,6 +102,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 this.lastname = this.currentUser?.lastname;
                 this.email = this.currentUser?.email;
                 this.isLoading = false;
+                console.log('user component', this.currentUser);
               });
 
             this.userService.getUserActivity(this.currentUserId).subscribe(

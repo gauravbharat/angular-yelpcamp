@@ -150,7 +150,36 @@
             </li>
           </ul>
         </mat-tab>
-        <mat-tab label="Notifications">Content 3</mat-tab>
+        <mat-tab label="Notifications">
+          <ul class="current-user-notifications-list">
+            <li *ngFor="let notification of currentUser?.notifications">
+              <div [ngSwitch]="notification?.notificationType">
+                <span *ngSwitchCase="0">{{
+                  notification?.username +
+                    " created a new campground " +
+                    notification?.campgroundName
+                }}</span>
+                <span *ngSwitchCase="1">{{
+                  notification?.username +
+                    " added a new comment on your campground " +
+                    notification?.campgroundName
+                }}</span>
+                <span *ngSwitchCase="2">New Admin Request</span>
+                <span *ngSwitchCase="3"
+                  ><img
+                    class="notification-follower-img"
+                    [src]="notification?.follower?.followerAvatar"
+                    [alt]="notification?.username"
+                  />
+                  {{
+                    "You have new follower " + notification?.username + "!"
+                  }}</span
+                >
+                <span *ngSwitchDefault>Unknown</span>
+              </div>
+            </li>
+          </ul>
+        </mat-tab>
       </mat-tab-group>
     </div>
     <div class="co-user-details" *ngIf="showCoUser">

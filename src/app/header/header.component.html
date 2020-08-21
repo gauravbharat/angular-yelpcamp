@@ -77,7 +77,10 @@
           <mat-icon>terrain</mat-icon> View Own Campgrounds
         </button>
         <button mat-menu-item [routerLink]="['/user/notifications']">
-          <mat-icon>notifications</mat-icon> View past notifications
+          <mat-icon>{{
+            notificationsCount > 0 ? "notifications_active" : "notifications"
+          }}</mat-icon>
+          View {{ notificationsCount > 0 ? "" : "past" }} notifications
         </button>
       </mat-menu>
     </li>

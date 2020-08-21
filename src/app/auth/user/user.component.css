@@ -82,12 +82,27 @@ mat-card img {
   font-size: 18px;
 }
 
+.current-user-notifications-list {
+  line-height: 30px;
+  font-size: 14px;
+}
+
 .co-user-campground-list a,
-.current-user-campground-list a {
+.current-user-campground-list a,
+.current-user-notifications-list a {
   text-decoration: none;
 }
 
 .co-user-campground-list a:hover,
-.current-user-campground-list a:hover {
+.current-user-campground-list a:hover,
+.current-user-notifications-list a:hover {
   text-decoration: underline;
+}
+
+.notification-follower-img {
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  overflow: hidden;
+  border-radius: 50%;
 }

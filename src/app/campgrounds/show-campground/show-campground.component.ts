@@ -28,7 +28,6 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   username: string;
   userAvatar: string;
   private campgroundId: string;
-  private isSuperAdmin = false;
   campground: Campground;
 
   addCommentOpenState = false;
@@ -58,7 +57,6 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
         this.userId = authStatus.userId;
         this.username = authStatus.username;
         this.userAvatar = authStatus.userAvatar;
-        this.isSuperAdmin = authStatus.isSuperAdmin;
       });
 
     // Get the campground id passed as paramter
@@ -182,10 +180,6 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
     } else {
       this.accordion.closeAll();
     }
-  }
-
-  getIsSuperAdmin(): boolean {
-    return this.isSuperAdmin;
   }
 
   private _getCampgroundFromService() {

@@ -83,12 +83,12 @@ export class UserService {
 
   toggleFollowUser(
     userToFollowId: string,
-    followingUserId: string,
+    followerUserId: string,
     follow: boolean
   ) {
     return this.http.post<{ message: string }>(`${BACKEND_URL}/follow`, {
       userToFollowId,
-      followingUserId,
+      followerUserId,
       follow,
     });
   }

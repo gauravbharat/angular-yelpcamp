@@ -1,3 +1,20 @@
+export interface Notifications {
+  _id: string;
+  campgroundId?: string;
+  campgroundName?: string;
+  commentId?: string;
+  created: Date;
+  isRead: boolean;
+  notificateType: number;
+  userId?: string;
+  username?: string;
+  follower?: {
+    followerAvatar: string;
+    followingUserId: string;
+    id: string;
+  };
+}
+
 export interface RegisterUser {
   username: string;
   password: string;
@@ -20,7 +37,7 @@ export interface CurrentUser {
   isAdmin: boolean;
   avatar?: string;
   followers?: string[];
-  notifications?: string[];
+  notifications?: any[] | Notifications[];
   isPublisher?: boolean;
   isRequestedAdmin?: boolean;
   isSuperAdmin: boolean;

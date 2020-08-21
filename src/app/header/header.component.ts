@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isUserAuthenticated = false;
-  notificationsCount = 9;
+  notificationsCount = 0;
   username: string;
   avatar: string;
   private authStatusSub$: Subscription;
@@ -25,6 +25,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.isUserAuthenticated = authStatus.isUserAuthenticated;
         this.username = authStatus.username;
         this.avatar = authStatus.userAvatar;
+        this.notificationsCount = authStatus.unreadNotifications;
       });
   }
 

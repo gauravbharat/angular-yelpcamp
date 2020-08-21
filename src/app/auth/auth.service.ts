@@ -4,7 +4,12 @@ import { Router, NavigationEnd } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
-import { AuthData, RegisterUser, CurrentUser } from './auth-data.model';
+import {
+  AuthData,
+  RegisterUser,
+  CurrentUser,
+  Notifications,
+} from './auth-data.model';
 import { environment } from '../../environments/environment';
 import { last } from 'rxjs/operators';
 
@@ -26,14 +31,14 @@ export class AuthService {
     username: string;
     userId: string;
     userAvatar: string;
-    isSuperAdmin: boolean;
+    unreadNotifications: number;
     error: string;
   }>({
     isUserAuthenticated: false,
     username: null,
     userId: null,
     userAvatar: null,
-    isSuperAdmin: false,
+    unreadNotifications: 0,
     error: null,
   });
   private userUpdateListener = new BehaviorSubject<{
@@ -115,6 +120,7 @@ export class AuthService {
       .subscribe(
         (response) => {
           this.currentUser = response.userData;
+          console.log('auth service', this.currentUser);
           this._updateListeners(this.UPDATE_USER, false, null);
           this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);
@@ -181,7 +187,7 @@ export class AuthService {
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.http
-        .put(`${BACKEND_URL}/detail/me`, {
+        .put<{ message: string }>(`${BACKEND_URL}/detail/me`, {
           userId,
           firstname,
           lastname,
@@ -211,7 +217,7 @@ export class AuthService {
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.http
-        .put(`${BACKEND_URL}/pwd/me`, {
+        .put<{ message: string }>(`${BACKEND_URL}/pwd/me`, {
           userId,
           oldpass,
           newpass,
@@ -361,12 +367,20 @@ export class AuthService {
     this.isAuthenticated = update === this.UPDATE_USER;
 
     if (this.isAuthenticated) {
+      const unreadNotifications = this.currentUser?.notifications?.filter(
+        (notification) => notification.isRead === false
+      );
+
+      console.log('unreadNotifications', unreadNotifications);
+
       this.authStatusListener.next({
         isUserAuthenticated: this.isAuthenticated,
         username: this.currentUser.username,
         userId: this.currentUser.userId,
         userAvatar: this.currentUser.avatar,
-        isSuperAdmin: this.currentUser?.isSuperAdmin,
+        unreadNotifications: unreadNotifications
+          ? unreadNotifications.length
+          : 0,
         error,
       });
       this.userUpdateListener.next({
@@ -378,7 +392,7 @@ export class AuthService {
         username: null,
         userId: null,
         userAvatar: null,
-        isSuperAdmin: false,
+        unreadNotifications: 0,
         error,
       });
       this?.userUpdateListener.next({

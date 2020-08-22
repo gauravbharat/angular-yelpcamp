@@ -10,7 +10,7 @@
  * value for the Auth Guard to proceed.
  * OnInit was not triggered, but canActivate at first alwasys*/
 
-import { Injectable } from '@angular/core';
+import { Injectable, Injectable } from '@angular/core';
 import {
   CanActivate,
   ActivatedRouteSnapshot,
@@ -47,5 +47,25 @@ export class AuthGuard implements CanActivate {
     return new Promise((resolve) => {
       resolve(this.isUserAuthenticated);
     });
+  }
+}
+
+@Injectable()
+export class ResetAuthGuard implements CanActivate {
+  constructor(private authService: AuthService, private router: Router) {}
+
+  async canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Promise<boolean> {
+    const tokenToVerify = route.params?.resetToken;
+    if (!tokenToVerify) return false;
+
+    try {
+      const isValid = await this.authService.verifyTokenValidity(tokenToVerify);
+      return isValid;
+    } catch (error) {
+      return false;
+    }
   }
 }

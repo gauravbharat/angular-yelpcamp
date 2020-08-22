@@ -10,7 +10,7 @@ import {
   selector: 'app-snack-bar',
   template: `
     <div style="snack-bar-container">
-      <span class="snakbar-data">{{ data }}</span>
+      <span class="snakbar-data">{{ data }} </span>
       <span class="snackbar-action-button" (click)="matSnackBarRef.dismiss()">
         &#10006;
       </span>

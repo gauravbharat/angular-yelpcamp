@@ -8,9 +8,10 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { HeaderModule } from '../header/header.module';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
-  declarations: [LoginComponent, RegisterComponent],
+  declarations: [LoginComponent, RegisterComponent, ResetPasswordComponent],
   imports: [
     CommonModule,
     FormsModule,

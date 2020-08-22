@@ -282,6 +282,47 @@ export class AuthService {
   }
   /** Update User Specific Requests - ENDs */
 
+  /** User password reset methods - Start */
+  requestResetPassword(email: string) {
+    return this.http.post<{ message: string }>(`${BACKEND_URL}/reset`, {
+      email,
+    });
+  }
+
+  verifyTokenValidity(token: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.http.get(`${BACKEND_URL}/reset/${token}`).subscribe(
+        (result) => {
+          resolve(true);
+        },
+        (error) => {
+          reject(false);
+          this.router.navigate(['/']);
+        }
+      );
+    });
+  }
+
+  resetPassword(token: string, newpw: string) {
+    return new Promise<boolean>((resolve, reject) => {
+      this.http
+        .post(`${BACKEND_URL}/reset/${token}`, {
+          newpw,
+        })
+        .subscribe(
+          (result) => {
+            resolve(true);
+            if (this.isAuthenticated) this.logout();
+            this.router.navigate(['/auth/login']);
+          },
+          (error) => {
+            reject(false);
+          }
+        );
+    });
+  }
+  /** User password reset methods - Ends */
+
   /** Auto-login user if we have the auth-data available in localStorage
    * But check that the token is not expired
    * Call this from app component

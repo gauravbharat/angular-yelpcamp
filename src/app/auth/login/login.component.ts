@@ -8,7 +8,7 @@ import { AuthService } from '../auth.service';
 /** Material Snackbar */
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { SnackBarComponent } from '../../error/snackbar.component';
-import { configSuccess } from '../../error/snackbar.config';
+import { configSuccess, configFailure } from '../../error/snackbar.config';
 
 @Component({
   templateUrl: './login.component.html',
@@ -78,5 +78,26 @@ export class LoginComponent implements OnInit, OnDestroy {
       data: message,
       ...config,
     });
+  }
+
+  onForgotPassword(form: NgForm) {
+    if (!form.value.email) {
+      this.showFlashMessage(
+        `Please enter your email to receive password reset instructions!`,
+        configFailure
+      );
+      return;
+    }
+    this.isLoading = true;
+    this.authService.requestResetPassword(form.value.email).subscribe(
+      (result) => {
+        this.isLoading = false;
+        this.showFlashMessage(result.message, configSuccess);
+      },
+      (error) => {
+        // do nothing, handled in http error interceptor
+        this.isLoading = false;
+      }
+    );
   }
 }

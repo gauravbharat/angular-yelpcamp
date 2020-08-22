@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -6,6 +7,7 @@ import {
   ImageDialogComponent,
   PasswordDialogComponent,
 } from './dialog/dialog.component';
+
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackBarComponent } from '../../error/snackbar.component';
 import { configSuccess } from '../../error/snackbar.config';
@@ -13,7 +15,7 @@ import { configSuccess } from '../../error/snackbar.config';
 import { AuthService } from '../auth.service';
 import { UserService } from './user.service';
 
-import { CurrentUser, DisplayCoUser } from '../auth-data.model';
+import { CurrentUser, DisplayCoUser, Notifications } from '../auth-data.model';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -54,7 +56,8 @@ export class UserComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private userService: UserService,
     public dialog: MatDialog,
-    private _snackbar: MatSnackBar
+    private _snackbar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -102,7 +105,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 this.lastname = this.currentUser?.lastname;
                 this.email = this.currentUser?.email;
                 this.isLoading = false;
-                console.log('user component', this.currentUser);
+                // console.log('user component', this.currentUser);
               });
 
             this.userService.getUserActivity(this.currentUserId).subscribe(
@@ -258,6 +261,44 @@ export class UserComponent implements OnInit, OnDestroy {
           ...configSuccess,
         });
     });
+  }
+
+  onNotificationClick(notification: Notifications): void {
+    /** When user clicks on the notification -
+     * 1. update the read flag
+     * 2. navigate user to notification type related source
+     */
+    if (notification) {
+      switch (notification.notificationType) {
+        case 0: //new campground
+        case 1: //new campground comment
+          !notification.isRead &&
+            this.authService.updateNotification([notification._id], true);
+          this.router.navigate([
+            '/campgrounds/show/',
+            notification.campgroundId,
+          ]);
+          break;
+
+        case 3: // new follower
+          !notification.isRead &&
+            this.authService.updateNotification([notification._id], true);
+          this.router.navigate(['/user/other', notification.follower.id]);
+          break;
+
+        default:
+          //unknown, unhandled
+          return;
+      }
+    }
+  }
+
+  onNotificationRead(notificationId: string, isSetRead: boolean): void {
+    this.authService.updateNotification([notificationId], isSetRead);
+  }
+
+  onNotificationDelete(notificationId: string): void {
+    this.authService.deleteNotification([notificationId]);
   }
 
   // https://relevantmagazine.com/wp-content/uploads/2017/05/rambop.jpg

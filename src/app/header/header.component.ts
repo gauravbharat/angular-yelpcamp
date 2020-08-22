@@ -1,5 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+} from '@angular/animations';
 
 import { AuthService } from '../auth/auth.service';
 
@@ -7,6 +14,18 @@ import { AuthService } from '../auth/auth.service';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
+  animations: [
+    trigger('inAnimation', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('1s ease-out', style({ opacity: 1 })),
+      ]),
+      // transition(':leave', [
+      //   style({ opacity: 1 }),
+      //   animate('1s ease-in', style({ opacity: 0 })),
+      // ]),
+    ]),
+  ],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isUserAuthenticated = false;

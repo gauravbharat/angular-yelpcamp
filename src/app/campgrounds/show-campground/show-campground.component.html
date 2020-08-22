@@ -54,7 +54,6 @@
             >{{ campground?.author?.username }}</a
           >, {{ getLastEdited(campground?.created) }}
         </div>
-        <!-- <mat-action-row *ngIf="userIsAuthenticated && userId === post.creator"> -->
         <mat-divider
           *ngIf="isUserAuthenticated && campground?.author?.id === userId"
         ></mat-divider>

@@ -56,15 +56,21 @@
         routerLinkActive="mat-accent"
       >
         <div
+          @inAnimation
           class="user-avatar-badge"
           [matBadge]="notificationsCount"
           matBadgeColor="warn"
           matBadgeOverlap="true"
+          *ngIf="notificationsCount > 0"
         >
           <img [src]="avatar" [alt]="username" />
         </div>
 
-        <span class="cdk-visually-hidden">
+        <div @inAnimation class="user-avatar" *ngIf="!notificationsCount">
+          <img [src]="avatar" [alt]="username" />
+        </div>
+
+        <span class="cdk-visually-hidden" *ngIf="notificationsCount > 0">
           User avatar icon with overlaid badge showing the number
           {{ notificationsCount }}
         </span>

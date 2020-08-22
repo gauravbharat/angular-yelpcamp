@@ -234,6 +234,54 @@ export class AuthService {
     });
   }
 
+  updateNotification(notificationIdArr: string[], isSetRead: boolean): void {
+    this.http
+      .put<{ message: string }>(`${BACKEND_URL}/notifications/update`, {
+        notificationIdArr,
+        isSetRead,
+      })
+      .subscribe(
+        async (response) => {
+          // console.log(response);
+
+          await this.currentUser.notifications.forEach((notification) => {
+            if (notificationIdArr.includes(notification._id)) {
+              notification.isRead = isSetRead;
+            }
+          });
+
+          // Update the local store as well
+          this._updateListeners(this.UPDATE_USER, true, null);
+        },
+        (error) => {
+          console.log('auth: user notification update', error);
+        }
+      );
+  }
+
+  deleteNotification(notificationIdArr: string[]): void {
+    this.http
+      .post<{ message: string }>(`${BACKEND_URL}/notifications/remove`, {
+        notificationIdArr,
+      })
+      .subscribe(
+        async (response) => {
+          // console.log(response);
+
+          this.currentUser.notifications = await this.currentUser.notifications.filter(
+            (notification) => !notificationIdArr.includes(notification._id)
+          );
+
+          // Update the local store as well
+          this._updateListeners(this.UPDATE_USER, true, null);
+        },
+        (error) => {
+          console.log('auth: user notification update', error);
+        }
+      );
+  }
+  /** Update User Specific Requests - ENDs */
+
   /** Auto-login user if we have the auth-data available in localStorage
    * But check that the token is not expired
    * Call this from app component
@@ -371,7 +419,7 @@ export class AuthService {
         (notification) => notification.isRead === false
       );
 
-      console.log('unreadNotifications', unreadNotifications);
+      // console.log('unreadNotifications', unreadNotifications);
 
       this.authStatusListener.next({
         isUserAuthenticated: this.isAuthenticated,

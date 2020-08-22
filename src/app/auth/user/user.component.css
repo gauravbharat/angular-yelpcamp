@@ -82,9 +82,46 @@ mat-card img {
   font-size: 18px;
 }
 
+/* .notification-tab-body {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+} */
+
 .current-user-notifications-list {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 5px;
   line-height: 30px;
   font-size: 14px;
+  box-sizing: border-box;
+}
+
+.current-user-notifications-list-item {
+  width: auto;
+  padding: 5px;
+  padding-left: 10px;
+  border: 1px solid #f0eeee;
+  border-radius: 2px;
+  border-bottom: 1px solid #b3a8a8;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.isRead-notification {
+  background-color: #fff;
+}
+
+.isUnread-notification {
+  background-color: #f0eeee;
+}
+
+/* .notification-action {
+  float: right;
+} */
+.notification-switch-case {
+  display: flex;
+  justify-content: space-between;
 }
 
 .co-user-campground-list a,

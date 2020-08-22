@@ -151,34 +151,165 @@
           </ul>
         </mat-tab>
         <mat-tab label="Notifications">
-          <ul class="current-user-notifications-list">
-            <li *ngFor="let notification of currentUser?.notifications">
-              <div [ngSwitch]="notification?.notificationType">
-                <span *ngSwitchCase="0">{{
-                  notification?.username +
-                    " created a new campground " +
-                    notification?.campgroundName
-                }}</span>
-                <span *ngSwitchCase="1">{{
-                  notification?.username +
-                    " added a new comment on your campground " +
-                    notification?.campgroundName
-                }}</span>
-                <span *ngSwitchCase="2">New Admin Request</span>
-                <span *ngSwitchCase="3"
-                  ><img
-                    class="notification-follower-img"
-                    [src]="notification?.follower?.followerAvatar"
-                    [alt]="notification?.username"
-                  />
-                  {{
-                    "You have new follower " + notification?.username + "!"
-                  }}</span
+          <div class="notification-tab-body">
+            <ul class="current-user-notifications-list">
+              <li
+                class="current-user-notifications-list-item"
+                [ngClass]="
+                  notification?.isRead
+                    ? 'isRead-notification'
+                    : 'isUnread-notification'
+                "
+                *ngFor="let notification of currentUser?.notifications"
+              >
+                <div
+                  [ngSwitch]="notification?.notificationType"
+                  (click)="onNotificationClick(notification)"
                 >
-                <span *ngSwitchDefault>Unknown</span>
-              </div>
-            </li>
-          </ul>
+                  <div *ngSwitchCase="0" class="notification-switch-case">
+                    <span class="notification-text"
+                      ><strong>{{ notification?.username }}</strong>
+                      {{ " created a new campground " }}
+                      <strong>{{ notification?.campgroundName }}</strong>
+                    </span>
+                    <span class="notification-action">
+                      <button
+                        type="button"
+                        mat-button
+                        color="primary"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Toggle Read"
+                        (click)="
+                          onNotificationRead(
+                            notification?._id,
+                            !notification?.isRead
+                          );
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>{{
+                          notification?.isRead
+                            ? "mark_chat_unread"
+                            : "mark_chat_read"
+                        }}</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        mat-button
+                        color="warn"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Delete"
+                        (click)="
+                          onNotificationDelete(notification?._id);
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>delete_task</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                  <div *ngSwitchCase="1" class="notification-switch-case">
+                    <span class="notification-text"
+                      ><strong>{{ notification?.username }}</strong>
+                      {{ " added a new comment on your campground " }}
+                      <strong>{{ notification?.campgroundName }}</strong></span
+                    >
+                    <span class="notification-action">
+                      <button
+                        type="button"
+                        mat-button
+                        color="primary"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Toggle Read"
+                        (click)="
+                          onNotificationRead(
+                            notification?._id,
+                            !notification?.isRead
+                          );
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>{{
+                          notification?.isRead
+                            ? "mark_chat_unread"
+                            : "mark_chat_read"
+                        }}</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        mat-button
+                        color="warn"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Delete"
+                        (click)="
+                          onNotificationDelete(notification?._id);
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>delete_task</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                  <div *ngSwitchCase="2" class="notification-switch-case">
+                    New Admin Request
+                  </div>
+                  <div *ngSwitchCase="3" class="notification-switch-case">
+                    <span class="notification-text"
+                      ><img
+                        class="notification-follower-img"
+                        [src]="notification?.follower?.followerAvatar"
+                        [alt]="notification?.username"
+                      />
+                      {{ "You have new follower " }}
+                      <strong>{{ notification?.username + "!" }}</strong></span
+                    >
+                    <span class="notification-action">
+                      <button
+                        type="button"
+                        mat-button
+                        color="primary"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Toggle Read"
+                        (click)="
+                          onNotificationRead(
+                            notification?._id,
+                            !notification?.isRead
+                          );
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>{{
+                          notification?.isRead
+                            ? "mark_chat_unread"
+                            : "mark_chat_read"
+                        }}</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        mat-button
+                        color="warn"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Delete"
+                        (click)="
+                          onNotificationDelete(notification?._id);
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>delete_task</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                  <div *ngSwitchDefault>Unknown</div>
+                </div>
+              </li>
+            </ul>
+          </div>
         </mat-tab>
       </mat-tab-group>
     </div>

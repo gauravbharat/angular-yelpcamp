@@ -5,7 +5,7 @@ export interface Notifications {
   commentId?: string;
   created: Date;
   isRead: boolean;
-  notificateType: number;
+  notificationType: number;
   userId?: string;
   username?: string;
   follower?: {

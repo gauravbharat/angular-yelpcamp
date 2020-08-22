@@ -18,7 +18,8 @@ a {
   flex: 1 1 auto;
 }
 
-.user-avatar-badge img {
+.user-avatar-badge img,
+.user-avatar img {
   width: 35px;
   height: 35px;
   object-fit: cover;

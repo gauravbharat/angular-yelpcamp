@@ -9,9 +9,9 @@
   align-items: center; */
 }
 
-.container-side-panel {
-  /* flex-grow: 1; */
-}
+/* .container-side-panel {
+  flex-grow: 1;
+} */
 
 /* LEFT SIDE PANEL (user avatar, etc.) */
 mat-card img {
@@ -27,7 +27,8 @@ mat-card img {
   font-style: italic;
 }
 
-.follow-button {
+.follow-button,
+.button-change-password {
   width: 100%;
 }
 
@@ -58,8 +59,12 @@ mat-card img {
   width: 100%;
 }
 
-.user-settings-form {
+/* .user-settings-form {
   margin: 20px 20px;
+} */
+
+.mat-stepper-vertical {
+  margin-top: 8px;
 }
 
 .user-settings-form mat-form-field {
@@ -71,9 +76,23 @@ mat-card img {
   width: 100%;
 }
 
-.button-change-password {
+.user-settings-form button[type="button"] {
+  margin-top: 15px;
+}
+
+.informative-p {
+  color: #8d8585;
+  text-align: justify;
+  text-justify: auto;
+}
+
+mat-slide-toggle {
   width: 100%;
-  margin-top: 10px;
+  margin: 10px auto;
+}
+
+mat-slide-toggle:last-of-type {
+  margin-bottom: 20px;
 }
 
 .co-user-campground-list,

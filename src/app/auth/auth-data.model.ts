@@ -27,6 +27,24 @@ export interface RegisterUser {
   isSuperAdmin?: boolean;
 }
 
+export interface UserSettingsUpdate {
+  userId: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  showStatsDashboard: boolean;
+  enableNotifications: {
+    newCampground: boolean;
+    newComment: boolean;
+    newFollower: boolean;
+  };
+  enableNotificationEmails: {
+    newCampground: boolean;
+    newComment: boolean;
+    newFollower: boolean;
+  };
+}
+
 export interface CurrentUser {
   id: number;
   userId: string;
@@ -40,7 +58,19 @@ export interface CurrentUser {
   notifications?: any[] | Notifications[];
   isPublisher?: boolean;
   isRequestedAdmin?: boolean;
-  isSuperAdmin: boolean;
+  isSuperAdmin?: boolean;
+  enableNotifications: {
+    newCampground: boolean;
+    newComment: boolean;
+    newFollower: boolean;
+  };
+  enableNotificationEmails: {
+    system: boolean;
+    newCampground: boolean;
+    newComment: boolean;
+    newFollower: boolean;
+  };
+  showStatsDashboard: boolean;
   token: string;
   expiresIn: number;
   tokenTimer?: any;

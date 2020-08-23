@@ -48,6 +48,7 @@
         class="follow-button"
         *ngIf="isUserAuthenticated && showCoUser && !isCurrentUserFollower()"
         (click)="toggleUserFollow(true)"
+        [disabled]="isLoading"
       >
         Follow
       </button>
@@ -57,8 +58,20 @@
         class="follow-button"
         *ngIf="isUserAuthenticated && showCoUser && isCurrentUserFollower()"
         (click)="toggleUserFollow(false)"
+        [disabled]="isLoading"
       >
         Following
+      </button>
+      <button
+        mat-raised-button
+        type="button"
+        color="primary"
+        class="button-change-password"
+        *ngIf="isUserAuthenticated && !showCoUser"
+        (click)="onChangePassword()"
+        [disabled]="isLoading"
+      >
+        Change Password
       </button>
     </mat-card>
     <br />
@@ -70,77 +83,195 @@
     <div class="current-user-details" *ngIf="!showCoUser">
       <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectIndex">
         <mat-tab label="Settings">
-          <form
-            #userSettings="ngForm"
-            class="user-settings-form"
-            (ngSubmit)="updateUserData(userSettings)"
-          >
-            <mat-form-field>
-              <input
-                matInput
-                type="text"
-                [value]="currentUsername"
-                placeholder="@username"
-                required
-                disabled
-              />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>First Name</mat-label>
-              <input
-                matInput
-                type="text"
-                name="firstname"
-                [(ngModel)]="firstname"
-                required
-              />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Last Name</mat-label>
-              <input
-                matInput
-                type="text"
-                name="lastname"
-                [(ngModel)]="lastname"
-                required
-              />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Email</mat-label>
-              <input
-                matInput
-                type="email"
-                name="email"
-                [(ngModel)]="email"
-                required
-                email
-              />
-              <mat-hint
-                >Enter a valid e-mail ID to help you recover your password, just
-                in case</mat-hint
+          <mat-vertical-stepper [linear]="isLinear" #stepper>
+            <mat-step [stepControl]="basicFormGroup">
+              <form [formGroup]="basicFormGroup" class="user-settings-form">
+                <ng-template matStepLabel>Basic Information</ng-template>
+                <mat-form-field>
+                  <mat-label>@username *</mat-label>
+                  <input matInput formControlName="username" />
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>First Name *</mat-label>
+                  <input matInput formControlName="firstname" />
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Last Name *</mat-label>
+                  <input matInput formControlName="lastname" />
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>E-mail *</mat-label>
+                  <input matInput formControlName="email" />
+                  <mat-hint
+                    >Enter a valid e-mail ID to help you recover your password,
+                    just in case</mat-hint
+                  >
+                </mat-form-field>
+                <div>
+                  <button
+                    color="primary"
+                    type="button"
+                    mat-button
+                    matStepperNext
+                  >
+                    Next
+                  </button>
+                </div>
+              </form>
+            </mat-step>
+            <mat-step [stepControl]="displayPrefFormGroup">
+              <form
+                [formGroup]="displayPrefFormGroup"
+                class="user-display-settings-form"
               >
-            </mat-form-field>
-            <button
-              mat-stroked-button
-              type="submit"
-              color="primary"
-              [disabled]="!userSettings.valid || isLoading"
-            >
-              Update
-            </button>
-            <button
-              mat-stroked-button
-              class="button-change-password"
-              color="primary"
-              type="button"
-              (click)="onChangePassword()"
-              [disabled]="isLoading"
-            >
-              Change Password
-            </button>
-          </form>
+                <ng-template matStepLabel>Display Preferences</ng-template>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="showStatsDashboard"
+                  #showStats
+                  >Display app statistics on 'Campgrounds' page:
+                  {{ showStats.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newCampgroundAlert"
+                  #showCampAlert
+                  >Get in-app alerts for new Campgrounds by users you follow:
+                  {{ showCampAlert.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newCommentAlert"
+                  #showCommentAlert
+                  >Get in-app alerts for new comments on your campgrounds:
+                  {{ showCommentAlert.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newFollowerAlert"
+                  #showFollowerAlert
+                  >Get in-app alerts when a user follows you:
+                  {{ showFollowerAlert.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <div>
+                  <button
+                    color="primary"
+                    type="button"
+                    mat-button
+                    matStepperPrevious
+                  >
+                    Back
+                  </button>
+                  <button
+                    color="primary"
+                    type="button"
+                    mat-button
+                    matStepperNext
+                  >
+                    Next
+                  </button>
+                </div>
+              </form>
+            </mat-step>
+            <mat-step [stepControl]="emailPrefFormGroup">
+              <form
+                [formGroup]="emailPrefFormGroup"
+                class="user-display-settings-form"
+              >
+                <ng-template matStepLabel>Email Preferences *</ng-template>
+                <p color="warn" class="informative-p">
+                  * You must have a valid email address registered with us to
+                  get <strong><u>any</u></strong> email notification! Also,
+                  please add <u>garyd.app.notifications@gmail.com</u> to your
+                  contacts or your email app's safe email senders list.
+                </p>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="systemEmail"
+                  #getSysEmails
+                  >Get app or system related emails from server:
+                  {{ getSysEmails.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newCampgroundEmail"
+                  #getCampEmails
+                  >Get email on new Campgrounds by users you follow:
+                  {{ getCampEmails.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newCommentEmail"
+                  #getCommentEmails
+                  >Get email for new comments on your campgrounds:
+                  {{ getCommentEmails.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newFollowerEmail"
+                  #getFollowerEmails
+                  >Get email when a user follows you:
+                  {{ getFollowerEmails.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
+                <div>
+                  <button
+                    type="button"
+                    color="primary"
+                    mat-button
+                    matStepperPrevious
+                  >
+                    Back
+                  </button>
+                  <button
+                    color="primary"
+                    type="button"
+                    mat-button
+                    matStepperNext
+                  >
+                    Next
+                  </button>
+                </div>
+              </form>
+            </mat-step>
+            <mat-step>
+              <ng-template matStepLabel>Save Changes</ng-template>
+              <!-- <p>You are now done.</p> -->
+              <div>
+                <button
+                  color="primary"
+                  type="button"
+                  mat-button
+                  matStepperPrevious
+                >
+                  Back
+                </button>
+                <button
+                  mat-button
+                  type="submit"
+                  color="primary"
+                  [disabled]="
+                    !basicFormGroup.valid ||
+                    !displayPrefFormGroup.valid ||
+                    !emailPrefFormGroup.valid ||
+                    isLoading
+                  "
+                  (click)="updateUserData()"
+                >
+                  Update
+                </button>
+                <!-- <button mat-button (click)="stepper.reset()">Reset</button> -->
+              </div>
+            </mat-step>
+          </mat-vertical-stepper>
         </mat-tab>
-        <mat-tab label="Campgrounds">
+        <mat-tab
+          [label]="
+            displayCurrentUserCampgrounds?.length > 0
+              ? 'Campgrounds'
+              : 'No Campgrounds'
+          "
+          [disabled]="displayCurrentUserCampgrounds?.length <= 0"
+        >
           <ul class="current-user-campground-list">
             <li *ngFor="let campground of displayCurrentUserCampgrounds">
               <a
@@ -150,7 +281,14 @@
             </li>
           </ul>
         </mat-tab>
-        <mat-tab label="Notifications">
+        <mat-tab
+          [label]="
+            currentUser?.notifications?.length > 0
+              ? 'Notifications'
+              : 'No Notifications'
+          "
+          [disabled]="currentUser?.notifications?.length <= 0"
+        >
           <div class="notification-tab-body">
             <ul class="current-user-notifications-list">
               <li

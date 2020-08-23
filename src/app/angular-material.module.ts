@@ -18,6 +18,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @NgModule({
   exports: [
@@ -39,6 +41,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatMenuModule,
     MatTabsModule,
     MatDialogModule,
+    MatStepperModule,
+    MatSlideToggleModule,
   ],
 })
 export class AngularMaterialModule {}

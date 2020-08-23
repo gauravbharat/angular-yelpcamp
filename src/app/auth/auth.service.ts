@@ -8,7 +8,7 @@ import {
   AuthData,
   RegisterUser,
   CurrentUser,
-  Notifications,
+  UserSettingsUpdate,
 } from './auth-data.model';
 import { environment } from '../../environments/environment';
 import { last } from 'rxjs/operators';
@@ -179,25 +179,30 @@ export class AuthService {
     });
   }
 
-  updateUserData(
-    userId: string,
-    firstname: string,
-    lastname: string,
-    email: string
-  ): Promise<string> {
+  updateUserData(userData: UserSettingsUpdate): Promise<string> {
     return new Promise((resolve, reject) => {
       this.http
         .put<{ message: string }>(`${BACKEND_URL}/detail/me`, {
-          userId,
-          firstname,
-          lastname,
-          email,
+          userData,
         })
         .subscribe(
           (result) => {
-            this.currentUser.firstname = firstname;
-            this.currentUser.lastname = lastname;
-            this.currentUser.email = email;
+            this.currentUser.firstname = userData.firstname;
+            this.currentUser.lastname = userData.lastname;
+            this.currentUser.email = userData.email;
+            this.currentUser.showStatsDashboard = userData.showStatsDashboard;
+            this.currentUser.enableNotifications.newCampground =
+              userData.enableNotifications.newCampground;
+            this.currentUser.enableNotifications.newComment =
+              userData.enableNotifications.newComment;
+            this.currentUser.enableNotifications.newFollower =
+              userData.enableNotifications.newFollower;
+            this.currentUser.enableNotificationEmails.newCampground =
+              userData.enableNotificationEmails.newCampground;
+            this.currentUser.enableNotificationEmails.newComment =
+              userData.enableNotificationEmails.newComment;
+            this.currentUser.enableNotificationEmails.newFollower =
+              userData.enableNotificationEmails.newFollower;
 
             // Update the local store as well
             this._updateListeners(this.UPDATE_USER, true, null);

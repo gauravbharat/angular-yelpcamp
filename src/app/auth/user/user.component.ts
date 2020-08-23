@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
+import { FormGroup, Validators, FormControl } from '@angular/forms';
+
 import { MatDialog } from '@angular/material/dialog';
 import {
   ImageDialogComponent,
@@ -15,7 +17,12 @@ import { configSuccess } from '../../error/snackbar.config';
 import { AuthService } from '../auth.service';
 import { UserService } from './user.service';
 
-import { CurrentUser, DisplayCoUser, Notifications } from '../auth-data.model';
+import {
+  CurrentUser,
+  DisplayCoUser,
+  Notifications,
+  UserSettingsUpdate,
+} from '../auth-data.model';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -24,6 +31,11 @@ import { NgForm } from '@angular/forms';
 })
 export class UserComponent implements OnInit, OnDestroy {
   isLoading = false;
+  isLinear = true;
+  basicFormGroup: FormGroup;
+  displayPrefFormGroup: FormGroup;
+  emailPrefFormGroup: FormGroup;
+
   private _showOnInitTab: string;
   private _tabIndex = {
     USER_SETTINGS: 0,
@@ -39,12 +51,6 @@ export class UserComponent implements OnInit, OnDestroy {
   currentUserId: string;
   currentUsername: string;
 
-  // User update fields
-  firstname: string;
-  lastname: string;
-  email: string;
-  enableUpdateButton = false;
-
   /** This component can be used to show another user */
   currentUser: CurrentUser | null;
   displayCoUser: DisplayCoUser | null;
@@ -53,16 +59,16 @@ export class UserComponent implements OnInit, OnDestroy {
   showCoUser = false;
 
   constructor(
-    private authService: AuthService,
-    private userService: UserService,
+    private _authService: AuthService,
+    private _userService: UserService,
     public dialog: MatDialog,
     private _snackbar: MatSnackBar,
-    private router: Router
+    private _router: Router
   ) {}
 
   ngOnInit() {
     this.isLoading = true;
-    this._authStatusSub$ = this.authService
+    this._authStatusSub$ = this._authService
       .getAuthStatusListener()
       .subscribe((authStatus) => {
         this.isUserAuthenticated = authStatus.isUserAuthenticated;
@@ -70,7 +76,7 @@ export class UserComponent implements OnInit, OnDestroy {
         this.currentUsername = authStatus.username;
       });
 
-    this._userRouteChangedSub$ = this.userService
+    this._userRouteChangedSub$ = this._userService
       .getUserRouterChangeListener()
       .subscribe((routeStatus) => {
         this._showOnInitTab = routeStatus.showTab;
@@ -78,7 +84,7 @@ export class UserComponent implements OnInit, OnDestroy {
         this.selectIndex = this._tabIndex[this._showOnInitTab];
 
         if (this.showCoUser) {
-          this.userService.getCoUserData().subscribe(
+          this._userService.getCoUserData().subscribe(
             (response) => {
               // console.log(response);
               this.displayCoUser = response.coUserData;
@@ -89,26 +95,88 @@ export class UserComponent implements OnInit, OnDestroy {
               this.displayCoUser = null;
               // console.log('error: displaying co-user details', error);
               this.isLoading = false;
-              this.authService.redirectToCampgrounds();
+              this._authService.redirectToCampgrounds();
             }
           );
         } else {
           // Deferred loading of user data interfacet CurrentUser
           // Only when viewing current user page
           if (this.isUserAuthenticated) {
-            this._userUpdateSub$ = this.authService
+            this._userUpdateSub$ = this._authService
               .getUserUpdatesListener()
               .subscribe((userData) => {
-                // console.log('currentUSer updated');
                 this.currentUser = userData.updatedUser;
-                this.firstname = this.currentUser?.firstname;
-                this.lastname = this.currentUser?.lastname;
-                this.email = this.currentUser?.email;
+
+                /** All User Settings: Form Group Init */
+                this.basicFormGroup = new FormGroup({
+                  username: new FormControl(
+                    this.currentUsername,
+                    Validators.required
+                  ),
+                  firstname: new FormControl(
+                    this.currentUser?.firstname,
+                    Validators.required
+                  ),
+                  lastname: new FormControl(
+                    this.currentUser?.lastname,
+                    Validators.required
+                  ),
+                  email: new FormControl(this.currentUser?.email, {
+                    validators: [Validators.required, Validators.email],
+                  }),
+                });
+
+                this.basicFormGroup.controls.username.disable();
+
+                // Display Preferences Form
+                this.displayPrefFormGroup = new FormGroup({
+                  showStatsDashboard: new FormControl(
+                    this.currentUser?.showStatsDashboard,
+                    Validators.required
+                  ),
+                  newCampgroundAlert: new FormControl(
+                    this.currentUser?.enableNotifications.newCampground,
+                    Validators.required
+                  ),
+                  newCommentAlert: new FormControl(
+                    this.currentUser?.enableNotifications.newComment,
+                    Validators.required
+                  ),
+                  newFollowerAlert: new FormControl(
+                    this.currentUser?.enableNotifications.newFollower,
+                    Validators.required
+                  ),
+                });
+
+                // Email Preferences Form
+                this.emailPrefFormGroup = new FormGroup({
+                  systemEmail: new FormControl(
+                    this.currentUser?.enableNotificationEmails.system,
+                    Validators.required
+                  ),
+                  newCampgroundEmail: new FormControl(
+                    this.currentUser?.enableNotificationEmails.newCampground,
+                    Validators.required
+                  ),
+                  newCommentEmail: new FormControl(
+                    this.currentUser?.enableNotificationEmails.newComment,
+                    Validators.required
+                  ),
+                  newFollowerEmail: new FormControl(
+                    this.currentUser?.enableNotificationEmails.newFollower,
+                    Validators.required
+                  ),
+                });
+
+                this.emailPrefFormGroup.controls.systemEmail.disable();
+
+                /** User Settings: Form Group Init - Ends */
+
                 this.isLoading = false;
                 // console.log('user component', this.currentUser);
               });
 
-            this.userService.getUserActivity(this.currentUserId).subscribe(
+            this._userService.getUserActivity(this.currentUserId).subscribe(
               (response) => {
                 this.displayCurrentUserCampgrounds = response.userCampgrounds;
                 this.isLoading = false;
@@ -122,12 +190,9 @@ export class UserComponent implements OnInit, OnDestroy {
             this.currentUsername = null;
             this.currentUser = null;
             this.displayCoUser = null;
-            this.firstname = null;
-            this.lastname = null;
-            this.email = null;
             this.displayCoUserCampgrounds = [];
             this.displayCurrentUserCampgrounds = [];
-            this.userService.redirectToHomePage();
+            this._userService.redirectToHomePage();
             this.isLoading = false;
           }
         }
@@ -143,7 +208,7 @@ export class UserComponent implements OnInit, OnDestroy {
   toggleUserFollow(isFollow: boolean): void {
     if (this.showCoUser && this.displayCoUser && this.currentUserId) {
       this.isLoading = true;
-      this.userService
+      this._userService
         .toggleFollowUser(
           this.displayCoUser.coUserId,
           this.currentUserId,
@@ -185,32 +250,35 @@ export class UserComponent implements OnInit, OnDestroy {
 
   /** IMPORTANT NODE: UPDATE USER DATA AT AUTH LEVEL,
    * TO REFLECT CHANGE EVERYWHERE INCLUDING HEADER COMPONENT */
-  async updateUserData(form: NgForm) {
-    if (!form.valid) return;
+  async updateUserData() {
     if (
-      form.value.firstname.trim() === '' ||
-      form.value.lastname.trim() === '' ||
-      form.value.email.trim() === ''
-    ) {
+      !this.basicFormGroup.valid ||
+      !this.displayPrefFormGroup.valid ||
+      !this.emailPrefFormGroup.valid
+    )
       return;
-    }
-
-    if (
-      form.value.firstname === this.currentUser.firstname &&
-      form.value.lastname === this.currentUser.lastname &&
-      form.value.email === this.currentUser.email
-    ) {
-      return;
-    }
 
     this.isLoading = true;
     try {
-      const result = await this.authService.updateUserData(
-        this.currentUserId,
-        form.value.firstname,
-        form.value.lastname,
-        form.value.email
-      );
+      const userData: UserSettingsUpdate = {
+        userId: this.currentUserId,
+        firstname: this.basicFormGroup.value.firstname,
+        lastname: this.basicFormGroup.value.lastname,
+        email: this.basicFormGroup.value.email,
+        showStatsDashboard: this.displayPrefFormGroup.value.showStatsDashboard,
+        enableNotifications: {
+          newCampground: this.displayPrefFormGroup.value.newCampgroundAlert,
+          newComment: this.displayPrefFormGroup.value.newCommentAlert,
+          newFollower: this.displayPrefFormGroup.value.newFollowerAlert,
+        },
+        enableNotificationEmails: {
+          newCampground: this.emailPrefFormGroup.value.newCampgroundEmail,
+          newComment: this.emailPrefFormGroup.value.newCommentEmail,
+          newFollower: this.emailPrefFormGroup.value.newFollowerEmail,
+        },
+      };
+
+      const result = await this._authService.updateUserData(userData);
 
       this._snackbar.openFromComponent(SnackBarComponent, {
         data: result,
@@ -235,7 +303,7 @@ export class UserComponent implements OnInit, OnDestroy {
       if (newAvatarLink) {
         this.isLoading = true;
         // console.log('avatar update initiated');
-        this.authService
+        this._authService
           .updateUserAvatar(this.currentUserId, newAvatarLink)
           .then((result) => {
             this.isLoading = false;
@@ -273,8 +341,8 @@ export class UserComponent implements OnInit, OnDestroy {
         case 0: //new campground
         case 1: //new campground comment
           !notification.isRead &&
-            this.authService.updateNotification([notification._id], true);
-          this.router.navigate([
+            this._authService.updateNotification([notification._id], true);
+          this._router.navigate([
             '/campgrounds/show/',
             notification.campgroundId,
           ]);
@@ -282,8 +350,8 @@ export class UserComponent implements OnInit, OnDestroy {
 
         case 3: // new follower
           !notification.isRead &&
-            this.authService.updateNotification([notification._id], true);
-          this.router.navigate(['/user/other', notification.follower.id]);
+            this._authService.updateNotification([notification._id], true);
+          this._router.navigate(['/user/other', notification.follower.id]);
           break;
 
         default:
@@ -294,11 +362,11 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   onNotificationRead(notificationId: string, isSetRead: boolean): void {
-    this.authService.updateNotification([notificationId], isSetRead);
+    this._authService.updateNotification([notificationId], isSetRead);
   }
 
   onNotificationDelete(notificationId: string): void {
-    this.authService.deleteNotification([notificationId]);
+    this._authService.deleteNotification([notificationId]);
   }
 
   // https://relevantmagazine.com/wp-content/uploads/2017/05/rambop.jpg

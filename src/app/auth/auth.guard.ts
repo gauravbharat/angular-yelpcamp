@@ -10,7 +10,7 @@
  * value for the Auth Guard to proceed.
  * OnInit was not triggered, but canActivate at first alwasys*/
 
-import { Injectable, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   CanActivate,
   ActivatedRouteSnapshot,

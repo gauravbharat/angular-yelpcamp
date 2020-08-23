@@ -89,6 +89,7 @@
           type="button"
           *ngIf="!isLoading"
           (click)="onForgotPassword(loginForm)"
+          [disabled]="!email || emailInput.invalid"
         >
           Forgot Password
         </button>

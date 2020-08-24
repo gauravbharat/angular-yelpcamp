@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Socket } from 'ngx-socket-io';
-import { map } from 'rxjs/operators';
 
 @Injectable()
 export class SocketService {
@@ -30,6 +29,30 @@ export class SocketService {
   deleteCommentListener = () => {
     return Observable.create((observer) => {
       this._socket.on('delete-comment', (message) => {
+        observer.next(message);
+      });
+    });
+  };
+
+  newCampListener = () => {
+    return Observable.create((observer) => {
+      this._socket.on('new-campground', (message) => {
+        observer.next(message);
+      });
+    });
+  };
+
+  editCampListener = () => {
+    return Observable.create((observer) => {
+      this._socket.on('edit-campground', (message) => {
+        observer.next(message);
+      });
+    });
+  };
+
+  deleteCampListener = () => {
+    return Observable.create((observer) => {
+      this._socket.on('delete-campground', (message) => {
         observer.next(message);
       });
     });

@@ -5,6 +5,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Campground, AmenityList } from '../campground.model';
 import { mimeType } from '../../utils/mime-type.validator';
 import { CampgroundsService } from '../campgrounds.service';
+import { SocketService } from '../../socket.service';
 
 @Component({
   selector: 'app-campground-create',
@@ -32,7 +33,8 @@ export class CampgroundCreateComponent implements OnInit {
    */
   constructor(
     private campgroundsService: CampgroundsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private _socketService: SocketService
   ) {}
 
   ngOnInit() {
@@ -165,6 +167,12 @@ export class CampgroundCreateComponent implements OnInit {
           (result) => {
             this.form.reset();
             // console.log('success creating campground', result);
+
+            /** Notifiy new campground */
+            this._socketService.sendMessage('new-campground', {
+              campgroundId: result.campgroundId,
+            });
+
             this.campgroundsService.redirectToCampgrounds();
           },
           (error) => {
@@ -187,6 +195,12 @@ export class CampgroundCreateComponent implements OnInit {
         .subscribe(
           (response) => {
             this.form.reset();
+
+            /** Notifiy edit campground */
+            this._socketService.sendMessage('edit-campground', {
+              campgroundId: this.campgroundId,
+            });
+
             // console.log('success editing campground', response);
             this.campgroundsService.redirectToCampgrounds();
           },

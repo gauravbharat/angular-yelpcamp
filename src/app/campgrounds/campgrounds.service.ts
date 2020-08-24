@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { SocketService } from '../socket.service';
+
 import { Campground, AmenityList } from './campground.model';
 import { environment } from '../../environments/environment';
 
@@ -28,7 +30,11 @@ export class CampgroundsService {
   > = new BehaviorSubject<Campground[]>([]);
   campgroundsList = this.campgroundsListSource.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private _socketService: SocketService
+  ) {}
 
   getAllAmenities() {
     /** Get the list of all campground amenities from the database */
@@ -191,6 +197,11 @@ export class CampgroundsService {
   deleteCampground(campgroundId: string) {
     return this.http.delete(`${BACKEND_URL}/${campgroundId}`).subscribe(
       (result) => {
+        /** Notifiy delete campground */
+        this._socketService.sendMessage('delete-campground', {
+          campgroundId,
+        });
+
         this.redirectToCampgrounds();
         // console.log('Campground deleted!');
       },

@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-
-import { MatPaginator } from '@angular/material/paginator';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
 
 import { AuthService } from '../../auth/auth.service';
-import { Campground } from '../campground.model';
 import { CampgroundsService } from '../campgrounds.service';
-import { PageEvent } from '@angular/material/paginator';
+import { SocketService } from '../../socket.service';
+
+import { Campground } from '../campground.model';
 
 @Component({
   selector: 'app-home',
@@ -18,6 +18,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   campgrounds: Campground[] = [];
   private campgroundsSubscription$: Subscription;
   private authStatusSub$: Subscription;
+
+  private _newCampSub$: Subscription;
+  private _editCampSub$: Subscription;
+  private _deleteCampSub$: Subscription;
 
   isLoading = false;
   totalCampgrounds = 0;
@@ -32,7 +36,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private campgroundsService: CampgroundsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private _socketService: SocketService
   ) {}
 
   ngOnInit() {
@@ -55,16 +60,68 @@ export class HomeComponent implements OnInit, OnDestroy {
           campgrounds: Campground[];
           maxCampgrounds: number;
         }) => {
+          // console.log(
+          //   'getCampgroundsUpdateListener: inside listener on home page'
+          // );
+
           this.isLoading = false;
           this.totalCampgrounds = campgroundData.maxCampgrounds;
           this.campgrounds = campgroundData.campgrounds;
         }
       );
+
+    /** 24082020 - Subscribe to new/edit/delete campground socket observables */
+    this._newCampSub$ = this._socketService.newCampListener().subscribe(
+      (response) => {
+        //Refresh campgrounds only when the new campground is not currently displayed
+        if (
+          !this.campgrounds ||
+          this.campgrounds.findIndex(
+            (campground) => campground._id === response.campgroundId
+          ) === -1
+        ) {
+          this.getCampgrounds();
+        }
+      },
+      (error) => {
+        console.log('socketService newCampListener error', error);
+      }
+    );
+
+    this._editCampSub$ = this._socketService.editCampListener().subscribe(
+      (response) => {
+        this.getCampgrounds();
+      },
+      (error) => {
+        console.log('socketService newCampListener error', error);
+      }
+    );
+
+    this._deleteCampSub$ = this._socketService.deleteCampListener().subscribe(
+      (response) => {
+        //Refresh campgrounds only if the deleted campground is currently displayed
+        if (
+          this.campgrounds &&
+          this.campgrounds.findIndex(
+            (campground) => campground._id === response.campgroundId
+          ) !== -1
+        ) {
+          this.getCampgrounds();
+        }
+      },
+      (error) => {
+        console.log('socketService newCampListener error', error);
+      }
+    );
   }
 
   ngOnDestroy() {
     this.campgroundsSubscription$.unsubscribe();
     this.authStatusSub$.unsubscribe();
+
+    this._newCampSub$?.unsubscribe();
+    this._editCampSub$?.unsubscribe();
+    this._deleteCampSub$?.unsubscribe();
   }
 
   getCampgrounds() {

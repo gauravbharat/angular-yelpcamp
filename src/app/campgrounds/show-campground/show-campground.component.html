@@ -29,7 +29,7 @@
           <mat-card-title
             >{{ campground?.name
             }}<span class="price"
-              >${{ campground?.price }}/night</span
+              >${{ campground?.price ? campground?.price : 0 }}/night</span
             ></mat-card-title
           >
           <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>

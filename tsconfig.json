@@ -12,6 +12,13 @@
     },
     {
       "path": "./tsconfig.spec.json"
+    },
+    {
+      "compilerOptions": {
+        "paths": {
+          "rxjs": ["node_modules/rxjs"]
+        }
+      }
     }
-]
+  ]
 }

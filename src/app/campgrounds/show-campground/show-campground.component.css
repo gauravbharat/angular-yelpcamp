@@ -65,6 +65,7 @@ mat-card-title {
 .comments-container {
   margin-top: 20px;
   padding: 10px;
+  margin-bottom: 40px;
 }
 
 mat-form-field {

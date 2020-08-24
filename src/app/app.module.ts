@@ -32,6 +32,14 @@ const dbConfig: DBConfig = {
     },
   ],
 };
+/** 24082020 - Gaurav - Socket specific code */
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { environment } from '../environments/environment';
+const socketConfig: SocketIoConfig = {
+  url: environment.socketUrl,
+  options: {},
+};
+import { SocketService } from './socket.service';
 
 @NgModule({
   declarations: [TextTruncateEllipsisDirective, AppComponent, LandingComponent],
@@ -43,10 +51,12 @@ const dbConfig: DBConfig = {
     AngularMaterialModule,
     CampgroundsModule,
     NgxIndexedDBModule.forRoot(dbConfig),
+    SocketIoModule.forRoot(socketConfig),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    SocketService,
   ],
   bootstrap: [AppComponent],
 })

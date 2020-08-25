@@ -1,10 +1,14 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
-
+// 25082020 - Gaurav - Added MapBox access token
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
+  mapbox: {
+    accessToken:
+      'pk.eyJ1IjoiZ2FyeWRzYSIsImEiOiJja2U5Yzg2bjUwdTYyMnFybnMzYmJ6Y3MwIn0.zSIj6460x2gD_YZRUWO0Bg',
+  },
 };
 
 /*

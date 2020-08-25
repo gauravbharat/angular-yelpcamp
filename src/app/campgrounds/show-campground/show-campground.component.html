@@ -4,7 +4,7 @@
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
-<div class="container" *ngIf="!isLoading">
+<div class="container">
   <div
     class="camp-container"
     fxLayout="row"
@@ -12,13 +12,30 @@
     fxLayoutAlign="space-around"
   >
     <div class="side-panel" fxFlex="30%">
-      <h1 class="side-panel-title">Campground</h1>
+      <h1 class="side-panel-title">Location Map</h1>
+      <div class="loading-map-location" *ngIf="isLoading">
+        <img
+          src="assets/svg/location-on-map.svg"
+          alt="map location placeholder"
+        />
+        loading...
+      </div>
+
+      <div class="map-display" *ngIf="!isLoading">
+        <ay-map [mapLocation]="campground?.location"></ay-map>
+      </div>
     </div>
 
     <div class="main-panel" fxFlex="70%">
       <mat-card>
         <div class="campground-image">
+          <div class="loading-campground-image" *ngIf="isLoading">
+            <mat-icon>photo</mat-icon>
+            loading...
+          </div>
+
           <img
+            *ngIf="!isLoading"
             mat-card-image
             [src]="campground?.image"
             [alt]="campground?.name"

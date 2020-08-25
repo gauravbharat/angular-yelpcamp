@@ -36,7 +36,7 @@ const dbConfig: DBConfig = {
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
 const socketConfig: SocketIoConfig = {
-  url: environment.socketUrl,
+  url: environment.apiUrl,
   options: {},
 };
 import { SocketService } from './socket.service';

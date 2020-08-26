@@ -13,6 +13,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import * as moment from 'moment';
+import * as Filter from 'bad-words';
 import { MatAccordion, MatExpansionPanel } from '@angular/material/expansion';
 
 import { AuthService } from '../../auth/auth.service';
@@ -49,6 +50,8 @@ export class ShowCampgroundComponent
 
   addCommentOpenState = false;
   newComment: string;
+
+  private _filter = new Filter();
 
   /** Live chat feature variables */
   campChatOpenState = false;
@@ -92,6 +95,17 @@ export class ShowCampgroundComponent
 
   ngOnInit() {
     this.isLoading = true;
+
+    /** Profanity Filter on campground comments. Add some local cuss words to filter */
+    const newBadWords = [
+      'madarchod',
+      'bhenchod',
+      'benchod',
+      'gandu',
+      'bhosdike',
+      'bosedike',
+    ];
+    this._filter.addWords(...newBadWords);
 
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
@@ -314,6 +328,8 @@ export class ShowCampgroundComponent
   }
 
   onNewCommentSubmit(form: NgForm, mep: MatExpansionPanel): void {
+    if (this._isProfane(this.newComment)) return;
+
     this.isLoading = true;
     /** Broadcast new comment */
     this.commentsService
@@ -361,6 +377,8 @@ export class ShowCampgroundComponent
   }
 
   onCommentEdit(elementRef: ElementRef, commentId: string, text: string): void {
+    if (this._isProfane(text)) return;
+
     const currentButtonLabel = elementRef.nativeElement.innerText;
     this.toggleEditButton(elementRef);
 
@@ -452,6 +470,19 @@ export class ShowCampgroundComponent
     this.newChatText = '';
   }
   /** Live-chat methods - Ends */
+
+  private _isProfane(text: string) {
+    if (this._filter.isProfane(text)) {
+      this._snackbar.openFromComponent(SnackBarComponent, {
+        data: 'Profanity is not allowed!',
+        ...configFailure,
+      });
+
+      return true;
+    }
+
+    return false;
+  }
 
   private _getCampgroundFromServer() {
     this.getCampFromServerSub$ = this.campgroundsService

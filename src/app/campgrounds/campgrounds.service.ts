@@ -31,14 +31,14 @@ export class CampgroundsService {
   campgroundsList = this.campgroundsListSource.asObservable();
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
+    private _http: HttpClient,
+    private _router: Router,
     private _socketService: SocketService
   ) {}
 
   getAllAmenities() {
     /** Get the list of all campground amenities from the database */
-    return this.http.get<{ message: string; amenitiesList: AmenityList[] }>(
+    return this._http.get<{ message: string; amenitiesList: AmenityList[] }>(
       `${BACKEND_URL}/amenities`
     );
   }
@@ -56,7 +56,7 @@ export class CampgroundsService {
 
     // console.log(queryParms);
 
-    this.http
+    this._http
       .get<{ message: string; campgrounds: any; maxCampgrounds: number }>(
         `${BACKEND_URL}${queryParms}`
       )
@@ -112,7 +112,7 @@ export class CampgroundsService {
      * NOW, the campground-create component expects a post synchronously from this asynchornous call
      * So, pass the subscription instead to campground-create and get the campground values there */
 
-    return this.http.get<{
+    return this._http.get<{
       _id: string;
       name: string;
       price: number;
@@ -122,6 +122,18 @@ export class CampgroundsService {
       amenities: AmenityList[] | null | undefined;
       comments: string[];
     }>(`${BACKEND_URL}/${campgroundId}`);
+  }
+
+  getCampgroundStats() {
+    return this._http.get<{
+      campgroundsCount: number;
+      usersCount: number;
+      contributorsCount: number;
+    }>(`${BACKEND_URL}/stats`);
+  }
+
+  getUserCountry() {
+    return this._http.get<any>(`${environment.ipUrl}`);
   }
 
   getCampgroundsUpdateListener() {
@@ -148,7 +160,7 @@ export class CampgroundsService {
     newCampData.append('image', image, name.substring(0, 6));
     amenities && newCampData.append('amenities', JSON.stringify(amenities));
 
-    return this.http.post<{ campgroundId: string; campground: Campground }>(
+    return this._http.post<{ campgroundId: string; campground: Campground }>(
       `${BACKEND_URL}/create`,
       newCampData
     );
@@ -190,12 +202,12 @@ export class CampgroundsService {
       };
     }
 
-    return this.http.put(`${BACKEND_URL}/edit/${_id}`, editCampData);
+    return this._http.put(`${BACKEND_URL}/edit/${_id}`, editCampData);
   }
 
   // 06082020 - Delete campground
   deleteCampground(campgroundId: string) {
-    return this.http.delete(`${BACKEND_URL}/${campgroundId}`).subscribe(
+    return this._http.delete(`${BACKEND_URL}/${campgroundId}`).subscribe(
       (result) => {
         /** Notifiy delete campground */
         this._socketService.sendMessage('delete-campground', {
@@ -212,6 +224,6 @@ export class CampgroundsService {
   }
 
   redirectToCampgrounds() {
-    this.router.navigate(['/campgrounds']);
+    this._router.navigate(['/campgrounds']);
   }
 }

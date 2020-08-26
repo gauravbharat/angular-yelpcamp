@@ -130,8 +130,8 @@ export class UserComponent implements OnInit, OnDestroy {
 
                 // Display Preferences Form
                 this.displayPrefFormGroup = new FormGroup({
-                  showStatsDashboard: new FormControl(
-                    this.currentUser?.showStatsDashboard,
+                  hideStatsDashboard: new FormControl(
+                    this.currentUser?.hideStatsDashboard,
                     Validators.required
                   ),
                   newCampgroundAlert: new FormControl(
@@ -265,7 +265,7 @@ export class UserComponent implements OnInit, OnDestroy {
         firstname: this.basicFormGroup.value.firstname,
         lastname: this.basicFormGroup.value.lastname,
         email: this.basicFormGroup.value.email,
-        showStatsDashboard: this.displayPrefFormGroup.value.showStatsDashboard,
+        hideStatsDashboard: this.displayPrefFormGroup.value.hideStatsDashboard,
         enableNotifications: {
           newCampground: this.displayPrefFormGroup.value.newCampgroundAlert,
           newComment: this.displayPrefFormGroup.value.newCommentAlert,

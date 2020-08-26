@@ -63,11 +63,7 @@
                       ? ['other-user-chat']
                       : ['']
                   "
-                  *ngFor="
-                    let chat of chatMessageList;
-                    let i = index;
-                    trackBy: chat?.chatId
-                  "
+                  *ngFor="let chat of chatMessageList; let i = index"
                   [id]="i"
                   #chatList
                 >

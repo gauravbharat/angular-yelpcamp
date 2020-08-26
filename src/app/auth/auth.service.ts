@@ -32,6 +32,7 @@ export class AuthService {
     userId: string;
     userAvatar: string;
     unreadNotifications: number;
+    hideStatsDashboard: boolean;
     error: string;
   }>({
     isUserAuthenticated: false,
@@ -39,6 +40,7 @@ export class AuthService {
     userId: null,
     userAvatar: null,
     unreadNotifications: 0,
+    hideStatsDashboard: false,
     error: null,
   });
   private userUpdateListener = new BehaviorSubject<{
@@ -190,7 +192,7 @@ export class AuthService {
             this.currentUser.firstname = userData.firstname;
             this.currentUser.lastname = userData.lastname;
             this.currentUser.email = userData.email;
-            this.currentUser.showStatsDashboard = userData.showStatsDashboard;
+            this.currentUser.hideStatsDashboard = userData.hideStatsDashboard;
             this.currentUser.enableNotifications.newCampground =
               userData.enableNotifications.newCampground;
             this.currentUser.enableNotifications.newComment =
@@ -475,6 +477,7 @@ export class AuthService {
         unreadNotifications: unreadNotifications
           ? unreadNotifications.length
           : 0,
+        hideStatsDashboard: this.currentUser.hideStatsDashboard,
         error,
       });
       this.userUpdateListener.next({
@@ -487,6 +490,7 @@ export class AuthService {
         userId: null,
         userAvatar: null,
         unreadNotifications: 0,
+        hideStatsDashboard: false,
         error,
       });
       this?.userUpdateListener.next({

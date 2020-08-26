@@ -1,13 +1,32 @@
-mat-card {
+.banner {
   box-sizing: border-box;
   width: 60%;
   margin: 10px auto;
   padding: 32px;
   background-color: #e9ecef;
+  display: flex;
+}
+
+.banner-single {
+  justify-content: flex-start;
+}
+
+.banner-duplex {
+  justify-content: space-around;
+}
+
+.banner-single-middle {
+  padding: 20px 0;
 }
 
 mat-spinner {
   margin: auto;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .mat-display-2 {
@@ -15,17 +34,60 @@ mat-spinner {
   margin-bottom: 1rem;
 }
 
-.campground-search {
-  margin-top: 1rem;
+.header-button-new {
+  width: 300px !important;
+  height: 100px !important;
+  min-height: unset !important;
+  min-width: unset !important;
+  font-size: 1.5rem;
+  font-weight: 300;
 }
 
-.campground-search button[type="submit"] {
-  margin-left: 0.5rem;
+.campground-search {
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-input {
+  width: 90%;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-around; */
+}
+
+.stats-card:nth-of-type(odd) {
+  margin: 10px 0;
+}
+
+.stats-card {
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.stats-card .count {
+  font-size: 3.5rem;
+  font-weight: 300;
+  padding: 15px;
+}
+
+.stats-card .category {
+  font-size: 1rem;
 }
 
 mat-grid-list {
   width: 60%;
   margin: 15px auto;
+}
+
+.grid-card {
+  box-sizing: border-box;
+  width: 60%;
+  margin: 10px auto;
+  padding: 32px;
+  background-color: #e9ecef;
 }
 
 /* mat-paginator {
@@ -72,4 +134,16 @@ mat-grid-list mat-card {
 
 .paginator {
   width: 80%;
+}
+
+.courtesy-footer {
+  text-align: center;
+  margin: 10px auto;
+  font-size: 0.75em;
+  color: #383a3b;
+}
+
+.courtesy-footer a {
+  color: #383a3b;
+  text-decoration: none;
 }

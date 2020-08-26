@@ -41,3 +41,11 @@ a {
   border-radius: 50%;
   overflow: hidden;
 }
+
+.yelpcamp-location-flag {
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  border-radius: 5%;
+  overflow: hidden;
+}

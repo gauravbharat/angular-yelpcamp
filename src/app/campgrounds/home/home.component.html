@@ -4,51 +4,74 @@
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
-<mat-card>
-  <h1 class="mat-display-2">
-    Welcome to YelpCamp!
-  </h1>
-  <h3>View our hand-picked campgrounds from all over the world</h3>
-  <button
-    [disabled]="!isUserAuthenticated"
-    mat-raised-button
-    color="accent"
-    [routerLink]="['/campgrounds/process/new']"
-  >
-    Add New Campground
-  </button>
-  <!-- <mat-form-field> -->
-  <br />
-  <form class="campground-search" (submit)="onSearchCampground()">
-    <mat-form-field class="example-full-width">
-      <input
-        type="text"
-        matInput
-        name="searchCamp"
-        [(ngModel)]="search"
-        placeholder="Campground search..."
-      />
-    </mat-form-field>
-    <!-- <mat-autocomplete #auto="matAutocomplete">
-      <mat-option
-        *ngFor="let campgroundName of campgroundNamesList"
-        [value]="campgroundName"
-      >
-        {{ campgroundName }}
-      </mat-option>
-    </mat-autocomplete> -->
-    <button
-      mat-button
-      *ngIf="searchMode"
-      matSuffix
-      mat-icon-button
-      aria-label="Clear"
-      (click)="onClearSearch()"
+<mat-card
+  class="banner"
+  [ngClass]="hideStatsDashboard ? ['banner-single'] : ['banner-duplex']"
+>
+  <div class="heading">
+    <div class="heading-top">
+      <h1 class="mat-display-2">Welcome to YelpCamp!</h1>
+
+      <h3>View our hand-picked campgrounds from all over the world</h3>
+    </div>
+
+    <div
+      class="header-middle"
+      [ngClass]="hideStatsDashboard ? ['banner-single-middle'] : ['']"
     >
-      <mat-icon>close</mat-icon>
-    </button>
-    <button mat-button type="submit">Search</button>
-  </form>
+      <button
+        class="header-button-new"
+        [disabled]="!isUserAuthenticated"
+        mat-raised-button
+        color="accent"
+        [routerLink]="['/campgrounds/process/new']"
+      >
+        Add New Campground
+      </button>
+    </div>
+
+    <!-- <br /> -->
+    <div class="heading-bottom">
+      <form class="campground-search" (submit)="onSearchCampground()">
+        <mat-form-field class="search-input">
+          <input
+            type="text"
+            matInput
+            name="searchCamp"
+            [(ngModel)]="search"
+            placeholder="Campground search..."
+          />
+        </mat-form-field>
+        <button
+          *ngIf="searchMode"
+          matSuffix
+          mat-icon-button
+          aria-label="Clear"
+          (click)="onClearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+        <button mat-button type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+
+  <mat-divider vertical="true" *ngIf="!hideStatsDashboard"></mat-divider>
+
+  <div class="stats" *ngIf="!hideStatsDashboard">
+    <mat-card [ngStyle]="getFlagColor()?.top" class="stats-card">
+      <div class="count">{{ campgroundsCount }}</div>
+      <div class="category">Campgrounds</div>
+    </mat-card>
+    <mat-card class="stats-card" [ngStyle]="getFlagColor()?.middle">
+      <div class="count">{{ usersCount }}</div>
+      <div class="category">Users</div>
+    </mat-card>
+    <mat-card class="stats-card" [ngStyle]="getFlagColor()?.bottom">
+      <div class="count">{{ contributorsCount }}</div>
+      <div class="category">Contributors</div>
+    </mat-card>
+  </div>
 </mat-card>
 <!-- <mat-spinner *ngIf="isLoading"></mat-spinner> -->
 <mat-grid-list
@@ -59,7 +82,7 @@
   *ngIf="!isLoading"
 >
   <mat-grid-tile *ngFor="let campground of campgrounds">
-    <mat-card>
+    <mat-card class="grid-card">
       <img
         class="campground-preview-image"
         mat-card-image
@@ -91,4 +114,15 @@
     *ngIf="campgrounds.length > 0"
     #paginator
   ></mat-paginator>
+</div>
+<div class="courtesy-footer" *ngIf="!isLoading">
+  <p>
+    Flag icons made by
+    <a href="https://www.flaticon.com/authors/freepik" title="Freepik"
+      >Freepik</a
+    >
+    from
+    <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com. </a>
+    <!-- Country code courtesy: https://ipinfo.io -->
+  </p>
 </div>

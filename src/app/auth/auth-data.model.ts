@@ -32,7 +32,7 @@ export interface UserSettingsUpdate {
   firstname: string;
   lastname: string;
   email: string;
-  showStatsDashboard: boolean;
+  hideStatsDashboard: boolean;
   enableNotifications: {
     newCampground: boolean;
     newComment: boolean;
@@ -70,7 +70,7 @@ export interface CurrentUser {
     newComment: boolean;
     newFollower: boolean;
   };
-  showStatsDashboard: boolean;
+  hideStatsDashboard: boolean;
   token: string;
   expiresIn: number;
   tokenTimer?: any;

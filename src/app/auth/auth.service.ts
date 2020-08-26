@@ -120,7 +120,7 @@ export class AuthService {
       .subscribe(
         (response) => {
           this.currentUser = response.userData;
-          console.log('auth service', this.currentUser);
+          // console.log('auth service', this.currentUser);
           this._updateListeners(this.UPDATE_USER, false, null);
           this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);

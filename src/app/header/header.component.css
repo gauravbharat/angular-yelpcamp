@@ -5,6 +5,14 @@
   padding: 0;
 } */
 
+.yelpcamp-logo {
+  transition: font-size 0.5s;
+}
+
+.yelpcamp-logo:hover {
+  font-size: 22px;
+}
+
 ul {
   list-style: none;
   padding: 0;

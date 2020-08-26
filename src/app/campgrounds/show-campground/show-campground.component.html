@@ -24,6 +24,100 @@
       <div class="map-display" *ngIf="!isLoading">
         <ay-map [mapLocation]="campground?.location"></ay-map>
       </div>
+
+      <div class="chat-room">
+        <mat-divider></mat-divider>
+        <h1 class="side-panel-title">Live 🏕&nbsp;Chat</h1>
+        <mat-expansion-panel
+          (opened)="onChatJoin()"
+          (closed)="onChatLeave()"
+          [disabled]="!isUserAuthenticated"
+          #mepCampChat="matExpansionPanel"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title> ⛺️&nbsp; 💬 </mat-panel-title>
+            <mat-panel-description
+              *ngIf="!isUserAuthenticated && !campChatOpenState"
+            >
+              You need to login.
+            </mat-panel-description>
+            <mat-panel-description
+              *ngIf="isUserAuthenticated && !campChatOpenState"
+            >
+              Click to join
+            </mat-panel-description>
+            <mat-panel-description
+              *ngIf="isUserAuthenticated && campChatOpenState"
+            >
+              <strong>{{ campground?.name }}</strong
+              >&nbsp;chat room
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="chat-expanded-panel">
+            <div class="chats-display" #chatDisplay>
+              <ul>
+                <li
+                  class="chat-list"
+                  [ngClass]="
+                    chat.messageType === 2 && chat.chatMessage.userId !== userId
+                      ? ['other-user-chat']
+                      : ['']
+                  "
+                  *ngFor="
+                    let chat of chatMessageList;
+                    let i = index;
+                    trackBy: chat?.chatId
+                  "
+                  [id]="i"
+                  #chatList
+                >
+                  <span
+                    [ngClass]="
+                      chat.messageType === 1 || chat.messageType === 3
+                        ? ['chat-server-text']
+                        : ['chat-list-text']
+                    "
+                    >{{ chat?.chatMessage?.msg }}</span
+                  ><span
+                    [ngClass]="
+                      chat.messageType === 1 || chat.messageType === 3
+                        ? ['chat-server-time']
+                        : ['chat-list-time']
+                    "
+                    >{{ getLastEdited(chat?.postDate) }}</span
+                  >
+                </li>
+              </ul>
+            </div>
+            <form class="chat-form-type" (ngSubmit)="onChatSubmit()">
+              <mat-form-field>
+                <input
+                  matInput
+                  type="text"
+                  name="newChatText"
+                  [(ngModel)]="newChatText"
+                  maxlength="120"
+                />
+                <mat-hint align="end">{{ newChatText?.length }} / 120</mat-hint>
+              </mat-form-field>
+              <button
+                mat-button
+                color="primary"
+                type="submit"
+                matSuffix
+                mat-icon-button
+                aria-label="Enter"
+                [disabled]="!newChatText || newChatText === ''"
+              >
+                <mat-icon>double_arrow</mat-icon>
+              </button>
+            </form>
+            <div class="chat-footer">
+              * Chat room limited for this campground page only!
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </div>
     </div>
 
     <div class="main-panel" fxFlex="70%">
@@ -111,9 +205,7 @@
             #mepNewComment="matExpansionPanel"
           >
             <mat-expansion-panel-header>
-              <mat-panel-title>
-                Add Comment
-              </mat-panel-title>
+              <mat-panel-title> Add Comment </mat-panel-title>
               <mat-panel-description *ngIf="!isUserAuthenticated">
                 You need to login before you can comment.
               </mat-panel-description>

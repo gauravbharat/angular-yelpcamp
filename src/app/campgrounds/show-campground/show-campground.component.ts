@@ -4,6 +4,10 @@ import {
   OnDestroy,
   ViewChild,
   ElementRef,
+  AfterViewInit,
+  ViewChildren,
+  QueryList,
+  AfterViewChecked,
 } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -14,15 +18,27 @@ import { MatAccordion, MatExpansionPanel } from '@angular/material/expansion';
 import { AuthService } from '../../auth/auth.service';
 import { CampgroundsService } from '../campgrounds.service';
 import { CommentsService } from '../comments.service';
-import { SocketService } from '../../socket.service';
+import { SocketService, ChatMessage } from '../../socket.service';
+
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackBarComponent } from '../../error/snackbar.component';
+import { configFailure } from '../../error/snackbar.config';
 
 import { Campground } from '../campground.model';
+
+interface ChatMessageList {
+  chatId: number;
+  chatMessage: ChatMessage;
+  messageType: number;
+  postDate: Date;
+}
 
 @Component({
   templateUrl: './show-campground.component.html',
   styleUrls: ['./show-campground.component.css'],
 })
-export class ShowCampgroundComponent implements OnInit, OnDestroy {
+export class ShowCampgroundComponent
+  implements OnInit, OnDestroy, AfterViewChecked {
   isUserAuthenticated = false;
   isLoading = false;
   userId: string;
@@ -33,6 +49,21 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
 
   addCommentOpenState = false;
   newComment: string;
+
+  /** Live chat feature variables */
+  campChatOpenState = false;
+  isUserJoinedChatRoom = false;
+  newChatText: string;
+  readonly messageType = {
+    NEW_USER_JOINED: 1,
+    NEW_CHAT_MESSAGE: 2,
+    USER_LEFT_CHAT: 3,
+  };
+  chatMessageList: ChatMessageList[] = [];
+  private _scrollToChat = false;
+  @ViewChild('mepCampChat') mepCampChat: MatExpansionPanel;
+  @ViewChild('chatDisplay') chatDisplayDiv: ElementRef;
+  @ViewChildren('chatList') chatLi: QueryList<ElementRef>;
 
   accordionExpanded = false;
   @ViewChild(MatAccordion) accordion: MatAccordion;
@@ -45,12 +76,18 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
   private _editCommentSub$: Subscription;
   private _deleteCommentSub$: Subscription;
 
+  private _newChatComment$: Subscription;
+  private _newChatUserJoined$: Subscription;
+  private _chatUserLeft$: Subscription;
+  private _socketDisconnect$: Subscription;
+
   constructor(
     private authService: AuthService,
     private campgroundsService: CampgroundsService,
     private route: ActivatedRoute,
     private commentsService: CommentsService,
-    private _socketService: SocketService
+    private _socketService: SocketService,
+    private _snackbar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -86,6 +123,7 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
       }
     });
 
+    /** Socket listeners - Starts */
     /** 24082020 - Subscribe to new/edit/delete comment socket observables */
     this._newCommentSub$ = this._socketService.newCommentListener().subscribe(
       (response) => {
@@ -121,6 +159,134 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
           console.log('socketService deleteCommentListener error', error);
         }
       );
+
+    /** Live-chat socket listeners */
+    this._newChatUserJoined$ = this._socketService
+      .newChatUserJoinedListener()
+      .subscribe(
+        (response) => {
+          // console.log(response);
+          /** Get chat messages only when user has the chat panel open */
+          if (this.campChatOpenState) {
+            const user =
+              response.userId === this.userId ? 'You' : response.username;
+            response.msg = `${user} joined chat room ${response.roomname}`;
+
+            const chatId =
+              this.chatMessageList.length > 0
+                ? this.chatMessageList[this.chatMessageList.length - 1].chatId +
+                  1
+                : 1;
+
+            this.chatMessageList.push({
+              chatId,
+              chatMessage: { ...response },
+              messageType: this.messageType.NEW_USER_JOINED,
+              postDate: new Date(),
+            });
+
+            const scrollHeight = this.chatDisplayDiv?.nativeElement
+              .scrollHeight;
+            const clientHeight = this.chatDisplayDiv?.nativeElement
+              .clientHeight;
+            this._scrollToChat = !!(scrollHeight - clientHeight);
+          }
+        },
+        (error) => {
+          // do nothing
+        }
+      );
+
+    this._newChatComment$ = this._socketService
+      .newChatMessageListener()
+      .subscribe(
+        (response) => {
+          /** Get chat messages only when user has the chat panel open */
+          if (this.campChatOpenState) {
+            const user =
+              response.userId === this.userId ? 'You' : response.username;
+
+            response.msg = `${user}: ${response.msg} `;
+
+            const chatId =
+              this.chatMessageList.length > 0
+                ? this.chatMessageList[this.chatMessageList.length - 1].chatId +
+                  1
+                : 1;
+
+            this.chatMessageList.push({
+              chatId,
+              chatMessage: { ...response },
+              messageType: this.messageType.NEW_CHAT_MESSAGE,
+              postDate: new Date(),
+            });
+
+            const scrollHeight = this.chatDisplayDiv?.nativeElement
+              .scrollHeight;
+            const clientHeight = this.chatDisplayDiv?.nativeElement
+              .clientHeight;
+            this._scrollToChat = !!(scrollHeight - clientHeight);
+          }
+        },
+        (error) => console.log(error)
+      );
+
+    this._chatUserLeft$ = this._socketService.chatUserLeftListener().subscribe(
+      (response) => {
+        // console.log(response);
+        /** Get chat messages only when user has the chat panel open
+         * User left message is expected to be received by all chat participants, except the one left
+         */
+        if (this.campChatOpenState) {
+          const chatId =
+            this.chatMessageList.length > 0
+              ? this.chatMessageList[this.chatMessageList.length - 1].chatId + 1
+              : 1;
+
+          this.chatMessageList.push({
+            chatId,
+            chatMessage: { ...response },
+            messageType: this.messageType.USER_LEFT_CHAT,
+            postDate: new Date(),
+          });
+
+          const scrollHeight = this.chatDisplayDiv?.nativeElement.scrollHeight;
+          const clientHeight = this.chatDisplayDiv?.nativeElement.clientHeight;
+          this._scrollToChat = !!(scrollHeight - clientHeight);
+        }
+      },
+      (error) => {
+        // do nothing
+      }
+    );
+    /** Live-chat socket listeners - Ends */
+
+    this._socketDisconnect$ = this._socketService
+      .onSocketDisconnect()
+      .subscribe((response) => {
+        /** If open, close chat expansion panel and give error 'snackbar' to user */
+        if (this.campChatOpenState) {
+          this.mepCampChat?.close();
+
+          this._snackbar.openFromComponent(SnackBarComponent, {
+            data:
+              'There seems to be a server error or restart which resulted in disconnect of live-chat. Please try joining the live-chat after some time.',
+            ...configFailure,
+          });
+        }
+      });
+    /** Socket listeners - Ends */
+  }
+
+  ngAfterViewChecked() {
+    /** If chat panel is open, scroll to recent chat message if scrollbar is past its height */
+    if (this.campChatOpenState && this._scrollToChat) {
+      this.chatLi?.last?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      });
+      this._scrollToChat = false;
+    }
   }
 
   ngOnDestroy() {
@@ -132,6 +298,11 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
     this._newCommentSub$?.unsubscribe();
     this._editCommentSub$?.unsubscribe();
     this._deleteCommentSub$?.unsubscribe();
+
+    this._newChatComment$?.unsubscribe();
+    this._newChatUserJoined$?.unsubscribe();
+    this._chatUserLeft$?.unsubscribe();
+    this._socketDisconnect$?.unsubscribe;
   }
 
   onDelete(id: string) {
@@ -240,6 +411,47 @@ export class ShowCampgroundComponent implements OnInit, OnDestroy {
       this.accordion.closeAll();
     }
   }
+
+  /** Live-chat methods */
+  onChatJoin() {
+    this.campChatOpenState = true;
+
+    this.campChatOpenState &&
+      this._socketService.joinRoom({
+        msg: null,
+        roomId: this.campgroundId,
+        roomname: this.campground.name,
+        userId: this.userId,
+        username: this.username,
+      });
+  }
+
+  onChatLeave() {
+    this.campChatOpenState = false;
+
+    !this.campChatOpenState &&
+      (this.chatMessageList = []) &&
+      this._socketService.sendMessage('chat-user-left', {
+        msg: `${this.username} left chat room ${this.campground.name}`,
+        roomId: this.campgroundId,
+        roomname: this.campground.name,
+        userId: this.userId,
+        username: this.username,
+      });
+  }
+
+  onChatSubmit() {
+    this._socketService.sendMessage('new-chat-message', {
+      msg: this.newChatText,
+      roomId: this.campgroundId,
+      roomname: this.campground.name,
+      userId: this.userId,
+      username: this.username,
+    });
+
+    this.newChatText = '';
+  }
+  /** Live-chat methods - Ends */
 
   private _getCampgroundFromServer() {
     this.getCampFromServerSub$ = this.campgroundsService

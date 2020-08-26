@@ -6,9 +6,37 @@ import { Socket } from 'ngx-socket-io';
 export class SocketService {
   constructor(private _socket: Socket) {}
 
-  sendMessage(eventName: string, msg: any) {
-    this._socket.emit(eventName, msg);
+  sendMessage(eventName: string, data: UIChangeBroadcast | ChatMessage) {
+    this._socket.emit(eventName, data);
   }
+
+  joinRoom(data: ChatMessage) {
+    this._socket.emit('join', data);
+  }
+
+  newChatUserJoinedListener = () => {
+    return Observable.create((observer) => {
+      this._socket.on('new-user-joined', (message) => {
+        observer.next(message);
+      });
+    });
+  };
+
+  newChatMessageListener = () => {
+    return Observable.create((observer) => {
+      this._socket.on('new-chat-message', (message) => {
+        observer.next(message);
+      });
+    });
+  };
+
+  chatUserLeftListener = () => {
+    return Observable.create((observer) => {
+      this._socket.on('chat-user-left', (message) => {
+        observer.next(message);
+      });
+    });
+  };
 
   newCommentListener = () => {
     return Observable.create((observer) => {
@@ -57,4 +85,33 @@ export class SocketService {
       });
     });
   };
+
+  /** Socket error handling */
+  onSocketConnectError = () => {
+    return Observable.create((observer) => {
+      this._socket.on('connect_error', (error) => {
+        observer.next('socket connect error');
+      });
+    });
+  };
+
+  onSocketDisconnect = () => {
+    return Observable.create((observer) => {
+      this._socket.on('disconnect', (error) => {
+        observer.next('socket disconnect');
+      });
+    });
+  };
+}
+
+export interface ChatMessage {
+  msg: string | null;
+  roomId: string;
+  roomname: string;
+  userId: string;
+  username: string;
+}
+
+export interface UIChangeBroadcast {
+  campgroundId: string;
 }

@@ -102,37 +102,6 @@
   </mat-card>
 </div>
 
-<!-- <mat-grid-list
-  class="campgrounds-grid"
-  cols="4"
-  rowHeight="350px"
-  gutterSize="5px"
-  *ngIf="!isLoading"
->
-  <mat-grid-tile *ngFor="let campground of campgrounds">
-    <mat-card class="grid-card">
-      <img
-        class="campground-preview-image"
-        mat-card-image
-        [src]="campground.image"
-        alt="Campground Preview Image"
-      />
-      <div class="campground-preview-cta">
-        <mat-card-title class="campground-preview-title">{{
-          campground.name
-        }}</mat-card-title>
-        <button
-          class="campground-preview-button"
-          mat-raised-button
-          color="accent"
-          [routerLink]="['/campgrounds/show/', campground._id]"
-        >
-          Know More
-        </button>
-      </div>
-    </mat-card>
-  </mat-grid-tile>
-</mat-grid-list> -->
 <div class="paginator">
   <mat-paginator
     [length]="totalCampgrounds"

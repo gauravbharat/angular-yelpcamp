@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
+  // apiUrl: 'https://garyd-angular-yelpcamp.herokuapp.com/api',
   mapbox: {
     accessToken:
       'pk.eyJ1IjoiZ2FyeWRzYSIsImEiOiJja2U5Yzg2bjUwdTYyMnFybnMzYmJ6Y3MwIn0.zSIj6460x2gD_YZRUWO0Bg',

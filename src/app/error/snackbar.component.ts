@@ -28,12 +28,15 @@ import {
       }
 
       ::ng-deep snack-bar-container.style-success {
-        color: #fff;
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
       }
 
       ::ng-deep snack-bar-container.style-error {
-        color: red;
-        background-color: yellow;
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
       }
     `,
   ],

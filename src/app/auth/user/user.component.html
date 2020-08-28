@@ -153,6 +153,13 @@
                   >Get in-app alerts when a user follows you:
                   {{ showFollowerAlert.checked ? "ON" : "OFF" }}
                 </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="accent"
+                  formControlName="newCommentLike"
+                  #showCommentLikeAlert
+                  >Get in-app alerts when a user likes your comment:
+                  {{ showCommentLikeAlert.checked ? "ON" : "OFF" }}
+                </mat-slide-toggle>
                 <div>
                   <button
                     color="primary"

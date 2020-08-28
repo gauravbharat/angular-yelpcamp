@@ -85,16 +85,18 @@ export class ShowCampgroundComponent
   private _socketDisconnect$: Subscription;
 
   constructor(
-    private authService: AuthService,
-    private campgroundsService: CampgroundsService,
-    private route: ActivatedRoute,
-    private commentsService: CommentsService,
+    private _authService: AuthService,
+    private _campgroundsService: CampgroundsService,
+    private _route: ActivatedRoute,
+    private _commentsService: CommentsService,
     private _socketService: SocketService,
     private _snackbar: MatSnackBar
   ) {}
 
   ngOnInit() {
     this.isLoading = true;
+
+    console.log('inside show camp ngOnInit');
 
     /** Profanity Filter on campground comments. Add some local cuss words to filter */
     const newBadWords = [
@@ -107,7 +109,7 @@ export class ShowCampgroundComponent
     ];
     this._filter.addWords(...newBadWords);
 
-    this.authStatusSub$ = this.authService
+    this.authStatusSub$ = this._authService
       .getAuthStatusListener()
       .subscribe((authStatus) => {
         this.isUserAuthenticated = authStatus.isUserAuthenticated;
@@ -117,7 +119,7 @@ export class ShowCampgroundComponent
       });
 
     // Get the campground id passed as paramter
-    this.route.paramMap.subscribe((paramMap: ParamMap) => {
+    this._route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has('campgroundId')) {
         this.campgroundId = paramMap.get('campgroundId');
 
@@ -320,7 +322,7 @@ export class ShowCampgroundComponent
   }
 
   onDelete(id: string) {
-    this.campgroundsService.deleteCampground(id);
+    this._campgroundsService.deleteCampground(id);
   }
 
   getLastEdited(editedDate: string): string {
@@ -330,9 +332,8 @@ export class ShowCampgroundComponent
   onNewCommentSubmit(form: NgForm, mep: MatExpansionPanel): void {
     if (this._isProfane(this.newComment)) return;
 
-    this.isLoading = true;
-    /** Broadcast new comment */
-    this.commentsService
+    //Removed this.isLoading = true, cause page flickers due to ngIfs
+    this._commentsService
       .createComment(
         this.campground._id,
         this.newComment,
@@ -383,8 +384,8 @@ export class ShowCampgroundComponent
     this.toggleEditButton(elementRef);
 
     if (commentId && text && currentButtonLabel === 'save_task') {
-      this.isLoading = true;
-      this.commentsService
+      //Removed this.isLoading = true, cause page flickers due to ngIfs
+      this._commentsService
         .editComment(commentId, this.campgroundId, this.userId, text)
         .subscribe(
           (result) => {
@@ -401,8 +402,8 @@ export class ShowCampgroundComponent
   }
 
   onCommentDelete(commentId: string): void {
-    this.isLoading = true;
-    this.commentsService
+    //Removed this.isLoading = true, cause page flickers due to ngIfs
+    this._commentsService
       .deleteComment(commentId, this.campgroundId, this.userId)
       .subscribe(
         (result) => {
@@ -471,6 +472,84 @@ export class ShowCampgroundComponent
   }
   /** Live-chat methods - Ends */
 
+  /** Comment Like methods */
+  onCommentLike(commentId: string, commentIndex: number) {
+    //Removed this.isLoading = true, cause page flickers due to ngIfs
+    this._commentsService
+      .likeComment(commentId, this.campgroundId, this.userAvatar)
+      .subscribe(
+        (response) => {
+          if (
+            this.campground.comments[commentIndex].likes.findIndex(
+              (like) => like.id === this.userId
+            ) !== -1
+          ) {
+            this.campground.comments[
+              commentIndex
+            ].likes = this.campground.comments[commentIndex].likes.filter(
+              (like) => like.id !== this.userId
+            );
+          } else {
+            this.campground.comments[commentIndex].likes.push({
+              id: this.userId,
+              username: this.username,
+              avatar: this.userAvatar,
+            });
+          }
+          this.isLoading = false;
+        },
+        (error) => {
+          // do nothing, trust error interceptor
+          this.isLoading = false;
+        }
+      );
+  }
+
+  getLikeUsersList(commentId: string, commentIndex: number) {
+    if (commentId) {
+      if (
+        this.campground.comments[commentIndex]?.likes &&
+        this.campground.comments[commentIndex]?.likes.length > 0
+      ) {
+        return this.campground.comments[commentIndex].likes
+          .map((like, index, arr) => {
+            if (index < 9) {
+              return like.username;
+            } else if (index === 9) {
+              return `and ${arr.length - 9} other${arr.length > 10 ? 's' : ''}`;
+            }
+          })
+          .join('\n');
+      }
+    }
+  }
+
+  getLikeUsersPreview(commentId: string, commentIndex: number) {
+    if (commentId) {
+      if (
+        this.campground.comments[commentIndex]?.likes &&
+        this.campground.comments[commentIndex]?.likes.length > 0
+      ) {
+        const totalLikes = this.campground.comments[commentIndex].likes.length;
+
+        switch (totalLikes) {
+          case 1:
+            return `${this.campground.comments[commentIndex].likes[0].username}`;
+          case 2:
+            return `${this.campground.comments[commentIndex].likes[0].username} and ${this.campground.comments[commentIndex].likes[1].username}`;
+
+          default:
+            return `${
+              this.campground.comments[commentIndex].likes[0].username
+            }, ${
+              this.campground.comments[commentIndex].likes[1].username
+            } and ${totalLikes - 2} other${totalLikes > 3 ? 's' : ''}`;
+        }
+      }
+    }
+  }
+  /** Comment Like methods - Ends */
+
   private _isProfane(text: string) {
     if (this._filter.isProfane(text)) {
       this._snackbar.openFromComponent(SnackBarComponent, {
@@ -485,7 +564,7 @@ export class ShowCampgroundComponent
   }
 
   private _getCampgroundFromServer() {
-    this.getCampFromServerSub$ = this.campgroundsService
+    this.getCampFromServerSub$ = this._campgroundsService
       .getCampground(this.campgroundId)
       .subscribe(
         (campgroundData) => {
@@ -502,7 +581,7 @@ export class ShowCampgroundComponent
             `error getting campground from server for campground id ${this.campgroundId}`,
             error
           );
-          this.campgroundsService.redirectToCampgrounds();
+          this._campgroundsService.redirectToCampgrounds();
         }
       );
   }

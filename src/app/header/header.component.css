@@ -40,6 +40,12 @@ a {
   object-fit: cover;
   border-radius: 50%;
   overflow: hidden;
+  transition: opacity 0.5s;
+}
+
+.user-avatar-badge img:hover,
+.user-avatar img:hover {
+  opacity: 50%;
 }
 
 .yelpcamp-location-flag {

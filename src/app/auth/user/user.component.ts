@@ -146,6 +146,10 @@ export class UserComponent implements OnInit, OnDestroy {
                     this.currentUser?.enableNotifications.newFollower,
                     Validators.required
                   ),
+                  newCommentLike: new FormControl(
+                    this.currentUser?.enableNotifications.newCommentLike,
+                    Validators.required
+                  ),
                 });
 
                 // Email Preferences Form
@@ -259,6 +263,12 @@ export class UserComponent implements OnInit, OnDestroy {
       return;
 
     this.isLoading = true;
+
+    console.log(
+      'newCommentLike',
+      this.displayPrefFormGroup.value.newCommentLike
+    );
+
     try {
       const userData: UserSettingsUpdate = {
         userId: this.currentUserId,
@@ -270,6 +280,7 @@ export class UserComponent implements OnInit, OnDestroy {
           newCampground: this.displayPrefFormGroup.value.newCampgroundAlert,
           newComment: this.displayPrefFormGroup.value.newCommentAlert,
           newFollower: this.displayPrefFormGroup.value.newFollowerAlert,
+          newCommentLike: this.displayPrefFormGroup.value.newCommentLike,
         },
         enableNotificationEmails: {
           newCampground: this.emailPrefFormGroup.value.newCampgroundEmail,

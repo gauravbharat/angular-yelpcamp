@@ -199,6 +199,8 @@ export class AuthService {
               userData.enableNotifications.newComment;
             this.currentUser.enableNotifications.newFollower =
               userData.enableNotifications.newFollower;
+            this.currentUser.enableNotifications.newCommentLike =
+              userData.enableNotifications.newCommentLike;
             this.currentUser.enableNotificationEmails.newCampground =
               userData.enableNotificationEmails.newCampground;
             this.currentUser.enableNotificationEmails.newComment =

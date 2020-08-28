@@ -13,6 +13,7 @@ export interface Notifications {
     followingUserId: string;
     id: string;
   };
+  isCommentLike?: boolean;
 }
 
 export interface RegisterUser {
@@ -37,6 +38,7 @@ export interface UserSettingsUpdate {
     newCampground: boolean;
     newComment: boolean;
     newFollower: boolean;
+    newCommentLike: boolean;
   };
   enableNotificationEmails: {
     newCampground: boolean;
@@ -63,6 +65,7 @@ export interface CurrentUser {
     newCampground: boolean;
     newComment: boolean;
     newFollower: boolean;
+    newCommentLike: boolean;
   };
   enableNotificationEmails: {
     system: boolean;

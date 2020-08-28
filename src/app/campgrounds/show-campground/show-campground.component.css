@@ -246,10 +246,12 @@ mat-panel-title {
   height: 60px;
   object-fit: cover;
   border-radius: 50%;
+  transition: opacity 0.5s;
 }
 
 .commet-author-avatar img:hover {
   cursor: pointer;
+  opacity: 50%;
 }
 
 .comment-author-name {
@@ -302,6 +304,28 @@ mat-panel-description .comment-text-overview {
 
 .edit-comment-form button {
   flex-grow: 1;
+}
+
+.like-section {
+  text-align: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.like-section p {
+  margin-bottom: 0;
+  margin-left: 5px;
+  font-weight: 300;
+}
+
+.like-section p:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+::ng-deep .likes-tooltip {
+  white-space: pre-line;
 }
 
 /* .container-comment-edit mat-form-input {

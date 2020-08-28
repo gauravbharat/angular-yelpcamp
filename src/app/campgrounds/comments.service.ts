@@ -7,7 +7,7 @@ const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
 
 @Injectable({ providedIn: 'root' })
 export class CommentsService {
-  constructor(private http: HttpClient) {}
+  constructor(private _http: HttpClient) {}
 
   createComment(
     campgroundId: string,
@@ -16,7 +16,7 @@ export class CommentsService {
     username: string,
     userAvatar: string
   ) {
-    return this.http.post<{ message: string }>(
+    return this._http.post<{ message: string }>(
       `${BACKEND_URL}/${campgroundId}/comments/new`,
       { text, userId, username, userAvatar }
     );
@@ -28,15 +28,28 @@ export class CommentsService {
     userId: string,
     text: string
   ) {
-    return this.http.put<{ message: string }>(
+    return this._http.put<{ message: string }>(
       `${BACKEND_URL}/${campgroundId}/comments/${commentId}`,
       { userId, text }
     );
   }
 
   deleteComment(commentId: string, campgroundId: string, userId: string) {
-    return this.http.delete<{ message: string }>(
+    return this._http.delete<{ message: string }>(
       `${BACKEND_URL}/${campgroundId}/comments/${userId}/${commentId}`
+    );
+  }
+
+  likeComment(
+    commentId: string,
+    campgroundId: string,
+    currentUserAvatar: string
+  ) {
+    return this._http.post(
+      `${BACKEND_URL}/${campgroundId}/comments/${commentId}/like`,
+      {
+        currentUserAvatar,
+      }
     );
   }
 }

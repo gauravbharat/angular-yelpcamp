@@ -391,6 +391,26 @@
                     </form>
                   </div>
                 </div>
+                <div class="like-section">
+                  <button
+                    mat-button
+                    [color]="comment?.likes?.length > 0 ? 'accent' : ''"
+                    type="button"
+                    matSuffix
+                    mat-icon-button
+                    aria-label="Like"
+                    [disabled]="!isUserAuthenticated || isLoading"
+                    (click)="onCommentLike(comment._id, i)"
+                  >
+                    <mat-icon>thumb_up</mat-icon>
+                  </button>
+                  <p
+                    [matTooltip]="getLikeUsersList(comment._id, i)"
+                    [matTooltipClass]="'likes-tooltip'"
+                  >
+                    {{ getLikeUsersPreview(comment._id, i) }}
+                  </p>
+                </div>
               </ng-template>
             </mat-expansion-panel>
           </mat-accordion>

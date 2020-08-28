@@ -25,7 +25,8 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     return next.handle(req).pipe(
       catchError((httpError: HttpErrorResponse) => {
-        let errorMessage = 'An unknown error occurred!';
+        let errorMessage =
+          'An unknown error occurred! Either the server may be down or restarting or you may be facing network issues, please refresh page after some time. If issue persists, please contact this webpage administrator or your network provider.';
 
         if (httpError.error.message) {
           errorMessage = httpError.error.message;

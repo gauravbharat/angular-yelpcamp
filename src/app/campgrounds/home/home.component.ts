@@ -30,9 +30,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isLoading = false;
   totalCampgrounds = 0;
-  campgroundsPerPage = 4;
   currentPage = 1;
-  pageSizeOptions = [4, 8, 16];
+  campgroundsPerPage = 6;
+  pageSizeOptions = [6, 9, 18];
   hideStatsDashboard = false;
 
   /** Campground Search vars */

@@ -8,98 +8,144 @@
     /> -->
   </span>
   <span class="spacer"></span>
-  <ul>
-    <li>
-      <a
-        mat-button
+  <div class="web-menu">
+    <ul>
+      <li>
+        <a
+          mat-button
+          [routerLink]="['/campgrounds']"
+          routerLinkActive="mat-accent"
+          ><mat-icon>home</mat-icon></a
+        >
+      </li>
+      <li *ngIf="!isUserAuthenticated">
+        <a
+          mat-button
+          [routerLink]="['/auth/login']"
+          routerLinkActive="mat-accent"
+          >Login</a
+        >
+      </li>
+      <li *ngIf="!isUserAuthenticated">
+        <a
+          mat-button
+          [routerLink]="['/auth/register']"
+          routerLinkActive="mat-accent"
+          >Register</a
+        >
+      </li>
+      <li *ngIf="isUserAuthenticated">
+        <a
+          mat-button
+          class="header-username"
+          [matMenuTriggerFor]="userMenu"
+          routerLinkActive="mat-accent"
+        >
+          <div
+            @inAnimation
+            class="user-avatar-badge"
+            [matBadge]="notificationsCount"
+            matBadgeColor="warn"
+            matBadgeOverlap="true"
+            *ngIf="notificationsCount > 0"
+          >
+            <img [src]="avatar" [alt]="username" />
+          </div>
+
+          <div @inAnimation class="user-avatar" *ngIf="!notificationsCount">
+            <img [src]="avatar" [alt]="username" />
+          </div>
+
+          <span class="cdk-visually-hidden" *ngIf="notificationsCount > 0">
+            User avatar icon with overlaid badge showing the number
+            {{ notificationsCount }}
+          </span>
+        </a>
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item [routerLink]="['/user/current']">
+            <mat-icon>settings</mat-icon> Settings
+          </button>
+          <button mat-menu-item [routerLink]="['/user/campgrounds']">
+            <mat-icon>terrain</mat-icon> View Own Campgrounds
+          </button>
+          <button mat-menu-item [routerLink]="['/user/notifications']">
+            <mat-icon>{{
+              notificationsCount > 0 ? "notifications_active" : "notifications"
+            }}</mat-icon>
+            View {{ notificationsCount > 0 ? "" : "past" }} notifications
+          </button>
+        </mat-menu>
+      </li>
+      <li *ngIf="isUserAuthenticated">
+        <button mat-button (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="mobile-menu">
+    <button
+      mat-icon-button
+      class="mobile-menu-icon"
+      aria-label="mobile menu icon"
+      [matMenuTriggerFor]="generalMenu"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #generalMenu="matMenu">
+      <button
+        mat-menu-item
         [routerLink]="['/campgrounds']"
         routerLinkActive="mat-accent"
-        ><mat-icon>home</mat-icon></a
       >
-    </li>
-    <li *ngIf="!isUserAuthenticated">
-      <a mat-button [routerLink]="['/auth/login']" routerLinkActive="mat-accent"
-        >Login</a
-      >
-    </li>
-    <li *ngIf="!isUserAuthenticated">
-      <a
-        mat-button
-        [routerLink]="['/auth/register']"
-        routerLinkActive="mat-accent"
-        >Register</a
-      >
-    </li>
-    <!-- <li *ngIf="isUserAuthenticated">
-      <a
-        mat-button
-        class="header-notifications"
-        [matMenuTriggerFor]="notificationsMenu"
-        routerLinkActive="mat-accent"
-      >
-        <mat-icon [matBadge]="notificationsCount" matBadgeColor="warn">
-          {{
-            notificationsCount > 0 ? "notifications_active" : "notifications"
-          }}
-        </mat-icon>
-        <span class="cdk-visually-hidden">
-          Notifications icon with overlaid badge showing the number
-          {{ notificationsCount }}
-        </span>
-      </a>
-      <mat-menu #notificationsMenu="matMenu">
-        <button mat-menu-item>
-          <mat-icon>notifications</mat-icon> View past notifications
-        </button>
-      </mat-menu>
-    </li> -->
-    <li *ngIf="isUserAuthenticated">
-      <a
-        mat-button
-        class="header-username"
-        [matMenuTriggerFor]="userMenu"
-        routerLinkActive="mat-accent"
-      >
-        <div
-          @inAnimation
-          class="user-avatar-badge"
-          [matBadge]="notificationsCount"
-          matBadgeColor="warn"
-          matBadgeOverlap="true"
-          *ngIf="notificationsCount > 0"
+        <mat-icon>home</mat-icon> Home
+      </button>
+      <div *ngIf="!isUserAuthenticated">
+        <button
+          mat-menu-item
+          [routerLink]="['/auth/login']"
+          routerLinkActive="mat-accent"
         >
-          <img [src]="avatar" [alt]="username" />
-        </div>
-
-        <div @inAnimation class="user-avatar" *ngIf="!notificationsCount">
-          <img [src]="avatar" [alt]="username" />
-        </div>
-
-        <span class="cdk-visually-hidden" *ngIf="notificationsCount > 0">
-          User avatar icon with overlaid badge showing the number
-          {{ notificationsCount }}
-        </span>
-      </a>
-      <mat-menu #userMenu="matMenu">
-        <button mat-menu-item [routerLink]="['/user/current']">
+          <mat-icon>login</mat-icon> Login
+        </button>
+        <button
+          mat-menu-item
+          [routerLink]="['/auth/register']"
+          routerLinkActive="mat-accent"
+        >
+          <mat-icon>vpn_key</mat-icon> Register
+        </button>
+      </div>
+      <div *ngIf="isUserAuthenticated">
+        <button
+          mat-menu-item
+          [routerLink]="['/user/current']"
+          routerLinkActive="mat-accent"
+        >
           <mat-icon>settings</mat-icon> Settings
         </button>
-        <button mat-menu-item [routerLink]="['/user/campgrounds']">
-          <mat-icon>terrain</mat-icon> View Own Campgrounds
+        <button
+          mat-menu-item
+          [routerLink]="['/user/campgrounds']"
+          routerLinkActive="mat-accent"
+        >
+          <mat-icon>terrain</mat-icon> My Campgrounds
         </button>
-        <button mat-menu-item [routerLink]="['/user/notifications']">
+        <button
+          mat-menu-item
+          [routerLink]="['/user/notifications']"
+          routerLinkActive="mat-accent"
+        >
           <mat-icon>{{
             notificationsCount > 0 ? "notifications_active" : "notifications"
           }}</mat-icon>
           View {{ notificationsCount > 0 ? "" : "past" }} notifications
         </button>
-      </mat-menu>
-    </li>
-    <li *ngIf="isUserAuthenticated">
-      <button mat-button (click)="onLogout()">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </li>
-  </ul>
+        <button mat-menu-item (click)="onLogout()">
+          <mat-icon>logout</mat-icon> Logout
+        </button>
+      </div>
+    </mat-menu>
+  </div>
 </mat-toolbar>
 <mat-divider></mat-divider>

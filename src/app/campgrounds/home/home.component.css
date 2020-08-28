@@ -10,17 +10,12 @@
 .banner-single {
   justify-content: flex-start;
 }
-
 .banner-duplex {
   justify-content: space-around;
 }
 
 .banner-single-middle {
   padding: 20px 0;
-}
-
-mat-spinner {
-  margin: auto;
 }
 
 .heading {
@@ -55,7 +50,6 @@ mat-spinner {
 .stats {
   display: flex;
   flex-direction: column;
-  /* justify-content: space-around; */
 }
 
 .stats-card:nth-of-type(odd) {
@@ -77,37 +71,35 @@ mat-spinner {
   font-size: 1rem;
 }
 
-mat-grid-list {
+/* Campgrounds list */
+.campgrounds-list {
   width: 60%;
   margin: 15px auto;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }
 
 .grid-card {
+  flex-basis: 1 0 33%;
   box-sizing: border-box;
-  width: 60%;
-  margin: 10px auto;
-  padding: 32px;
+  height: 300px;
+  width: 30%;
+  /* width: 240px; */
   background-color: #e9ecef;
-}
 
-/* mat-paginator {
-  margin-top: 15px;
-} */
-
-mat-grid-list mat-card {
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border-radius: 5px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  padding: 10px 0;
+  padding-top: 0;
+  margin: 20px 5px;
 }
 
 .campground-preview-image {
-  /* background-size: cover;
-  overflow: hidden; */
   object-fit: cover;
   width: 100%;
   height: 70%;
@@ -118,7 +110,6 @@ mat-grid-list mat-card {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* box-sizing: border-box; */
   padding: 5px;
 }
 
@@ -131,6 +122,8 @@ mat-grid-list mat-card {
 .campground-preview-button {
   margin-top: 5px;
 }
+
+/* Campgrounds list - Ends */
 
 .paginator {
   width: 80%;
@@ -146,4 +139,135 @@ mat-grid-list mat-card {
 .courtesy-footer a {
   color: #383a3b;
   text-decoration: none;
+}
+
+@media screen and (max-width: 1200px) {
+  .banner {
+    width: 70%;
+  }
+  .campgrounds-list {
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 950px) {
+  .banner {
+    width: 75%;
+  }
+  .campgrounds-list {
+    width: 75%;
+  }
+
+  .header-stats-vdivider {
+    display: none;
+  }
+
+  .banner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .header-button-new {
+    margin: 15px auto;
+  }
+
+  .stats {
+    margin-top: 10px;
+    flex-direction: row;
+  }
+  .stats-card:nth-of-type(odd) {
+    margin: 0 10px;
+  }
+}
+
+@media screen and (max-width: 850px) {
+  .banner {
+    width: 80%;
+  }
+  .campgrounds-list {
+    width: 80%;
+  }
+
+  .grid-card {
+    flex-basis: 1 0 50%;
+
+    height: 300px;
+    width: 45%;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .banner {
+    width: 85%;
+  }
+  .campgrounds-list {
+    width: 85%;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .banner {
+    width: 90%;
+  }
+  .campgrounds-list {
+    width: 90%;
+  }
+
+  .grid-card {
+    flex-basis: 1 0 100%;
+
+    height: 300px;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .stats-card .count {
+    font-size: 2.5rem;
+    padding: 10px;
+  }
+
+  .stats-card .category {
+    font-size: 0.75rem;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .banner {
+    width: 95%;
+    text-align: center;
+    padding: 10px;
+    padding-bottom: 15px;
+  }
+
+  .mat-display-2 {
+    font-size: 2.75rem;
+  }
+  .heading-top h3 {
+    font-size: 0.9rem;
+  }
+
+  .header-button-new {
+    width: 270px !important;
+    font-size: 1.25rem;
+  }
+
+  .search-input {
+    width: 90%;
+  }
+
+  .stats-card .count {
+    font-size: 2rem;
+    font-weight: 400;
+    padding: 5px;
+  }
+
+  .stats-card .category {
+    font-size: 0.7rem;
+  }
+
+  .campgrounds-list {
+    width: 95%;
+  }
 }

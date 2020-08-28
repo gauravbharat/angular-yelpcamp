@@ -1,16 +1,16 @@
-/* :host {
-  position: fixed;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-} */
-
 .yelpcamp-logo {
   transition: font-size 0.5s;
 }
-
 .yelpcamp-logo:hover {
   font-size: 22px;
+}
+
+.web-menu {
+  display: inline-flex;
+}
+
+.mobile-menu {
+  display: none;
 }
 
 ul {
@@ -54,4 +54,14 @@ a {
   object-fit: cover;
   border-radius: 5%;
   overflow: hidden;
+}
+
+@media screen and (max-width: 380px) {
+  .web-menu {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: inline-flex;
+  }
 }

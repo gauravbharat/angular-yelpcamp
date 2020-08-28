@@ -56,7 +56,11 @@
     </div>
   </div>
 
-  <mat-divider vertical="true" *ngIf="!hideStatsDashboard"></mat-divider>
+  <mat-divider
+    class="header-stats-vdivider"
+    vertical="true"
+    *ngIf="!hideStatsDashboard"
+  ></mat-divider>
 
   <div class="stats" *ngIf="!hideStatsDashboard">
     <mat-card [ngStyle]="getFlagColor()?.top" class="stats-card">
@@ -73,11 +77,35 @@
     </mat-card>
   </div>
 </mat-card>
-<!-- <mat-spinner *ngIf="isLoading"></mat-spinner> -->
-<mat-grid-list
+
+<div class="campgrounds-list">
+  <mat-card class="grid-card" *ngFor="let campground of campgrounds">
+    <img
+      class="campground-preview-image"
+      mat-card-image
+      [src]="campground.image"
+      alt="Campground Preview Image"
+    />
+    <div class="campground-preview-cta">
+      <mat-card-title class="campground-preview-title">{{
+        campground.name
+      }}</mat-card-title>
+      <button
+        class="campground-preview-button"
+        mat-raised-button
+        color="accent"
+        [routerLink]="['/campgrounds/show/', campground._id]"
+      >
+        Know More
+      </button>
+    </div>
+  </mat-card>
+</div>
+
+<!-- <mat-grid-list
   class="campgrounds-grid"
   cols="4"
-  rowHeight="2:3"
+  rowHeight="350px"
   gutterSize="5px"
   *ngIf="!isLoading"
 >
@@ -104,7 +132,7 @@
       </div>
     </mat-card>
   </mat-grid-tile>
-</mat-grid-list>
+</mat-grid-list> -->
 <div class="paginator">
   <mat-paginator
     [length]="totalCampgrounds"

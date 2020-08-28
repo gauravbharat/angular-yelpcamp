@@ -96,8 +96,6 @@ export class ShowCampgroundComponent
   ngOnInit() {
     this.isLoading = true;
 
-    console.log('inside show camp ngOnInit');
-
     /** Profanity Filter on campground comments. Add some local cuss words to filter */
     const newBadWords = [
       'madarchod',

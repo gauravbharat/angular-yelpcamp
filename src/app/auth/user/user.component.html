@@ -450,6 +450,50 @@
                       </button>
                     </span>
                   </div>
+                  <div *ngSwitchCase="4" class="notification-switch-case">
+                    <span class="notification-text"
+                      ><strong>{{ notification?.username }}</strong>
+                      {{ " liked your comment on campground " }}
+                      <strong>{{ notification?.campgroundName }}</strong></span
+                    >
+                    <span class="notification-action">
+                      <button
+                        type="button"
+                        mat-button
+                        color="primary"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Toggle Read"
+                        (click)="
+                          onNotificationRead(
+                            notification?._id,
+                            !notification?.isRead
+                          );
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>{{
+                          notification?.isRead
+                            ? "mark_chat_unread"
+                            : "mark_chat_read"
+                        }}</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        mat-button
+                        color="warn"
+                        matSuffix
+                        mat-icon-button
+                        aria-label="Delete"
+                        (click)="
+                          onNotificationDelete(notification?._id);
+                          $event.stopPropagation()
+                        "
+                      >
+                        <mat-icon>delete_task</mat-icon>
+                      </button>
+                    </span>
+                  </div>
                   <div *ngSwitchDefault>Unknown</div>
                 </div>
               </li>

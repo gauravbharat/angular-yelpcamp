@@ -21,9 +21,8 @@ import { CampgroundsService } from '../campgrounds.service';
 import { CommentsService } from '../comments.service';
 import { SocketService, ChatMessage } from '../../socket.service';
 
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackBarComponent } from '../../error/snackbar.component';
-import { configFailure } from '../../error/snackbar.config';
+/** Material Snackbar */
+import { SnackbarService } from '../../error/snackbar.service';
 
 import { Campground } from '../campground.model';
 
@@ -90,7 +89,7 @@ export class ShowCampgroundComponent
     private _route: ActivatedRoute,
     private _commentsService: CommentsService,
     private _socketService: SocketService,
-    private _snackbar: MatSnackBar
+    private _snackbarService: SnackbarService
   ) {}
 
   ngOnInit() {
@@ -282,11 +281,9 @@ export class ShowCampgroundComponent
         if (this.campChatOpenState) {
           this.mepCampChat?.close();
 
-          this._snackbar.openFromComponent(SnackBarComponent, {
-            data:
-              'There seems to be a server error or restart which resulted in disconnect of live-chat. Please try joining the live-chat after some time.',
-            ...configFailure,
-          });
+          this._snackbarService.showError(
+            'There seems to be a server error or restart which resulted in disconnect of live-chat. Please try joining the live-chat after some time.'
+          );
         }
       });
     /** Socket listeners - Ends */
@@ -550,10 +547,7 @@ export class ShowCampgroundComponent
 
   private _isProfane(text: string) {
     if (this._filter.isProfane(text)) {
-      this._snackbar.openFromComponent(SnackBarComponent, {
-        data: 'Profanity is not allowed!',
-        ...configFailure,
-      });
+      this._snackbarService.showError('Profanity is not allowed!');
 
       return true;
     }

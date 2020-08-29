@@ -6,9 +6,7 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../auth.service';
 
 /** Material Snackbar */
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { SnackBarComponent } from '../../error/snackbar.component';
-import { configSuccess, configFailure } from '../../error/snackbar.config';
+import { SnackbarService } from '../../error/snackbar.service';
 
 @Component({
   templateUrl: './login.component.html',
@@ -24,7 +22,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private _snackbar: MatSnackBar
+    private _snackbarService: SnackbarService
   ) {}
 
   ngOnInit() {
@@ -32,11 +30,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.authStatusSub$ = this.authService.getAuthStatusListener().subscribe(
       (authStatus) => {
-        /** 09082020 - Snackbar specific code */
         if (authStatus.isUserAuthenticated) {
-          this.showFlashMessage(
+          this._snackbarService.showSuccess(
             `Welcome to YelpCamp, ${authStatus.username}!`,
-            configSuccess
+            1000
           );
           this.authService.redirectToCampgrounds();
         }
@@ -72,19 +69,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** 09082020 - Snackbar specific code */
-  showFlashMessage(message: string, config: MatSnackBarConfig) {
-    this._snackbar.openFromComponent(SnackBarComponent, {
-      data: message,
-      ...config,
-    });
-  }
-
   onForgotPassword(form: NgForm) {
     if (!form.value.email) {
-      this.showFlashMessage(
-        `Please enter your email to receive password reset instructions!`,
-        configFailure
+      this._snackbarService.showError(
+        `Please enter your email to receive password reset instructions!`
       );
       return;
     }
@@ -92,7 +80,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authService.requestResetPassword(form.value.email).subscribe(
       (result) => {
         this.isLoading = false;
-        this.showFlashMessage(result.message, configSuccess);
+        this._snackbarService.showSuccess(result.message);
       },
       (error) => {
         // do nothing, handled in http error interceptor

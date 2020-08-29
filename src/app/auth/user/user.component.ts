@@ -10,9 +10,8 @@ import {
   PasswordDialogComponent,
 } from './dialog/dialog.component';
 
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackBarComponent } from '../../error/snackbar.component';
-import { configSuccess } from '../../error/snackbar.config';
+/** Material Snackbar */
+import { SnackbarService } from '../../error/snackbar.service';
 
 import { AuthService } from '../auth.service';
 import { UserService } from './user.service';
@@ -62,7 +61,7 @@ export class UserComponent implements OnInit, OnDestroy {
     private _authService: AuthService,
     private _userService: UserService,
     public dialog: MatDialog,
-    private _snackbar: MatSnackBar,
+    private _snackbarService: SnackbarService,
     private _router: Router
   ) {}
 
@@ -220,12 +219,11 @@ export class UserComponent implements OnInit, OnDestroy {
         )
         .subscribe(
           (result) => {
-            this._snackbar.openFromComponent(SnackBarComponent, {
-              data: isFollow
+            this._snackbarService.showSuccess(
+              isFollow
                 ? `You are now following ${this.displayCoUser.username}!`
-                : `You unfollowed ${this.displayCoUser.username}!`,
-              ...configSuccess,
-            });
+                : `You unfollowed ${this.displayCoUser.username}!`
+            );
 
             /** Instead of fetching user again for the follower array update,
              * modify the local array of displayed co-user */
@@ -290,11 +288,7 @@ export class UserComponent implements OnInit, OnDestroy {
       };
 
       const result = await this._authService.updateUserData(userData);
-
-      this._snackbar.openFromComponent(SnackBarComponent, {
-        data: result,
-        ...configSuccess,
-      });
+      this._snackbarService.showSuccess(result);
 
       this.isLoading = false;
     } catch (error) {
@@ -335,10 +329,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
     changePasswordDialogRef.afterClosed().subscribe(async (result) => {
       result?.isPasswordUpdated &&
-        this._snackbar.openFromComponent(SnackBarComponent, {
-          data: result.message,
-          ...configSuccess,
-        });
+        this._snackbarService.showSuccess(result.message);
     });
   }
 

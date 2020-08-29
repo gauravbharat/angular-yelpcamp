@@ -6,9 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 /** Material Snackbar */
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { SnackBarComponent } from '../../error/snackbar.component';
-import { configSuccess, configFailure } from '../../error/snackbar.config';
+import { SnackbarService } from '../../error/snackbar.service';
 
 @Component({
   templateUrl: './reset-password.component.html',
@@ -21,8 +19,8 @@ export class ResetPasswordComponent {
 
   constructor(
     private _authService: AuthService,
-    private _snackbar: MatSnackBar,
-    private _route: ActivatedRoute
+    private _route: ActivatedRoute,
+    private _snackbarService: SnackbarService
   ) {
     this._route.params.subscribe((param) => {
       this.token = param.resetToken;
@@ -34,10 +32,7 @@ export class ResetPasswordComponent {
     if (!form.value.password || !form.value.password2) return;
 
     if (form.value.password !== form.value.password2) {
-      this.showFlashMessage(
-        'Both password fields should match!',
-        configFailure
-      );
+      this._snackbarService.showError('Both password fields should match!');
       return;
     }
 
@@ -48,9 +43,8 @@ export class ResetPasswordComponent {
       .then((success) => {
         this.isLoading = false;
         if (success) {
-          this.showFlashMessage(
-            'Password reset! Please login with your new password.',
-            configSuccess
+          this._snackbarService.showSuccess(
+            'Password reset! Please login with your new password.'
           );
         }
       })
@@ -58,12 +52,5 @@ export class ResetPasswordComponent {
         // do nothing, handled in http error interceptor
         this.isLoading = false;
       });
-  }
-
-  showFlashMessage(message: string, config: MatSnackBarConfig) {
-    this._snackbar.openFromComponent(SnackBarComponent, {
-      data: message,
-      ...config,
-    });
   }
 }

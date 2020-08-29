@@ -5,9 +5,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../auth.service';
 import { NgForm } from '@angular/forms';
 
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackBarComponent } from '../../../error/snackbar.component';
-import { configSuccess } from '../../../error/snackbar.config';
+/** Material Snackbar */
+import { SnackbarService } from '../../../error/snackbar.service';
 
 @Component({
   selector: 'ay-image-dialog',
@@ -38,7 +37,7 @@ export class PasswordDialogComponent {
     @Inject(MAT_DIALOG_DATA)
     public data: { userId: string },
     private authService: AuthService,
-    private _snackbar: MatSnackBar
+    private _snackbarService: SnackbarService
   ) {
     dialogRef.disableClose = true;
   }
@@ -58,10 +57,7 @@ export class PasswordDialogComponent {
 
     if (validationError) {
       validationError = false;
-      this._snackbar.openFromComponent(SnackBarComponent, {
-        data: 'Please enter valid password!',
-        ...configSuccess,
-      });
+      this._snackbarService.showError('Please enter valid password!');
 
       return;
     }

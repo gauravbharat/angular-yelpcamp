@@ -10,15 +10,15 @@ import {
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackBarComponent } from './snackbar.component';
-import { configFailure } from './snackbar.config';
+/** Material Snackbar */
+import { SnackbarService } from './snackbar.service';
+
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(
-    private _snackbar: MatSnackBar,
+    private _snackbarService: SnackbarService,
     private authService: AuthService
   ) {}
 
@@ -35,10 +35,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           }
         }
 
-        this._snackbar.openFromComponent(SnackBarComponent, {
-          data: errorMessage,
-          ...configFailure,
-        });
+        this._snackbarService.showError(errorMessage, 9000);
 
         return throwError(httpError);
       })

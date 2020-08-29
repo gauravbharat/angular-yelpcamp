@@ -220,6 +220,10 @@
     height: 300px;
     width: 100%;
   }
+
+  .paginator {
+    width: 90%;
+  }
 }
 
 @media screen and (max-width: 450px) {
@@ -230,6 +234,10 @@
 
   .stats-card .category {
     font-size: 0.75rem;
+  }
+
+  .paginator {
+    width: 100%;
   }
 }
 

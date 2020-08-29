@@ -179,6 +179,10 @@ mat-slide-toggle:last-of-type {
   .container-user {
     width: 90%;
   }
+
+  .notification-switch-case {
+    flex-direction: column;
+  }
 }
 
 @media screen and (max-width: 600px) {

@@ -20,9 +20,9 @@ form {
 }
 
 .campground-back-link {
-  width: 60%;
-  margin-top: 3rem;
+  width: 100%;
   text-align: center;
+  margin-top: 2rem;
 }
 
 .campground-create-submit {
@@ -47,4 +47,28 @@ input[type="file"] {
 
 .image-preview img {
   height: 100%;
+}
+
+@media screen and (max-width: 1200px) {
+  .campground-create {
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .campground-create {
+    width: 80%;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .campground-create,
+  .mat-form-field,
+  .campground-create-submit {
+    width: 90%;
+  }
+
+  .campground-create-image button {
+    margin-top: 20px;
+  }
 }

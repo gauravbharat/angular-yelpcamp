@@ -1,39 +1,24 @@
-:host {
-  display: block;
-}
-
-/* Used by custom attribute directive TextTruncateEllipsisDirective, ayTextTruncateEllipsis */
-.is-text-truncate-ellipsis {
-  text-align: left;
-  white-space: nowrap;
-  width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.camp-container {
-  margin-top: 30px;
-  width: 80%;
+/* Main Container of this page */
+.grid-container {
+  display: grid;
+  box-sizing: border-box;
+  grid-template-columns: auto auto auto;
+  grid-gap: 20px;
+  padding: 10px;
+  width: 70%;
+  margin: 20px auto;
   text-align: center;
 }
 
-.map-display {
-  width: 300px;
-  height: 300px;
-  position: relative;
-}
-
+/* Side Panel */
 .side-panel {
+  grid-column-start: 1;
+  grid-column-end: 1;
+
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-}
-
-.loading-map-location {
-  width: 50px;
-  height: 50px;
-  margin-top: 20px;
 }
 
 .side-panel-title {
@@ -41,15 +26,13 @@
   font-weight: 300;
 }
 
-/* Chat section - Starts */
-.chat-room mat-divider,
+/* Side Panel => Chat section - Starts */
 .chat-room mat-expansion-panel {
   margin: 20px auto;
   width: 300px;
 }
 
 .chat-room mat-panel-description {
-  /* justify-content: center; */
   font-size: 12px;
 }
 
@@ -81,12 +64,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   padding-right: 5px;
-  /* outline: none; */
 }
-
-/* .chats-display ul li:nth-child(odd) {
-  background-color: #f0eeee;
-} */
 
 .other-user-chat {
   background-color: #f0eeee;
@@ -126,11 +104,57 @@
   color: #8f8888;
   line-height: 16px;
 }
+/* Side Panel => Chat section - Ends */
 
-/* Chat section - Ends */
+/* Side Panel => Map section - Starts */
+.side-panel-items-hdivider {
+  display: block;
+  margin: 20px auto;
+  width: 300px;
+}
+
+.side-panel-items-vdivider {
+  display: none;
+  margin: 20px;
+  height: 300px;
+}
+
+.map-display {
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+
+.loading-map-location {
+  width: 50px;
+  height: 50px;
+  margin-top: 20px;
+}
+/* Side Panel => Map section - Ends */
+
+/* Main Panel */
+.main-panel {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+/* Used by custom attribute directive TextTruncateEllipsisDirective, ayTextTruncateEllipsis */
+.is-text-truncate-ellipsis {
+  text-align: left;
+  white-space: nowrap;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .action-buttons {
   text-align: right;
+}
+
+.campground-name {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .campground-info {
@@ -145,22 +169,13 @@ mat-card-title {
   border-radius: 2px;
 }
 
-.price {
-  float: right;
-}
-
 .chips-display {
   padding-bottom: 20px;
 }
 
 .mat-card-image {
   padding-top: 10px;
-  /* object-fit: cover; */
   max-width: 100%;
-
-  /* max-height: 70%; */
-  /* height: auto; */
-  /* height: fit-content; */
   object-fit: contain;
   max-height: 100%;
 }
@@ -169,18 +184,8 @@ mat-card-title {
   margin: 200px auto;
   vertical-align: middle;
   text-align: center;
-
   width: 50px;
   height: 50px;
-}
-
-.campground-image {
-  height: 500px;
-  overflow: hidden;
-}
-
-.container {
-  margin-bottom: 50px;
 }
 
 .comments-container {
@@ -216,11 +221,6 @@ mat-form-field {
   justify-content: flex-end;
   margin-bottom: 10px;
   /* align-items: flex-end; */
-}
-
-mat-expansion-panel-header,
-mat-panel-description {
-  /* flex-basis: 0; */
 }
 
 mat-expansion-panel-header {
@@ -265,15 +265,9 @@ mat-panel-title {
 }
 
 .comment-author-name .last-edited {
-  /* font-weight: 300; */
   font-style: italic;
   font-size: 12px;
   color: #8f8888;
-}
-
-.mat-expansion-panel-header-description {
-  /* flex: 0 0 auto; */
-  /* align-self: flex-end; */
 }
 
 mat-panel-description .comment-text-overview {
@@ -302,9 +296,14 @@ mat-panel-description .comment-text-overview {
   flex-grow: 2;
 }
 
-.edit-comment-form button {
+.edit-comment-form .edit-form-buttons {
   flex-grow: 1;
+  display: flex;
 }
+
+/* .edit-comment-form button {
+  flex-grow: 1;
+} */
 
 .like-section {
   text-align: left;
@@ -328,6 +327,139 @@ mat-panel-description .comment-text-overview {
   white-space: pre-line;
 }
 
-/* .container-comment-edit mat-form-input {
-  width: 100%;
-} */
+/* Media queries */
+@media screen and (max-width: 1200px) {
+  .grid-container {
+    width: 80%;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  .grid-container {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .grid-container {
+    grid-template-columns: auto;
+    grid-template-rows: auto auto auto auto auto;
+    justify-content: center;
+    align-content: center;
+  }
+
+  .main-panel {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 1;
+    grid-row-end: 3;
+  }
+
+  .side-panel {
+    grid-column-start: 1;
+    grid-column-end: 1;
+
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    align-content: start;
+  }
+
+  .chat-room {
+    height: 350px;
+  }
+
+  .side-panel-items-hdivider {
+    display: none;
+  }
+
+  .side-panel-items-vdivider {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 750px) {
+  .side-panel {
+    grid-template-rows: auto auto auto;
+    grid-template-columns: auto;
+
+    justify-content: center;
+    align-content: center;
+  }
+
+  .chat-room {
+    height: auto;
+
+    grid-row-start: 1;
+    grid-row-end: 1;
+  }
+
+  .side-panel-items-vdivider {
+    display: none;
+  }
+
+  .side-panel-items-hdivider {
+    display: block;
+    grid-row-start: 2;
+    grid-row-end: 2;
+  }
+
+  .map {
+    grid-row-start: 3;
+    grid-row-end: 3;
+  }
+
+  .map-display {
+    width: 500px;
+  }
+}
+
+@media screen and (max-width: 550px) {
+  .map-display {
+    width: 450px;
+  }
+
+  .campground-name {
+    flex-direction: column;
+    padding: 10px auto;
+    align-items: center;
+  }
+
+  .campground-name span {
+    margin: 10px auto;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .map-display {
+    width: 400px;
+  }
+
+  .mat-panel-desc-text {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .map-display {
+    width: 300px;
+  }
+
+  .container-expanded-panel {
+    flex-direction: column;
+  }
+
+  .commet-author-avatar img {
+    width: 90px;
+    height: 90px;
+  }
+
+  .edit-comment-form {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .edit-comment-form input {
+    width: 100%;
+  }
+}

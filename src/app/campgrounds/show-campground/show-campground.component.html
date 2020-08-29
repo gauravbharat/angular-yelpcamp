@@ -4,14 +4,104 @@
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
-<div class="container">
-  <div
-    class="camp-container"
-    fxLayout="row"
-    fxLayout.xs="column"
-    fxLayoutAlign="space-around"
-  >
-    <div class="side-panel" fxFlex="30%">
+<div class="grid-container">
+  <div class="side-panel">
+    <div class="chat-room">
+      <h1 class="side-panel-title">Live 🏕&nbsp;Chat</h1>
+      <mat-expansion-panel
+        (opened)="onChatJoin()"
+        (closed)="onChatLeave()"
+        [disabled]="!isUserAuthenticated"
+        #mepCampChat="matExpansionPanel"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title> ⛺️&nbsp; 💬 </mat-panel-title>
+          <mat-panel-description
+            *ngIf="!isUserAuthenticated && !campChatOpenState"
+          >
+            You need to login.
+          </mat-panel-description>
+          <mat-panel-description
+            *ngIf="isUserAuthenticated && !campChatOpenState"
+          >
+            Click to join
+          </mat-panel-description>
+          <mat-panel-description
+            *ngIf="isUserAuthenticated && campChatOpenState"
+          >
+            <strong>{{ campground?.name }}</strong
+            >&nbsp;chat room
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div class="chat-expanded-panel">
+          <div class="chats-display" #chatDisplay>
+            <ul>
+              <li
+                class="chat-list"
+                [ngClass]="
+                  chat.messageType === 2 && chat.chatMessage.userId !== userId
+                    ? ['other-user-chat']
+                    : ['']
+                "
+                *ngFor="let chat of chatMessageList; let i = index"
+                [id]="i"
+                #chatList
+              >
+                <span
+                  [ngClass]="
+                    chat.messageType === 1 || chat.messageType === 3
+                      ? ['chat-server-text']
+                      : ['chat-list-text']
+                  "
+                  >{{ chat?.chatMessage?.msg }}</span
+                ><span
+                  [ngClass]="
+                    chat.messageType === 1 || chat.messageType === 3
+                      ? ['chat-server-time']
+                      : ['chat-list-time']
+                  "
+                  >{{ getLastEdited(chat?.postDate) }}</span
+                >
+              </li>
+            </ul>
+          </div>
+          <form class="chat-form-type" (ngSubmit)="onChatSubmit()">
+            <mat-form-field>
+              <input
+                matInput
+                type="text"
+                name="newChatText"
+                [(ngModel)]="newChatText"
+                maxlength="120"
+              />
+              <mat-hint align="end">{{ newChatText?.length }} / 120</mat-hint>
+            </mat-form-field>
+            <button
+              mat-button
+              color="primary"
+              type="submit"
+              matSuffix
+              mat-icon-button
+              aria-label="Enter"
+              [disabled]="!newChatText || newChatText === ''"
+            >
+              <mat-icon>double_arrow</mat-icon>
+            </button>
+          </form>
+          <div class="chat-footer">
+            * Chat room limited for this campground page only!
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </div>
+
+    <mat-divider class="side-panel-items-hdivider"></mat-divider>
+    <mat-divider
+      [vertical]="true"
+      class="side-panel-items-vdivider"
+    ></mat-divider>
+
+    <div class="map">
       <h1 class="side-panel-title">Location Map</h1>
       <div class="loading-map-location" *ngIf="isLoading">
         <img
@@ -24,309 +114,221 @@
       <div class="map-display" *ngIf="!isLoading">
         <ay-map [mapLocation]="campground?.location"></ay-map>
       </div>
-
-      <div class="chat-room">
-        <mat-divider></mat-divider>
-        <h1 class="side-panel-title">Live 🏕&nbsp;Chat</h1>
-        <mat-expansion-panel
-          (opened)="onChatJoin()"
-          (closed)="onChatLeave()"
-          [disabled]="!isUserAuthenticated"
-          #mepCampChat="matExpansionPanel"
-        >
-          <mat-expansion-panel-header>
-            <mat-panel-title> ⛺️&nbsp; 💬 </mat-panel-title>
-            <mat-panel-description
-              *ngIf="!isUserAuthenticated && !campChatOpenState"
-            >
-              You need to login.
-            </mat-panel-description>
-            <mat-panel-description
-              *ngIf="isUserAuthenticated && !campChatOpenState"
-            >
-              Click to join
-            </mat-panel-description>
-            <mat-panel-description
-              *ngIf="isUserAuthenticated && campChatOpenState"
-            >
-              <strong>{{ campground?.name }}</strong
-              >&nbsp;chat room
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <div class="chat-expanded-panel">
-            <div class="chats-display" #chatDisplay>
-              <ul>
-                <li
-                  class="chat-list"
-                  [ngClass]="
-                    chat.messageType === 2 && chat.chatMessage.userId !== userId
-                      ? ['other-user-chat']
-                      : ['']
-                  "
-                  *ngFor="let chat of chatMessageList; let i = index"
-                  [id]="i"
-                  #chatList
-                >
-                  <span
-                    [ngClass]="
-                      chat.messageType === 1 || chat.messageType === 3
-                        ? ['chat-server-text']
-                        : ['chat-list-text']
-                    "
-                    >{{ chat?.chatMessage?.msg }}</span
-                  ><span
-                    [ngClass]="
-                      chat.messageType === 1 || chat.messageType === 3
-                        ? ['chat-server-time']
-                        : ['chat-list-time']
-                    "
-                    >{{ getLastEdited(chat?.postDate) }}</span
-                  >
-                </li>
-              </ul>
-            </div>
-            <form class="chat-form-type" (ngSubmit)="onChatSubmit()">
-              <mat-form-field>
-                <input
-                  matInput
-                  type="text"
-                  name="newChatText"
-                  [(ngModel)]="newChatText"
-                  maxlength="120"
-                />
-                <mat-hint align="end">{{ newChatText?.length }} / 120</mat-hint>
-              </mat-form-field>
-              <button
-                mat-button
-                color="primary"
-                type="submit"
-                matSuffix
-                mat-icon-button
-                aria-label="Enter"
-                [disabled]="!newChatText || newChatText === ''"
-              >
-                <mat-icon>double_arrow</mat-icon>
-              </button>
-            </form>
-            <div class="chat-footer">
-              * Chat room limited for this campground page only!
-            </div>
-          </div>
-        </mat-expansion-panel>
-      </div>
     </div>
+  </div>
 
-    <div class="main-panel" fxFlex="70%">
-      <mat-card>
-        <div class="campground-image">
-          <div class="loading-campground-image" *ngIf="isLoading">
-            <mat-icon>photo</mat-icon>
-            loading...
-          </div>
-
-          <img
-            *ngIf="!isLoading"
-            mat-card-image
-            [src]="campground?.image"
-            [alt]="campground?.name"
-          />
+  <div class="main-panel">
+    <mat-card>
+      <div class="campground-image">
+        <div class="loading-campground-image" *ngIf="isLoading">
+          <mat-icon>photo</mat-icon>
+          loading...
         </div>
 
-        <div class="campground-info">
-          <mat-card-title
-            >{{ campground?.name
-            }}<span class="price"
-              >${{ campground?.price ? campground?.price : 0 }}/night</span
-            ></mat-card-title
-          >
-          <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
-          <mat-card-content>{{ campground?.description }}</mat-card-content>
-        </div>
-        <div class="chips-display">
-          <mat-chip-list aria-label="Amenities available">
-            <mat-chip *ngFor="let amenity of campground?.amenities">{{
-              amenity.name
-            }}</mat-chip>
-          </mat-chip-list>
-        </div>
-        <div class="camp-submitted-by">
-          Submitted by
-          <a
-            [routerLink]="
-              userId === campground?.author?.id
-                ? ['/user/current']
-                : ['/user/other', campground?.author?.id]
-            "
-            class="camp-author"
-            >{{ campground?.author?.username }}</a
-          >, {{ getLastEdited(campground?.created) }}
-        </div>
-        <mat-divider
+        <img
+          *ngIf="!isLoading"
+          mat-card-image
+          [src]="campground?.image"
+          [alt]="campground?.name"
+        />
+      </div>
+
+      <div class="campground-info">
+        <mat-card-title class="campground-name"
+          ><span>{{ campground?.name }}</span>
+          <span class="price"
+            >${{ campground?.price ? campground?.price : 0 }}/night</span
+          ></mat-card-title
+        >
+        <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
+        <mat-card-content>{{ campground?.description }}</mat-card-content>
+      </div>
+      <div class="chips-display">
+        <mat-chip-list aria-label="Amenities available">
+          <mat-chip *ngFor="let amenity of campground?.amenities">{{
+            amenity.name
+          }}</mat-chip>
+        </mat-chip-list>
+      </div>
+      <div class="camp-submitted-by">
+        Submitted by
+        <a
+          [routerLink]="
+            userId === campground?.author?.id
+              ? ['/user/current']
+              : ['/user/other', campground?.author?.id]
+          "
+          class="camp-author"
+          >{{ campground?.author?.username }}</a
+        >, {{ getLastEdited(campground?.created) }}
+      </div>
+      <mat-divider
+        *ngIf="isUserAuthenticated && campground?.author?.id === userId"
+      ></mat-divider>
+      <mat-card-actions class="action-buttons">
+        <button
           *ngIf="isUserAuthenticated && campground?.author?.id === userId"
-        ></mat-divider>
-        <mat-card-actions class="action-buttons">
-          <button
-            *ngIf="isUserAuthenticated && campground?.author?.id === userId"
-            mat-button
-            color="primary"
-            [routerLink]="['/campgrounds/process/edit', campground?._id]"
-          >
-            EDIT
-          </button>
-          <button
-            *ngIf="isUserAuthenticated && campground?.author?.id === userId"
-            mat-button
-            color="warn"
-            (click)="onDelete(campground?._id)"
-          >
-            DELETE
-          </button>
-        </mat-card-actions>
-      </mat-card>
+          mat-button
+          color="primary"
+          [routerLink]="['/campgrounds/process/edit', campground?._id]"
+        >
+          EDIT
+        </button>
+        <button
+          *ngIf="isUserAuthenticated && campground?.author?.id === userId"
+          mat-button
+          color="warn"
+          (click)="onDelete(campground?._id)"
+        >
+          DELETE
+        </button>
+      </mat-card-actions>
+    </mat-card>
 
-      <mat-card class="comments-container">
-        <!-- <div class="comments-add-button">
+    <mat-card class="comments-container">
+      <!-- <div class="comments-add-button">
           <button mat-mini-fab color="primary" aria-label="Add Comments">
             <mat-icon>add</mat-icon>
           </button>
         </div> -->
 
-        <h2>Comments <mat-icon>comment</mat-icon></h2>
-        <!-- <mat-divider></mat-divider> -->
-        <div class="comments-container-add">
+      <h2>Comments <mat-icon>comment</mat-icon></h2>
+      <!-- <mat-divider></mat-divider> -->
+      <div class="comments-container-add">
+        <mat-expansion-panel
+          (opened)="addCommentOpenState = true"
+          (closed)="addCommentOpenState = false"
+          [disabled]="!isUserAuthenticated"
+          #mepNewComment="matExpansionPanel"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title> Add Comment </mat-panel-title>
+            <mat-panel-description *ngIf="!isUserAuthenticated">
+              You need to login before you can comment.
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <form
+            #newCommentForm="ngForm"
+            (submit)="onNewCommentSubmit(newCommentForm, mepNewComment)"
+          >
+            <mat-form-field>
+              <input
+                matInput
+                type="text"
+                name="addCommentInput"
+                [(ngModel)]="newComment"
+                placeholder="Your comment here*"
+              />
+              <button
+                mat-button
+                *ngIf="newComment"
+                type="submit"
+                color="primary"
+                matSuffix
+                mat-icon-button
+                aria-label="Save"
+              >
+                <mat-icon>add_task</mat-icon>
+              </button>
+              <button
+                mat-button
+                *ngIf="newComment"
+                color="warn"
+                matSuffix
+                mat-icon-button
+                aria-label="Clear"
+                (click)="newComment = ''"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-hint>*Do not disclose personal data</mat-hint>
+            </mat-form-field>
+          </form>
+        </mat-expansion-panel>
+      </div>
+      <br />
+      <mat-divider></mat-divider>
+      <br />
+      <div class="comments-container-list">
+        <div class="comments-list-expand-collapse">
+          <button mat-button (click)="onAccordionToggle(true)">
+            Expand All <mat-icon>expand_more</mat-icon>
+          </button>
+          <button mat-button (click)="onAccordionToggle(false)">
+            Collapse All <mat-icon>expand_less</mat-icon>
+          </button>
+        </div>
+        <mat-accordion multi>
           <mat-expansion-panel
-            (opened)="addCommentOpenState = true"
-            (closed)="addCommentOpenState = false"
-            [disabled]="!isUserAuthenticated"
-            #mepNewComment="matExpansionPanel"
+            *ngFor="
+              let comment of campground?.comments;
+              trackBy: trackByMethod;
+              let i = index
+            "
+            #mep="matExpansionPanel"
+            (expandedChange)="mep.expanded = $event"
           >
             <mat-expansion-panel-header>
-              <mat-panel-title> Add Comment </mat-panel-title>
-              <mat-panel-description *ngIf="!isUserAuthenticated">
-                You need to login before you can comment.
-              </mat-panel-description>
-            </mat-expansion-panel-header>
-            <form
-              #newCommentForm="ngForm"
-              (submit)="onNewCommentSubmit(newCommentForm, mepNewComment)"
-            >
-              <mat-form-field>
-                <input
-                  matInput
-                  type="text"
-                  name="addCommentInput"
-                  [(ngModel)]="newComment"
-                  placeholder="Your comment here*"
-                />
-                <button
-                  mat-button
-                  *ngIf="newComment"
-                  type="submit"
-                  color="primary"
-                  matSuffix
-                  mat-icon-button
-                  aria-label="Save"
-                >
-                  <mat-icon>add_task</mat-icon>
-                </button>
-                <button
-                  mat-button
-                  *ngIf="newComment"
-                  color="warn"
-                  matSuffix
-                  mat-icon-button
-                  aria-label="Clear"
-                  (click)="newComment = ''"
-                >
-                  <mat-icon>clear</mat-icon>
-                </button>
-                <mat-hint>*Do not disclose personal data</mat-hint>
-              </mat-form-field>
-            </form>
-          </mat-expansion-panel>
-        </div>
-        <br />
-        <mat-divider></mat-divider>
-        <br />
-        <div class="comments-container-list">
-          <div class="comments-list-expand-collapse">
-            <button mat-button (click)="onAccordionToggle(true)">
-              Expand All <mat-icon>expand_more</mat-icon>
-            </button>
-            <button mat-button (click)="onAccordionToggle(false)">
-              Collapse All <mat-icon>expand_less</mat-icon>
-            </button>
-          </div>
-          <mat-accordion multi>
-            <mat-expansion-panel
-              *ngFor="
-                let comment of campground?.comments;
-                trackBy: trackByMethod;
-                let i = index
-              "
-              #mep="matExpansionPanel"
-              (expandedChange)="mep.expanded = $event"
-            >
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <div
-                    class="comment-title-author-avatar"
-                    *ngIf="!mep.expanded && !accordionExpanded"
-                  >
-                    <img
-                      [src]="comment?.author?.avatar"
-                      [title]="comment?.author?.username"
-                    />
-                  </div>
-                  <div class="comment-author-name">
-                    <span class="author-name">
-                      {{ comment?.author?.username }}
-                    </span>
-                    <span class="last-edited">
-                      &#9679;
-                      {{ getLastEdited(comment?.edited) }}
-                      {{ comment?.isEdited ? "(edited)" : "" }}
-                    </span>
-                  </div>
-                </mat-panel-title>
-                <mat-panel-description
+              <mat-panel-title>
+                <div
+                  class="comment-title-author-avatar"
                   *ngIf="!mep.expanded && !accordionExpanded"
                 >
-                  <div class="comment-text-overview">
-                    <!-- <div ayTextTruncateEllipsis> -->
-                    {{ comment.text }}
-                  </div>
-                </mat-panel-description>
-              </mat-expansion-panel-header>
+                  <img
+                    [src]="comment?.author?.avatar"
+                    [title]="comment?.author?.username"
+                  />
+                </div>
+                <div class="comment-author-name">
+                  <span class="author-name">
+                    {{ comment?.author?.username }}
+                  </span>
+                  <span class="last-edited">
+                    &#9679;
+                    {{ getLastEdited(comment?.edited) }}
+                    {{ comment?.isEdited ? "(edited)" : "" }}
+                  </span>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description
+                class="mat-panel-desc-text"
+                *ngIf="!mep.expanded && !accordionExpanded"
+              >
+                <div class="comment-text-overview">
+                  {{ comment.text }}
+                </div>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
 
-              <ng-template matExpansionPanelContent>
-                <div class="container-expanded-panel">
-                  <div class="commet-author-avatar">
-                    <img
-                      [routerLink]="
-                        userId === comment?.author?.id
-                          ? ['/user/current']
-                          : ['/user/other', comment?.author?.id]
-                      "
-                      [src]="comment?.author?.avatar"
-                      [title]="comment?.author?.username"
-                    />
-                  </div>
-                  <div class="container-comment-edit">
-                    <form class="edit-comment-form" #editCommentForm="ngForm">
-                      <mat-form-field>
-                        <input
-                          matInput
-                          type="text"
-                          name="editedComment"
-                          [value]="comment.text"
-                          #editCommentInput="matInput"
-                          [disabled]="
-                            editButton._elementRef.nativeElement.innerText ===
-                            'edit_task'
-                          "
-                        />
-                      </mat-form-field>
+            <ng-template matExpansionPanelContent>
+              <div class="container-expanded-panel">
+                <div class="commet-author-avatar">
+                  <img
+                    [routerLink]="
+                      userId === comment?.author?.id
+                        ? ['/user/current']
+                        : ['/user/other', comment?.author?.id]
+                    "
+                    [src]="comment?.author?.avatar"
+                    [title]="comment?.author?.username"
+                  />
+                </div>
+                <div class="container-comment-edit">
+                  <form class="edit-comment-form" #editCommentForm="ngForm">
+                    <mat-form-field>
+                      <input
+                        matInput
+                        type="text"
+                        name="editedComment"
+                        [value]="comment.text"
+                        #editCommentInput="matInput"
+                        [disabled]="
+                          editButton._elementRef.nativeElement.innerText ===
+                          'edit_task'
+                        "
+                      />
+                    </mat-form-field>
+                    <div class="edit-form-buttons">
                       <button
                         [disabled]="
                           !isUserAuthenticated ||
@@ -388,39 +390,35 @@
                       >
                         <mat-icon>delete_task</mat-icon>
                       </button>
-                    </form>
-                  </div>
+                    </div>
+                  </form>
                 </div>
-                <div class="like-section">
-                  <button
-                    mat-button
-                    [color]="comment?.likes?.length > 0 ? 'accent' : ''"
-                    type="button"
-                    matSuffix
-                    mat-icon-button
-                    aria-label="Like"
-                    [disabled]="!isUserAuthenticated || isLoading"
-                    (click)="onCommentLike(comment._id, i)"
-                  >
-                    <mat-icon>thumb_up</mat-icon>
-                  </button>
-                  <p
-                    [matTooltip]="getLikeUsersList(comment._id, i)"
-                    [matTooltipClass]="'likes-tooltip'"
-                  >
-                    {{ getLikeUsersPreview(comment._id, i) }}
-                  </p>
-                </div>
-              </ng-template>
-            </mat-expansion-panel>
-          </mat-accordion>
-          <br />
-        </div>
-      </mat-card>
-    </div>
+              </div>
+              <div class="like-section">
+                <button
+                  mat-button
+                  [color]="comment?.likes?.length > 0 ? 'accent' : ''"
+                  type="button"
+                  matSuffix
+                  mat-icon-button
+                  aria-label="Like"
+                  [disabled]="!isUserAuthenticated || isLoading"
+                  (click)="onCommentLike(comment._id, i)"
+                >
+                  <mat-icon>thumb_up</mat-icon>
+                </button>
+                <p
+                  [matTooltip]="getLikeUsersList(comment._id, i)"
+                  [matTooltipClass]="'likes-tooltip'"
+                >
+                  {{ getLikeUsersPreview(comment._id, i) }}
+                </p>
+              </div>
+            </ng-template>
+          </mat-expansion-panel>
+        </mat-accordion>
+        <br />
+      </div>
+    </mat-card>
   </div>
 </div>
-
-<!-- fxLayout="column"
-fxLayout.xs="row"
-fxLayoutAlign="space-around" -->

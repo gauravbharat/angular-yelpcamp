@@ -6,9 +6,7 @@
 <app-header></app-header>
 
 <div class="login-container" *ngIf="!isLoading">
-  <h1 class="mat-display-1">
-    Please sign in
-  </h1>
+  <h1 class="mat-display-1">Please sign in</h1>
   <mat-card>
     <form #loginForm="ngForm" (submit)="onLogin(loginForm)">
       <mat-form-field appearance="fill">
@@ -32,7 +30,7 @@
         </mat-hint>
       </mat-form-field>
 
-      <h3 style="text-align: center;">OR</h3>
+      <h3 style="text-align: center">OR</h3>
 
       <mat-form-field appearance="fill">
         <mat-label>Username</mat-label>

@@ -4,22 +4,26 @@
 }
 
 .image {
-  height: 100vh;
-  background-size: cover;
-  width: auto;
-  background-image: url("../../assets/images/404-page-not-found.jpg");
-  background-position: 50% 50%;
+  width: 100%;
+  height: auto;
 }
 
 div {
   display: flex;
-  flex-direction: column-reverse;
-  justify-content: flex-start;
+  flex-direction: column;
+  justify-content: center;
 }
 
 a {
+  font-size: 0.75rem;
   text-decoration: none;
   color: #c5bcbc;
   padding-bottom: 10px;
   padding-left: 5px;
+}
+
+@media screen and (max-width: 600px) {
+  a {
+    font-size: 0.5rem;
+  }
 }

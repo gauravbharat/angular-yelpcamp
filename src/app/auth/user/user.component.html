@@ -83,7 +83,11 @@
     <div class="current-user-details" *ngIf="!showCoUser">
       <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectIndex">
         <mat-tab label="Settings">
-          <mat-vertical-stepper [linear]="isLinear" #stepper>
+          <mat-vertical-stepper
+            class="settings-stepper"
+            [linear]="isLinear"
+            #stepper
+          >
             <mat-step [stepControl]="basicFormGroup">
               <form [formGroup]="basicFormGroup" class="user-settings-form">
                 <ng-template matStepLabel>Basic Information</ng-template>
@@ -129,36 +133,47 @@
                   color="accent"
                   formControlName="hideStatsDashboard"
                   #showStats
-                  >Hide app statistics on 'Campgrounds' page:
-                  {{ showStats.checked ? "ON" : "OFF" }}
+                >
+                  <span class="mat-slide-toggle-text">
+                    Hide app statistics on 'Campgrounds' page:
+                    {{ showStats.checked ? "ON" : "OFF" }}
+                  </span>
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newCampgroundAlert"
                   #showCampAlert
-                  >Get in-app alerts for new Campgrounds by users you follow:
-                  {{ showCampAlert.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text">
+                    Get in-app alerts for new Campgrounds by users you follow:
+                    {{ showCampAlert.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newCommentAlert"
                   #showCommentAlert
-                  >Get in-app alerts for new comments on your campgrounds:
-                  {{ showCommentAlert.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get in-app alerts for new comments on your campgrounds:
+                    {{ showCommentAlert.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newFollowerAlert"
                   #showFollowerAlert
-                  >Get in-app alerts when a user follows you:
-                  {{ showFollowerAlert.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get in-app alerts when a user follows you:
+                    {{ showFollowerAlert.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newCommentLike"
                   #showCommentLikeAlert
-                  >Get in-app alerts when a user likes your comment:
-                  {{ showCommentLikeAlert.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get in-app alerts when a user likes your comment:
+                    {{ showCommentLikeAlert.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <div>
                   <button
@@ -196,29 +211,37 @@
                   color="accent"
                   formControlName="systemEmail"
                   #getSysEmails
-                  >Get app or system related emails from server:
-                  {{ getSysEmails.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get app or system related emails from server:
+                    {{ getSysEmails.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newCampgroundEmail"
                   #getCampEmails
-                  >Get email on new Campgrounds by users you follow:
-                  {{ getCampEmails.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get email on new Campgrounds by users you follow:
+                    {{ getCampEmails.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newCommentEmail"
                   #getCommentEmails
-                  >Get email for new comments on your campgrounds:
-                  {{ getCommentEmails.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get email for new comments on your campgrounds:
+                    {{ getCommentEmails.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="newFollowerEmail"
                   #getFollowerEmails
-                  >Get email when a user follows you:
-                  {{ getFollowerEmails.checked ? "ON" : "OFF" }}
+                  ><span class="mat-slide-toggle-text"
+                    >Get email when a user follows you:
+                    {{ getFollowerEmails.checked ? "ON" : "OFF" }}</span
+                  >
                 </mat-slide-toggle>
                 <div>
                   <button

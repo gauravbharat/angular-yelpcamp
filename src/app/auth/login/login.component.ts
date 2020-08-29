@@ -32,8 +32,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       (authStatus) => {
         if (authStatus.isUserAuthenticated) {
           this._snackbarService.showSuccess(
-            `Welcome to YelpCamp, ${authStatus.username}!`,
-            1000
+            `Welcome to YelpCamp, ${authStatus.username}!`
           );
           this.authService.redirectToCampgrounds();
         }

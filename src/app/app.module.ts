@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; //Added by @angular/material
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 
 /** Custom Angular Modules */
 import { AppRoutingModule } from './app-routing.module';
@@ -57,6 +58,10 @@ import { SocketService } from './socket.service';
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     SocketService,
+    {
+      provide: STEPPER_GLOBAL_OPTIONS,
+      useValue: { displayDefaultIndicatorType: false },
+    },
   ],
   bootstrap: [AppComponent],
 })

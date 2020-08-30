@@ -91,14 +91,9 @@
     <div class="current-user-details" *ngIf="!showCoUser">
       <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectIndex">
         <mat-tab label="Settings">
-          <mat-vertical-stepper
-            class="settings-stepper"
-            [linear]="isLinear"
-            #stepper
-          >
-            <mat-step [stepControl]="basicFormGroup">
+          <mat-vertical-stepper class="settings-stepper" #stepper>
+            <mat-step label="Basic Information" state="basic">
               <form [formGroup]="basicFormGroup" class="user-settings-form">
-                <ng-template matStepLabel>Basic Information</ng-template>
                 <mat-form-field>
                   <mat-label>@username *</mat-label>
                   <input matInput formControlName="username" />
@@ -131,12 +126,11 @@
                 </div>
               </form>
             </mat-step>
-            <mat-step [stepControl]="displayPrefFormGroup">
+            <mat-step label="Display Preferences" state="notify">
               <form
                 [formGroup]="displayPrefFormGroup"
                 class="user-display-settings-form"
               >
-                <ng-template matStepLabel>Display Preferences</ng-template>
                 <mat-slide-toggle
                   color="accent"
                   formControlName="hideStatsDashboard"
@@ -203,12 +197,11 @@
                 </div>
               </form>
             </mat-step>
-            <mat-step [stepControl]="emailPrefFormGroup">
+            <mat-step label="Email Preferences" state="email">
               <form
                 [formGroup]="emailPrefFormGroup"
                 class="user-display-settings-form"
               >
-                <ng-template matStepLabel>Email Preferences *</ng-template>
                 <p color="warn" class="informative-p">
                   * You must have a valid email address registered with us to
                   get <strong><u>any</u></strong> email notification! Also,
@@ -271,9 +264,7 @@
                 </div>
               </form>
             </mat-step>
-            <mat-step>
-              <ng-template matStepLabel>Save Changes</ng-template>
-              <!-- <p>You are now done.</p> -->
+            <mat-step label="Save Changes" state="save">
               <div>
                 <button
                   color="primary"
@@ -299,6 +290,20 @@
                 </button>
               </div>
             </mat-step>
+
+            <!-- Icon overrides. -->
+            <ng-template matStepperIcon="basic">
+              <mat-icon>person</mat-icon>
+            </ng-template>
+            <ng-template matStepperIcon="notify">
+              <mat-icon>notifications</mat-icon>
+            </ng-template>
+            <ng-template matStepperIcon="email">
+              <mat-icon>mail</mat-icon>
+            </ng-template>
+            <ng-template matStepperIcon="save">
+              <mat-icon>save</mat-icon>
+            </ng-template>
           </mat-vertical-stepper>
         </mat-tab>
         <mat-tab

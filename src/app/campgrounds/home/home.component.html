@@ -1,6 +1,7 @@
 <mat-progress-bar
   mode="indeterminate"
   color="warn"
+  [ngStyle]="{ height: '2px' }"
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
@@ -64,21 +65,34 @@
 
   <div class="stats" *ngIf="!hideStatsDashboard">
     <mat-card [ngStyle]="getFlagColor()?.top" class="stats-card">
-      <div class="count">{{ campgroundsCount }}</div>
+      <div class="count" *ngIf="isLoading">--</div>
+      <div class="count" *ngIf="!isLoading">{{ campgroundsCount }}</div>
       <div class="category">Campgrounds</div>
     </mat-card>
     <mat-card class="stats-card" [ngStyle]="getFlagColor()?.middle">
-      <div class="count">{{ usersCount }}</div>
+      <div class="count" *ngIf="isLoading">--</div>
+      <div class="count" *ngIf="!isLoading">{{ usersCount }}</div>
       <div class="category">Users</div>
     </mat-card>
     <mat-card class="stats-card" [ngStyle]="getFlagColor()?.bottom">
-      <div class="count">{{ contributorsCount }}</div>
+      <div class="count" *ngIf="isLoading">--</div>
+      <div class="count" *ngIf="!isLoading">{{ contributorsCount }}</div>
       <div class="category">Contributors</div>
     </mat-card>
   </div>
 </mat-card>
 
 <div class="campgrounds-list">
+  <mat-card class="grid-card" *ngIf="isLoading">
+    <div class="loading-campground-image">🏕 loading...</div>
+  </mat-card>
+  <mat-card class="grid-card" *ngIf="isLoading">
+    <div class="loading-campground-image">🏕 loading...</div>
+  </mat-card>
+  <mat-card class="grid-card" *ngIf="isLoading">
+    <div class="loading-campground-image">🏕 loading...</div>
+  </mat-card>
+
   <mat-card class="grid-card" *ngFor="let campground of campgrounds">
     <img
       class="campground-preview-image"
@@ -86,6 +100,7 @@
       [src]="campground.image"
       alt="Campground Preview Image"
     />
+
     <div class="campground-preview-cta">
       <mat-card-title class="campground-preview-title">{{
         campground.name

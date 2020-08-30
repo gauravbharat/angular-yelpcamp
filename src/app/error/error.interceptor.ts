@@ -28,6 +28,9 @@ export class ErrorInterceptor implements HttpInterceptor {
         let errorMessage =
           'An unknown error occurred! Either the server may be down or restarting or you may be facing network issues, please refresh page after some time. If issue persists, please contact this webpage administrator or your network provider.';
 
+        !navigator.onLine &&
+          (errorMessage = 'Please check your network connection and try again');
+
         if (httpError.error.message) {
           errorMessage = httpError.error.message;
           if (errorMessage.includes('Please try signing-in again')) {

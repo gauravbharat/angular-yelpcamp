@@ -28,6 +28,7 @@ import { AuthService } from '../auth/auth.service';
   ],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  isLoading = false;
   isUserAuthenticated = false;
   notificationsCount = 0;
   username: string;
@@ -37,6 +38,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(private authService: AuthService) {}
 
   ngOnInit() {
+    this.isLoading = true;
     /** Set flag on privileged access of select controls */
     this.authStatusSub$ = this.authService
       .getAuthStatusListener()
@@ -45,6 +47,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.username = authStatus.username;
         this.avatar = authStatus.userAvatar;
         this.notificationsCount = authStatus.unreadNotifications;
+        this.isLoading = false;
       });
   }
 

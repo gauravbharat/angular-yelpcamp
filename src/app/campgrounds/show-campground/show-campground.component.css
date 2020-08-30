@@ -128,7 +128,7 @@
 .loading-map-location {
   width: 50px;
   height: 50px;
-  margin-top: 20px;
+  margin: 20px auto;
 }
 /* Side Panel => Map section - Ends */
 
@@ -428,6 +428,10 @@ mat-panel-description .comment-text-overview {
   .campground-name span {
     margin: 10px auto;
   }
+
+  .comments-container-add mat-expansion-panel-header {
+    font-size: 0.8rem;
+  }
 }
 
 @media screen and (max-width: 500px) {
@@ -437,6 +441,10 @@ mat-panel-description .comment-text-overview {
 
   .mat-panel-desc-text {
     display: none;
+  }
+
+  .comments-container-add mat-expansion-panel-header {
+    font-size: 0.75rem;
   }
 }
 
@@ -461,5 +469,9 @@ mat-panel-description .comment-text-overview {
 
   .edit-comment-form input {
     width: 100%;
+  }
+
+  .comments-container-add mat-expansion-panel-header {
+    font-size: 0.7rem;
   }
 }

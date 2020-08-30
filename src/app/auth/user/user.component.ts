@@ -31,9 +31,9 @@ import { NgForm } from '@angular/forms';
 export class UserComponent implements OnInit, OnDestroy {
   isLoading = false;
   isLinear = true;
-  basicFormGroup: FormGroup;
-  displayPrefFormGroup: FormGroup;
-  emailPrefFormGroup: FormGroup;
+  basicFormGroup = new FormGroup({});
+  displayPrefFormGroup = new FormGroup({});
+  emailPrefFormGroup = new FormGroup({});
 
   private _showOnInitTab: string;
   private _tabIndex = {
@@ -67,6 +67,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoading = true;
+
     this._authStatusSub$ = this._authService
       .getAuthStatusListener()
       .subscribe((authStatus) => {
@@ -109,7 +110,7 @@ export class UserComponent implements OnInit, OnDestroy {
                 /** All User Settings: Form Group Init */
                 this.basicFormGroup = new FormGroup({
                   username: new FormControl(
-                    this.currentUsername,
+                    this.currentUser?.username,
                     Validators.required
                   ),
                   firstname: new FormControl(
@@ -261,11 +262,6 @@ export class UserComponent implements OnInit, OnDestroy {
       return;
 
     this.isLoading = true;
-
-    console.log(
-      'newCommentLike',
-      this.displayPrefFormGroup.value.newCommentLike
-    );
 
     try {
       const userData: UserSettingsUpdate = {

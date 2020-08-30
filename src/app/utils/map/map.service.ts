@@ -33,7 +33,7 @@ export class MapService {
               ],
             });
 
-            this._map.addControl(new mapboxgl.NavigationControl());
+            this._map && this._map.addControl(new mapboxgl.NavigationControl());
           }
 
           // console.log(result);

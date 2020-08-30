@@ -1,6 +1,7 @@
 <mat-progress-bar
   mode="indeterminate"
   color="warn"
+  [ngStyle]="{ height: '2px' }"
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
@@ -9,6 +10,13 @@
     <mat-card>
       <div [ngClass]="!showCoUser ? 'imagehandler' : ''">
         <img
+          *ngIf="isLoading"
+          mat-card-image
+          src="assets/images/avatar_generic.png"
+          alt="generic avatar placeholder"
+        />
+        <img
+          *ngIf="!isLoading"
           mat-card-image
           [src]="showCoUser ? displayCoUser?.avatar : currentUser?.avatar"
           [alt]="showCoUser ? displayCoUser?.username : currentUser?.username"

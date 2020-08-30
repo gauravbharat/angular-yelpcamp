@@ -41,6 +41,7 @@ export class ShowCampgroundComponent
   implements OnInit, OnDestroy, AfterViewChecked {
   isUserAuthenticated = false;
   isLoading = false;
+  isCommentTriggered = false;
   userId: string;
   username: string;
   userAvatar: string;
@@ -290,6 +291,12 @@ export class ShowCampgroundComponent
   }
 
   ngAfterViewChecked() {
+    /** The code to scroll below did not work in OnInit, AfterContextInit and AfterViewInit where
+     * it was executed only once. It did not work even after calling this in socket listeners.
+     *
+     * Since this method was called multiple times, an appropriate location needs to be found to
+     * trigger the code below.
+     */
     /** If chat panel is open, scroll to recent chat message if scrollbar is past its height */
     if (this.campChatOpenState && this._scrollToChat) {
       this.chatLi?.last?.nativeElement.scrollIntoView({
@@ -328,6 +335,7 @@ export class ShowCampgroundComponent
     if (this._isProfane(this.newComment)) return;
 
     //Removed this.isLoading = true, cause page flickers due to ngIfs
+    this.isCommentTriggered = true;
     this._commentsService
       .createComment(
         this.campground._id,
@@ -338,6 +346,8 @@ export class ShowCampgroundComponent
       )
       .subscribe(
         (response) => {
+          this.isCommentTriggered = false;
+
           // console.log('create comment', response);
           this.newComment = '';
           this.addCommentOpenState = false;
@@ -350,6 +360,7 @@ export class ShowCampgroundComponent
           });
         },
         (error) => {
+          this.isCommentTriggered = false;
           console.log('create comment', error);
         }
       );
@@ -380,16 +391,19 @@ export class ShowCampgroundComponent
 
     if (commentId && text && currentButtonLabel === 'save_task') {
       //Removed this.isLoading = true, cause page flickers due to ngIfs
+      this.isCommentTriggered = true;
       this._commentsService
         .editComment(commentId, this.campgroundId, this.userId, text)
         .subscribe(
           (result) => {
+            this.isCommentTriggered = false;
             /** Notify edit comment */
             this._socketService.sendMessage('edit-comment', {
               campgroundId: this.campgroundId,
             });
           },
           (error) => {
+            this.isCommentTriggered = false;
             console.log('edit comment', error);
           }
         );
@@ -398,6 +412,7 @@ export class ShowCampgroundComponent
 
   onCommentDelete(commentId: string): void {
     //Removed this.isLoading = true, cause page flickers due to ngIfs
+    this.isCommentTriggered = true;
     this._commentsService
       .deleteComment(commentId, this.campgroundId, this.userId)
       .subscribe(
@@ -406,8 +421,11 @@ export class ShowCampgroundComponent
           this._socketService.sendMessage('delete-comment', {
             campgroundId: this.campgroundId,
           });
+
+          this.isCommentTriggered = false;
         },
         (error) => {
+          this.isCommentTriggered = false;
           console.log('delete comment', error);
         }
       );

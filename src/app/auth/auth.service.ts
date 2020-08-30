@@ -11,7 +11,6 @@ import {
   UserSettingsUpdate,
 } from './auth-data.model';
 import { environment } from '../../environments/environment';
-import { last } from 'rxjs/operators';
 
 const BACKEND_URL = `${environment.apiUrl}/users`;
 
@@ -26,7 +25,7 @@ export class AuthService {
   private currentUrl: string;
 
   // Set listener for auth status change, initialize to false
-  private authStatusListener = new BehaviorSubject<{
+  private _authStatusListener = new BehaviorSubject<{
     isUserAuthenticated: boolean;
     username: string;
     userId: string;
@@ -43,6 +42,7 @@ export class AuthService {
     hideStatsDashboard: false,
     error: null,
   });
+
   private userUpdateListener = new BehaviorSubject<{
     updatedUser: CurrentUser | null;
   }>({
@@ -72,9 +72,7 @@ export class AuthService {
   }
 
   getAuthStatusListener() {
-    // Subscibe here people
-    // console.trace('auth status listened');
-    return this.authStatusListener.asObservable();
+    return this._authStatusListener.asObservable();
   }
 
   getUserUpdatesListener() {
@@ -113,30 +111,33 @@ export class AuthService {
       email,
       password,
     };
-
-    this.http
-      .post<{ message: string; userData: CurrentUser }>(
-        `${BACKEND_URL}/login`,
-        authData
-      )
-      .subscribe(
-        (response) => {
-          this.currentUser = response.userData;
-          // console.log('auth service', this.currentUser);
-          this._updateListeners(this.UPDATE_USER, false, null);
-          this.setTimerAndStorage();
-          this.router.navigate(['/campgrounds']);
-        },
-        (error) => {
-          // console.log('error logging in', error);
-          this.currentUser = null;
-          this._updateListeners(
-            this.RESET_USER,
-            false,
-            'Login failed, invalid credentials!'
-          );
-        }
-      );
+    return new Promise((resolve, reject) => {
+      this.http
+        .post<{ message: string; userData: CurrentUser }>(
+          `${BACKEND_URL}/login`,
+          authData
+        )
+        .subscribe(
+          (response) => {
+            this.currentUser = response.userData;
+            // console.log('auth service', this.currentUser);
+            this._updateListeners(this.UPDATE_USER, false, null);
+            this.setTimerAndStorage();
+            this.router.navigate(['/campgrounds']);
+            resolve({ isSuccess: true, username: this.currentUser.username });
+          },
+          (error) => {
+            // console.log('error logging in', error);
+            this.currentUser = null;
+            this._updateListeners(
+              this.RESET_USER,
+              false,
+              'Login failed, invalid credentials!'
+            );
+            reject({ isSuccess: false, error });
+          }
+        );
+    });
   }
 
   logout() {
@@ -336,8 +337,8 @@ export class AuthService {
    * But check that the token is not expired
    * Call this from app component
    */
-  autoLoginUser() {
-    const authInformation = this.getAuthData();
+  async autoLoginUser() {
+    const authInformation = await this.getAuthData();
     if (authInformation) {
       const now = new Date();
       const expiresIn =
@@ -345,11 +346,11 @@ export class AuthService {
       if (expiresIn > 0) {
         // if token is not expired yet
         this.dbService.getByKey(this.indexedDbStore, 1).then(
-          (userData) => {
+          async (userData) => {
             // console.log("this.dbService.getByKey('currentUser', 1)", userData);
             if (userData) {
               this.currentUser = userData;
-              this._updateListeners(this.UPDATE_USER, false, null);
+              await this._updateListeners(this.UPDATE_USER, false, null);
               // this.setTimerAndStorage(); //BUG - conflicts with JWT token expiry
               // this.router.navigate(['/campgrounds']); //bug
 
@@ -471,7 +472,7 @@ export class AuthService {
 
       // console.log('unreadNotifications', unreadNotifications);
 
-      this.authStatusListener.next({
+      this._authStatusListener.next({
         isUserAuthenticated: this.isAuthenticated,
         username: this.currentUser.username,
         userId: this.currentUser.userId,
@@ -486,7 +487,7 @@ export class AuthService {
         updatedUser: this.currentUser,
       });
     } else {
-      this.authStatusListener.next({
+      this._authStatusListener.next({
         isUserAuthenticated: false,
         username: null,
         userId: null,

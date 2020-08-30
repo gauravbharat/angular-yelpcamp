@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { Router, NavigationEnd, NavigationStart } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 /** Auth service */
 import { AuthService } from '../auth.service';
@@ -22,26 +24,21 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private _snackbarService: SnackbarService
+    private _snackbarService: SnackbarService,
+    private _router: Router
   ) {}
 
   ngOnInit() {
     // console.trace('login component loaded');
-
     this.authStatusSub$ = this.authService.getAuthStatusListener().subscribe(
       (authStatus) => {
         if (authStatus.isUserAuthenticated) {
-          this._snackbarService.showSuccess(
-            `Welcome to YelpCamp, ${authStatus.username}!`
-          );
           this.authService.redirectToCampgrounds();
         }
-
         /** Now handled by global ErrorInteceptor
         if (authStatus.error) {
           this.showFlashMessage(authStatus.error, configFailure);
         } */
-
         // listen to auth status change, which should happen on calling the auth service login
         // method in onLogin() below. Success or failure, stop the loading spinner/progress-bar
         this.isLoading = false;
@@ -53,7 +50,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.authStatusSub$.unsubscribe();
+    this.authStatusSub$?.unsubscribe();
   }
 
   onLogin(form: NgForm) {
@@ -61,11 +58,19 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (!form.value.email && !form.value.username) return;
 
     this.isLoading = true;
-    this.authService.login(
-      form.value.username,
-      form.value.email,
-      form.value.password
-    );
+    this.authService
+      .login(form.value.username, form.value.email, form.value.password)
+      .then((data: { isSuccess: boolean; username: string }) => {
+        data.isSuccess &&
+          this._snackbarService.showSuccess(
+            `Welcome to YelpCamp, ${data.username}!`
+          );
+        this.isLoading = false;
+      })
+      .catch((error) => {
+        //show nothing, handled by inteceptor
+        this.isLoading = false;
+      });
   }
 
   onForgotPassword(form: NgForm) {

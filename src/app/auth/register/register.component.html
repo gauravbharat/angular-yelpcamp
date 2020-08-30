@@ -1,14 +1,13 @@
 <mat-progress-bar
   mode="indeterminate"
   color="warn"
+  [ngStyle]="{ height: '2px' }"
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
 
 <div class="register-container" *ngIf="!isLoading">
-  <h1 class="mat-display-1">
-    Please sign up
-  </h1>
+  <h1 class="mat-display-1">Please sign up</h1>
   <mat-card>
     <form #registerForm="ngForm" (submit)="onRegister(registerForm)">
       <mat-form-field appearance="fill">

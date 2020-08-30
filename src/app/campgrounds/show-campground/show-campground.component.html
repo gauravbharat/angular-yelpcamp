@@ -1,6 +1,7 @@
 <mat-progress-bar
   mode="indeterminate"
   color="warn"
+  [ngStyle]="{ height: '2px' }"
   *ngIf="isLoading"
 ></mat-progress-bar>
 <app-header></app-header>
@@ -186,14 +187,8 @@
     </mat-card>
 
     <mat-card class="comments-container">
-      <!-- <div class="comments-add-button">
-          <button mat-mini-fab color="primary" aria-label="Add Comments">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div> -->
-
       <h2>Comments <mat-icon>comment</mat-icon></h2>
-      <!-- <mat-divider></mat-divider> -->
+
       <div class="comments-container-add">
         <mat-expansion-panel
           (opened)="addCommentOpenState = true"
@@ -218,6 +213,7 @@
                 name="addCommentInput"
                 [(ngModel)]="newComment"
                 placeholder="Your comment here*"
+                [disabled]="isCommentTriggered"
               />
               <button
                 mat-button
@@ -227,6 +223,7 @@
                 matSuffix
                 mat-icon-button
                 aria-label="Save"
+                [disabled]="isCommentTriggered"
               >
                 <mat-icon>add_task</mat-icon>
               </button>
@@ -238,6 +235,7 @@
                 mat-icon-button
                 aria-label="Clear"
                 (click)="newComment = ''"
+                [disabled]="isCommentTriggered"
               >
                 <mat-icon>clear</mat-icon>
               </button>
@@ -324,7 +322,7 @@
                         #editCommentInput="matInput"
                         [disabled]="
                           editButton._elementRef.nativeElement.innerText ===
-                          'edit_task'
+                            'edit_task' || isCommentTriggered
                         "
                       />
                     </mat-form-field>
@@ -333,7 +331,8 @@
                         [disabled]="
                           !isUserAuthenticated ||
                           !editCommentInput.value ||
-                          userId != comment?.author?.id
+                          userId != comment?.author?.id ||
+                          isCommentTriggered
                         "
                         mat-button
                         color="primary"
@@ -365,7 +364,7 @@
                           (editCommentInput.value = comment.text) &&
                             toggleEditButton(editButton._elementRef)
                         "
-                        [disabled]="!isUserAuthenticated"
+                        [disabled]="!isUserAuthenticated || isCommentTriggered"
                       >
                         <mat-icon>restore</mat-icon>
                       </button>
@@ -379,7 +378,8 @@
                           !isUserAuthenticated ||
                           !editCommentInput.value ||
                           (userId !== comment?.author?.id &&
-                            userId !== campground?.author?.id)
+                            userId !== campground?.author?.id) ||
+                          isCommentTriggered
                         "
                         mat-button
                         color="warn"
@@ -402,7 +402,9 @@
                   matSuffix
                   mat-icon-button
                   aria-label="Like"
-                  [disabled]="!isUserAuthenticated || isLoading"
+                  [disabled]="
+                    !isUserAuthenticated || isLoading || isCommentTriggered
+                  "
                   (click)="onCommentLike(comment._id, i)"
                 >
                   <mat-icon>thumb_up</mat-icon>

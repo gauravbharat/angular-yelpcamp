@@ -87,7 +87,7 @@ export class AuthService {
       )
       .subscribe(
         (result) => {
-          console.log(result);
+          // console.log(result);
           this.currentUser = result.newUser;
           this._updateListeners(this.UPDATE_USER, false, null);
           this.setTimerAndStorage();

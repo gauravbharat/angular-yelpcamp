@@ -41,7 +41,7 @@ a {
 .user-avatar {
   box-sizing: border-box;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-content: center;
   padding: 4px;
   padding-bottom: 2px;

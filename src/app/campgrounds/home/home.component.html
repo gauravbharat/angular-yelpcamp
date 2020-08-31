@@ -74,17 +74,41 @@
   ></mat-divider>
 
   <div class="stats" *ngIf="!hideStatsDashboard">
-    <mat-card [ngStyle]="getFlagColor()?.top" class="stats-card">
+    <mat-card
+      [ngStyle]="getFlagColor()?.top"
+      class="stats-card"
+      [ngClass]="
+        isUserAuthenticated
+          ? ['mat-elevation-z2']
+          : ['mat-card-flat', 'mat-elevation-z0']
+      "
+    >
       <div class="count" *ngIf="isLoading">--</div>
       <div class="count" *ngIf="!isLoading">{{ campgroundsCount }}</div>
       <div class="category">Campgrounds</div>
     </mat-card>
-    <mat-card class="stats-card" [ngStyle]="getFlagColor()?.middle">
+    <mat-card
+      class="stats-card"
+      [ngClass]="
+        isUserAuthenticated
+          ? ['mat-elevation-z2']
+          : ['mat-card-flat', 'mat-elevation-z0']
+      "
+      [ngStyle]="getFlagColor()?.middle"
+    >
       <div class="count" *ngIf="isLoading">--</div>
       <div class="count" *ngIf="!isLoading">{{ usersCount }}</div>
       <div class="category">Users</div>
     </mat-card>
-    <mat-card class="stats-card" [ngStyle]="getFlagColor()?.bottom">
+    <mat-card
+      class="stats-card"
+      [ngClass]="
+        isUserAuthenticated
+          ? ['mat-elevation-z2']
+          : ['mat-card-flat', 'mat-elevation-z0']
+      "
+      [ngStyle]="getFlagColor()?.bottom"
+    >
       <div class="count" *ngIf="isLoading">--</div>
       <div class="count" *ngIf="!isLoading">{{ contributorsCount }}</div>
       <div class="category">Contributors</div>
@@ -103,7 +127,7 @@
     <div class="loading-campground-image">🏕 loading...</div>
   </mat-card>
 
-  <mat-card class="grid-card" *ngFor="let campground of campgrounds">
+  <mat-card class="grid-card heartbeat" *ngFor="let campground of campgrounds">
     <img
       class="campground-preview-image"
       mat-card-image

@@ -174,9 +174,10 @@
     display: none;
   }
 
+  /* 31082020 - Gaurav - Kept campground new and search closer to fetched camps */
   .banner {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: wrap-reverse;
     justify-content: center;
   }
 
@@ -185,11 +186,15 @@
   }
 
   .stats {
-    margin-top: 10px;
+    margin-bottom: 10px;
     flex-direction: row;
   }
   .stats-card:nth-of-type(odd) {
     margin: 0 10px;
+  }
+
+  .heading-top {
+    margin-top: 20px;
   }
 }
 

@@ -301,9 +301,10 @@ mat-panel-description .comment-text-overview {
   display: flex;
 }
 
-/* .edit-comment-form button {
-  flex-grow: 1;
-} */
+/* 31082020 - Gaurav - Comment font was very light */
+.mat-input-element:disabled {
+  color: rgb(0, 0, 0, 0.7);
+}
 
 .like-section {
   text-align: left;

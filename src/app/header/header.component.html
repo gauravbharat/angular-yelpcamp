@@ -36,7 +36,7 @@
       </li>
       <li *ngIf="isUserAuthenticated">
         <a
-          mat-button
+          mat-flat-button
           class="header-username"
           [matMenuTriggerFor]="userMenu"
           routerLinkActive="mat-accent"
@@ -49,11 +49,17 @@
             matBadgeOverlap="true"
             *ngIf="notificationsCount > 0"
           >
-            <img [src]="avatar" [alt]="username" />
+            <img [src]="avatar" [alt]="username" />&nbsp;<span
+              class="avatar-suffix-username"
+              >{{ username }}</span
+            >
           </div>
 
           <div @inAnimation class="user-avatar" *ngIf="!notificationsCount">
-            <img [src]="avatar" [alt]="username" />
+            <img [src]="avatar" [alt]="username" />&nbsp;<span
+              class="avatar-suffix-username"
+              >{{ username }}</span
+            >
           </div>
 
           <span class="cdk-visually-hidden" *ngIf="notificationsCount > 0">

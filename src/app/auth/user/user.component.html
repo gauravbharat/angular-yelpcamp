@@ -155,7 +155,7 @@
                   formControlName="newCommentAlert"
                   #showCommentAlert
                   ><span class="mat-slide-toggle-text"
-                    >Get in-app alerts for new comments on your campgrounds:
+                    >Get in-app alerts for new reviews on your campgrounds:
                     {{ showCommentAlert.checked ? "ON" : "OFF" }}</span
                   >
                 </mat-slide-toggle>
@@ -173,7 +173,7 @@
                   formControlName="newCommentLike"
                   #showCommentLikeAlert
                   ><span class="mat-slide-toggle-text"
-                    >Get in-app alerts when a user likes your comment:
+                    >Get in-app alerts when a user likes your review:
                     {{ showCommentLikeAlert.checked ? "ON" : "OFF" }}</span
                   >
                 </mat-slide-toggle>
@@ -231,7 +231,7 @@
                   formControlName="newCommentEmail"
                   #getCommentEmails
                   ><span class="mat-slide-toggle-text"
-                    >Get email for new comments on your campgrounds:
+                    >Get email for new reviews on your campgrounds:
                     {{ getCommentEmails.checked ? "ON" : "OFF" }}</span
                   >
                 </mat-slide-toggle>
@@ -393,7 +393,7 @@
                   <div *ngSwitchCase="1" class="notification-switch-case">
                     <span class="notification-text"
                       ><strong>{{ notification?.username }}</strong>
-                      {{ " added a new comment on your campground " }}
+                      {{ " added a review on your campground " }}
                       <strong>{{ notification?.campgroundName }}</strong></span
                     >
                     <span class="notification-action">
@@ -488,7 +488,7 @@
                   <div *ngSwitchCase="4" class="notification-switch-case">
                     <span class="notification-text"
                       ><strong>{{ notification?.username }}</strong>
-                      {{ " liked your comment on campground " }}
+                      {{ " liked your review on campground " }}
                       <strong>{{ notification?.campgroundName }}</strong></span
                     >
                     <span class="notification-action">

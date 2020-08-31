@@ -11,7 +11,15 @@
 >
   <div class="heading">
     <div class="heading-top">
-      <h1 class="mat-display-2">Welcome to YelpCamp!</h1>
+      <div class="header-salute">
+        <h1 class="mat-display-2">
+          Welcome to YelpCamp<span *ngIf="userFirstName">,</span
+          ><span *ngIf="!userFirstName">!</span>
+        </h1>
+        <h1 class="mat-display-2" *ngIf="userFirstName">
+          {{ userFirstName }}!
+        </h1>
+      </div>
 
       <h3>
         View our hand-picked campgrounds and resorts from all over the world

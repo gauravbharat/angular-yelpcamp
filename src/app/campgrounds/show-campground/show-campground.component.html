@@ -187,7 +187,7 @@
     </mat-card>
 
     <mat-card class="comments-container">
-      <h2>Comments <mat-icon>comment</mat-icon></h2>
+      <h2>Reviews <mat-icon>comment</mat-icon></h2>
 
       <div class="comments-container-add">
         <mat-expansion-panel
@@ -197,9 +197,9 @@
           #mepNewComment="matExpansionPanel"
         >
           <mat-expansion-panel-header>
-            <mat-panel-title> Add Comment </mat-panel-title>
+            <mat-panel-title> Add Review </mat-panel-title>
             <mat-panel-description *ngIf="!isUserAuthenticated">
-              You need to login before you can comment.
+              You need to login before you review.
             </mat-panel-description>
           </mat-expansion-panel-header>
           <form
@@ -212,7 +212,7 @@
                 type="text"
                 name="addCommentInput"
                 [(ngModel)]="newComment"
-                placeholder="Your comment here*"
+                placeholder="Your review here*"
                 [disabled]="isCommentTriggered"
               />
               <button

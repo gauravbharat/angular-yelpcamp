@@ -15,6 +15,7 @@ import { Campground } from '../campground.model';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   isUserAuthenticated = false;
+  userFirstName: string;
   campgrounds: Campground[] = [];
   private _campgroundsSubscription$: Subscription;
   private _authStatusSub$: Subscription;
@@ -55,6 +56,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe((authStatus) => {
         this.isUserAuthenticated = authStatus.isUserAuthenticated;
         this.hideStatsDashboard = authStatus.hideStatsDashboard;
+        this.userFirstName = authStatus.userFirstName;
       });
 
     this.getCampgrounds();

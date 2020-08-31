@@ -82,10 +82,12 @@
           matInput
           type="text"
           name="firstname"
+          maxlength="12"
           required
           ngModel
           #firstnameInput="ngModel"
         />
+        <!-- <mat-hint align="end">{{ firstnameInput.length }} / 12</mat-hint> -->
         <mat-error *ngIf="firstnameInput.invalid"
           >Please enter your first name.</mat-error
         >

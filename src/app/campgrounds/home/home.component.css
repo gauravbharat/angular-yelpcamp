@@ -27,6 +27,8 @@
 .mat-display-2 {
   font-weight: 300;
   margin-bottom: 1rem;
+  /* word-spacing: 100vh; */
+  word-wrap: break-word;
 }
 
 .header-button-new {

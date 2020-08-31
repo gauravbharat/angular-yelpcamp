@@ -30,6 +30,7 @@ export class AuthService {
     username: string;
     userId: string;
     userAvatar: string;
+    userFirstName: string;
     unreadNotifications: number;
     hideStatsDashboard: boolean;
     error: string;
@@ -38,6 +39,7 @@ export class AuthService {
     username: null,
     userId: null,
     userAvatar: null,
+    userFirstName: null,
     unreadNotifications: 0,
     hideStatsDashboard: false,
     error: null,
@@ -477,6 +479,7 @@ export class AuthService {
         username: this.currentUser.username,
         userId: this.currentUser.userId,
         userAvatar: this.currentUser.avatar,
+        userFirstName: this.currentUser.firstname,
         unreadNotifications: unreadNotifications
           ? unreadNotifications.length
           : 0,
@@ -492,6 +495,7 @@ export class AuthService {
         username: null,
         userId: null,
         userAvatar: null,
+        userFirstName: null,
         unreadNotifications: 0,
         hideStatsDashboard: false,
         error,

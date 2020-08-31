@@ -45,6 +45,7 @@ node_modules
 /node_modules
 backend
 /backend
+/environments
 
 # System Files
 .DS_Store

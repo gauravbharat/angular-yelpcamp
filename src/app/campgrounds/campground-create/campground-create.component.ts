@@ -2,7 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 
-import { Campground, AmenityList } from '../campground.model';
+import {
+  Campground,
+  AmenityList,
+  CountriesList,
+  AmenityGroups,
+} from '../campground.model';
 import { mimeType } from '../../utils/mime-type.validator';
 import { CampgroundsService } from '../campgrounds.service';
 import { SocketService } from '../../socket.service';
@@ -24,27 +29,52 @@ export class CampgroundCreateComponent implements OnInit {
   displayImageName: string;
   imagePreview: string;
 
-  amenitiesList: AmenityList[];
+  amenitiesGroup: AmenityGroups[];
   private savedAmenities: AmenityList[];
+
+  countriesList: CountriesList[];
 
   /** Dependency Injection: Inject -
    * Campground Service
-   * ActivatedRouter to get the current active route params, iff campgroundId is present
+   * ActivatedRouter to get the current active _route params, iff campgroundId is present
    */
   constructor(
-    private campgroundsService: CampgroundsService,
-    private route: ActivatedRoute,
+    private _campgroundsService: CampgroundsService,
+    private _route: ActivatedRoute,
     private _socketService: SocketService
   ) {}
 
   ngOnInit() {
-    this.campgroundsService.getAllAmenities().subscribe(
-      (response) => {
-        // console.log('http.get(`${BACKEND_URL}/amenities`) response ', response);
-        this.amenitiesList = response.amenitiesList;
+    /** Static data fetched and retained in Campground service */
+
+    this._campgroundsService.getAllAmenities().subscribe(
+      async (result) => {
+        const uniqueGroups = [
+          ...new Set(result.amenitiesList.map((amenity) => amenity.group)),
+        ];
+
+        this.amenitiesGroup = []; //reset
+
+        for (const group of uniqueGroups) {
+          await this.amenitiesGroup.push({
+            group,
+            amenity: result.amenitiesList.filter(
+              (amenity) => amenity.group === group
+            ),
+          });
+        }
       },
       (error) => {
-        console.log('Error fetching static amenities list', error);
+        console.log('Error getting Campground Amenities list!', error);
+      }
+    );
+
+    this._campgroundsService.getAllCountries().subscribe(
+      (result) => {
+        this.countriesList = result.countriesList;
+      },
+      (error) => {
+        console.log('Error getting Countries list!', error);
       }
     );
 
@@ -82,7 +112,7 @@ export class CampgroundCreateComponent implements OnInit {
       campgroundAmenities: new FormControl(),
     });
 
-    this.route.paramMap.subscribe((paramMap: ParamMap) => {
+    this._route.paramMap.subscribe((paramMap: ParamMap) => {
       if (paramMap.has('campgroundId')) {
         this.mode = 'edit';
         this.formHeading = 'Edit Campground';
@@ -90,7 +120,7 @@ export class CampgroundCreateComponent implements OnInit {
         this.isLoading = true;
         this.disableFormControls(true);
 
-        this.campgroundsService.getCampground(this.campgroundId).subscribe(
+        this._campgroundsService.getCampground(this.campgroundId).subscribe(
           (campgroundData) => {
             // stop spinner
             this.isLoading = false;
@@ -128,7 +158,7 @@ export class CampgroundCreateComponent implements OnInit {
           (error) => {
             this.isLoading = false;
             // console.log(error);
-            this.campgroundsService.redirectToCampgrounds();
+            this._campgroundsService.redirectToCampgrounds();
           }
         );
       } else {
@@ -161,7 +191,7 @@ export class CampgroundCreateComponent implements OnInit {
     this.disableFormControls(true);
 
     if (this.mode === 'create') {
-      this.campgroundsService
+      this._campgroundsService
         .createCampground(name, price, description, location, image, amenities)
         .subscribe(
           (result) => {
@@ -173,7 +203,7 @@ export class CampgroundCreateComponent implements OnInit {
               campgroundId: result.campgroundId,
             });
 
-            this.campgroundsService.redirectToCampgrounds();
+            this._campgroundsService.redirectToCampgrounds();
           },
           (error) => {
             this.isLoading = false;
@@ -182,7 +212,7 @@ export class CampgroundCreateComponent implements OnInit {
           }
         );
     } else {
-      this.campgroundsService
+      this._campgroundsService
         .updateCampground(
           this.campgroundId,
           name,
@@ -202,7 +232,7 @@ export class CampgroundCreateComponent implements OnInit {
             });
 
             // console.log('success editing campground', response);
-            this.campgroundsService.redirectToCampgrounds();
+            this._campgroundsService.redirectToCampgrounds();
           },
           (error) => {
             this.isLoading = false;

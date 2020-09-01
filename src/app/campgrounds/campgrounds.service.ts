@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
 
 import { SocketService } from '../socket.service';
 
-import { Campground, AmenityList } from './campground.model';
+import { Campground, AmenityList, CountriesList } from './campground.model';
 import { environment } from '../../environments/environment';
 
 const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
@@ -40,6 +40,14 @@ export class CampgroundsService {
     /** Get the list of all campground amenities from the database */
     return this._http.get<{ message: string; amenitiesList: AmenityList[] }>(
       `${BACKEND_URL}/amenities`
+    );
+  }
+
+  /** 31082020 - Enhancement to select country */
+  getAllCountries() {
+    /** Get the list of all campground countries list from the database */
+    return this._http.get<{ message: string; countriesList: CountriesList[] }>(
+      `${BACKEND_URL}/countries`
     );
   }
 

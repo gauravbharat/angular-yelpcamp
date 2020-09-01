@@ -118,11 +118,22 @@
     <mat-form-field>
       <mat-label>Campground Amenities</mat-label>
       <mat-select [formControlName]="['campgroundAmenities']" multiple>
-        <mat-option
+        <!-- <mat-option
           *ngFor="let amenity of amenitiesList"
           [value]="amenity._id"
           >{{ amenity.name }}</mat-option
+        > -->
+        <mat-optgroup
+          *ngFor="let amenityGroup of amenitiesGroup"
+          [label]="amenityGroup.group.toUpperCase()"
         >
+          <mat-option
+            *ngFor="let amenity of amenityGroup.amenity"
+            [value]="amenity._id"
+          >
+            {{ amenity.name }}
+          </mat-option>
+        </mat-optgroup>
       </mat-select>
       <mat-hint align="start"
         ><strong>Please select campground amenities</strong>

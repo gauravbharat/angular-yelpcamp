@@ -578,7 +578,7 @@ export class ShowCampgroundComponent
       .getCampground(this.campgroundId)
       .subscribe(
         (campgroundData) => {
-          // console.log(campgroundData);
+          console.log(campgroundData);
           this.campground = campgroundData;
           // console.log('campground daata from database', this.campground);
           this.isLoading = false;

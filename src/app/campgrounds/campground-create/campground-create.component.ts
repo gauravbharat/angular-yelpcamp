@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 
 import {
   Campground,
   AmenityList,
-  CountriesList,
   AmenityGroups,
+  CampStaticData,
+  BestSeasonsModel,
+  HikingLevels,
+  FitnessLevels,
+  TrekTechnicalGrades,
 } from '../campground.model';
 import { mimeType } from '../../utils/mime-type.validator';
 import { CampgroundsService } from '../campgrounds.service';
@@ -21,18 +25,23 @@ export class CampgroundCreateComponent implements OnInit {
   private mode = 'create';
   private campgroundId: string;
   campground: Campground;
-  formHeading = 'Create a New Campground';
+  formTitle = 'Create a New Campground';
 
   /** UI related vars */
   isLoading = false;
-  form: FormGroup;
+  formBasicGroup = new FormGroup({});
+  formLocationGroup = new FormGroup({});
+  formAmenitiesGroup = new FormGroup({});
   displayImageName: string;
   imagePreview: string;
 
   amenitiesGroup: AmenityGroups[];
   private savedAmenities: AmenityList[];
+  campStaticData: CampStaticData;
 
-  countriesList: CountriesList[];
+  selectedHikingLevel: HikingLevels;
+  selectedFitnessLevel: FitnessLevels;
+  selectedTrekGrade: TrekTechnicalGrades;
 
   /** Dependency Injection: Inject -
    * Campground Service
@@ -45,12 +54,17 @@ export class CampgroundCreateComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    /** Static data fetched and retained in Campground service */
+    this.isLoading = true;
+    this._campgroundsService.getAllStaticData().subscribe(
+      async (r: { message: string; campStaticData: CampStaticData }) => {
+        this.campStaticData = r.campStaticData;
 
-    this._campgroundsService.getAllAmenities().subscribe(
-      async (result) => {
+        console.log('campStaticData', this.campStaticData);
+
         const uniqueGroups = [
-          ...new Set(result.amenitiesList.map((amenity) => amenity.group)),
+          ...new Set(
+            this.campStaticData.amenitiesList.map((amenity) => amenity.group)
+          ),
         ];
 
         this.amenitiesGroup = []; //reset
@@ -58,121 +72,184 @@ export class CampgroundCreateComponent implements OnInit {
         for (const group of uniqueGroups) {
           await this.amenitiesGroup.push({
             group,
-            amenity: result.amenitiesList.filter(
+            amenity: this.campStaticData.amenitiesList.filter(
               (amenity) => amenity.group === group
             ),
           });
         }
-      },
-      (error) => {
-        console.log('Error getting Campground Amenities list!', error);
-      }
-    );
 
-    this._campgroundsService.getAllCountries().subscribe(
-      (result) => {
-        this.countriesList = result.countriesList;
-      },
-      (error) => {
-        console.log('Error getting Countries list!', error);
-      }
-    );
+        this.formBasicGroup = new FormGroup({
+          campgroundName: new FormControl(
+            { value: null, disabled: false },
+            {
+              validators: [
+                Validators.required,
+                Validators.minLength(6),
+                Validators.maxLength(30),
+              ],
+            }
+          ),
+          campgroundPrice: new FormControl({ value: null, disabled: false }),
+          campgroundImage: new FormControl(
+            { value: null, disabled: false },
+            {
+              validators: [Validators.required],
+              asyncValidators: [mimeType],
+            }
+          ),
+          campgroundDescription: new FormControl(
+            { value: null, disabled: false },
+            {
+              validators: [Validators.required],
+            }
+          ),
+        });
 
-    this.form = new FormGroup({
-      campgroundName: new FormControl(
-        { value: null, disabled: false },
-        {
-          validators: [
-            Validators.required,
-            Validators.minLength(6),
-            Validators.maxLength(30),
-          ],
-        }
-      ),
-      campgroundPrice: new FormControl({ value: null, disabled: false }),
-      campgroundImage: new FormControl(
-        { value: null, disabled: false },
-        {
-          validators: [Validators.required],
-        }
-      ),
-      campgroundDescription: new FormControl(
-        { value: null, disabled: false },
-        {
-          validators: [Validators.required],
-        }
-      ),
-      campgroundLocation: new FormControl(
-        { value: null, disabled: false },
-        {
-          validators: [Validators.required],
-          asyncValidators: [mimeType],
-        }
-      ),
-      campgroundAmenities: new FormControl(),
-    });
+        this.formLocationGroup = new FormGroup({
+          campgroundLocation: new FormControl(
+            { value: null, disabled: false },
+            {
+              validators: [Validators.required],
+            }
+          ),
+          bestSeasons: new FormArray([
+            new FormControl(false),
+            new FormControl(false),
+            new FormControl(false),
+            new FormControl(false),
+            new FormControl(false),
+            new FormControl(false),
+          ]),
+          hikingLevel: new FormControl(null),
+          fitnessLevel: new FormControl(null),
+          trekTechnicalGrade: new FormControl(null),
+        });
 
-    this._route.paramMap.subscribe((paramMap: ParamMap) => {
-      if (paramMap.has('campgroundId')) {
-        this.mode = 'edit';
-        this.formHeading = 'Edit Campground';
-        this.campgroundId = paramMap.get('campgroundId');
-        this.isLoading = true;
-        this.disableFormControls(true);
+        this.formAmenitiesGroup = new FormGroup({
+          campgroundAmenities: new FormControl(),
+        });
 
-        this._campgroundsService.getCampground(this.campgroundId).subscribe(
-          (campgroundData) => {
-            // stop spinner
+        this._route.paramMap.subscribe((paramMap: ParamMap) => {
+          if (paramMap.has('campgroundId')) {
+            this.mode = 'edit';
+            this.formTitle = 'Edit Campground';
+            this.campgroundId = paramMap.get('campgroundId');
+            this.isLoading = true;
+            this.disableFormControls(true);
+
+            this._campgroundsService.getCampground(this.campgroundId).subscribe(
+              (campgroundData) => {
+                // stop spinner
+                this.isLoading = false;
+                this.disableFormControls(false);
+
+                // console.log(campgroundData);
+
+                // load data in local variable
+                this.campground = {
+                  _id: campgroundData._id,
+                  name: campgroundData.name,
+                  price: campgroundData.price,
+                  image: campgroundData.image,
+                  location: campgroundData.location,
+                  description: campgroundData.description,
+                  bestSeasons: campgroundData.bestSeasons,
+                  hikingLevel: campgroundData.hikingLevel,
+                  fitnessLevel: campgroundData.fitnessLevel,
+                  trekTechnicalGrade: campgroundData.trekTechnicalGrade,
+                };
+
+                this.savedAmenities = campgroundData.amenities;
+                this.displayImageName = this.campground.image;
+
+                // load data onto form elements
+                this.formBasicGroup.setValue({
+                  campgroundName: this.campground.name,
+                  campgroundPrice: this.campground.price,
+                  campgroundImage: this.campground.image,
+                  campgroundDescription: this.campground.description,
+                });
+
+                let bestSeasons = [false, false, false, false, false, false];
+                if (this.campground.bestSeasons) {
+                  bestSeasons = Object.values(this.campground.bestSeasons).map(
+                    (value) => value
+                  );
+                }
+
+                let hikingLevel = null;
+                let fitnessLevel = null;
+                let trekTechnicalGrade = null;
+
+                /** Duh! Object comparison. Get it from campStaticData!! */
+                if (this.campground.hikingLevel) {
+                  hikingLevel = this.campStaticData.hikingLevels.find(
+                    (hikingLevel) =>
+                      hikingLevel.level === this.campground.hikingLevel.level
+                  );
+                }
+
+                if (this.campground.fitnessLevel) {
+                  fitnessLevel = this.campStaticData.fitnessLevels.find(
+                    (fitnessLevel) =>
+                      fitnessLevel.level === this.campground.fitnessLevel.level
+                  );
+                }
+
+                if (this.campground.trekTechnicalGrade) {
+                  trekTechnicalGrade = this.campStaticData.trekTechnicalGrades.find(
+                    (trekTechnicalGrade) =>
+                      trekTechnicalGrade.level ===
+                      this.campground.trekTechnicalGrade.level
+                  );
+                }
+
+                this.formLocationGroup.setValue({
+                  campgroundLocation: this.campground.location,
+                  bestSeasons,
+                  hikingLevel: hikingLevel ? hikingLevel : null,
+                  fitnessLevel: fitnessLevel ? fitnessLevel : null,
+                  trekTechnicalGrade: trekTechnicalGrade
+                    ? trekTechnicalGrade
+                    : null,
+                });
+
+                this.formAmenitiesGroup.setValue({
+                  campgroundAmenities: this.savedAmenities
+                    ? this.savedAmenities.map((amenity) => {
+                        return amenity._id;
+                      })
+                    : [],
+                });
+              },
+              (error) => {
+                this.isLoading = false;
+                // console.log(error);
+                this._campgroundsService.redirectToCampgrounds();
+              }
+            );
+          } else {
+            this.mode = 'create';
+            this.formTitle = 'Create a New Campground';
+            this.campgroundId = null;
+            this.displayImageName = null;
             this.isLoading = false;
-            this.disableFormControls(false);
-
-            // console.log(campgroundData);
-
-            // load data in local variable
-            this.campground = {
-              _id: campgroundData._id,
-              name: campgroundData.name,
-              price: campgroundData.price,
-              image: campgroundData.image,
-              location: campgroundData.location,
-              description: campgroundData.description,
-            };
-
-            this.savedAmenities = campgroundData.amenities;
-            this.displayImageName = this.campground.image;
-
-            // load data onto form elements
-            this.form.setValue({
-              campgroundName: this.campground.name,
-              campgroundPrice: this.campground.price,
-              campgroundImage: this.campground.image,
-              campgroundLocation: this.campground.location,
-              campgroundDescription: this.campground.description,
-              campgroundAmenities: this.savedAmenities
-                ? this.savedAmenities.map((amenity) => {
-                    return amenity._id;
-                  })
-                : [],
-            });
-          },
-          (error) => {
-            this.isLoading = false;
-            // console.log(error);
-            this._campgroundsService.redirectToCampgrounds();
           }
-        );
-      } else {
-        this.mode = 'create';
-        this.formHeading = 'Create a New Campground';
-        this.campgroundId = null;
-        this.displayImageName = null;
+        });
+      },
+      (error) => {
+        console.log('Error getting Campground Static entry data list!', error);
       }
-    });
+    );
   }
 
   async onFormSubmit() {
-    // console.log('inside onFormSubmit');
-    if (this.form.invalid) return;
+    if (
+      this.formBasicGroup.invalid ||
+      this.formLocationGroup.invalid ||
+      this.formAmenitiesGroup.invalid
+    )
+      return;
 
     // console.log('passed form validation!');
 
@@ -180,22 +257,53 @@ export class CampgroundCreateComponent implements OnInit {
      * store form control values in local varaibles or the form control values would
      * return UNDEFINED
      */
-    const name = this.form.value.campgroundName;
-    const price = this.form.value.campgroundPrice;
-    const description = this.form.value.campgroundDescription;
-    const location = this.form.value.campgroundLocation;
-    const image = this.form.value.campgroundImage;
-    const amenities = this.form.value.campgroundAmenities;
+    const name = this.formBasicGroup.value.campgroundName;
+    const price = this.formBasicGroup.value.campgroundPrice;
+    const image = this.formBasicGroup.value.campgroundImage;
+    const description = this.formBasicGroup.value.campgroundDescription;
+    const location = this.formLocationGroup.value.campgroundLocation;
+    const amenities = this.formAmenitiesGroup.value.campgroundAmenities;
+    const hikingLevel = this.formLocationGroup.value.hikingLevel;
+    const fitnessLevel = this.formLocationGroup.value.fitnessLevel;
+    const trekTechnicalGrade = this.formLocationGroup.value.trekTechnicalGrade;
+
+    const bestSeasons: BestSeasonsModel = {
+      vasanta: false,
+      grishma: false,
+      varsha: false,
+      sharat: false,
+      hemant: false,
+      shishira: false,
+    };
+
+    let i = 0;
+    for (let key in bestSeasons) {
+      bestSeasons[key] = this.formLocationGroup.value.bestSeasons[i];
+      i++;
+    }
 
     this.isLoading = true;
     this.disableFormControls(true);
 
     if (this.mode === 'create') {
       this._campgroundsService
-        .createCampground(name, price, description, location, image, amenities)
+        .createCampground(
+          name,
+          price,
+          description,
+          location,
+          image,
+          amenities,
+          bestSeasons,
+          hikingLevel,
+          fitnessLevel,
+          trekTechnicalGrade
+        )
         .subscribe(
           (result) => {
-            this.form.reset();
+            this.formBasicGroup.reset();
+            this.formLocationGroup.reset();
+            this.formAmenitiesGroup.reset();
             // console.log('success creating campground', result);
 
             /** Notifiy new campground */
@@ -220,11 +328,17 @@ export class CampgroundCreateComponent implements OnInit {
           description,
           location,
           image,
-          amenities
+          amenities,
+          bestSeasons,
+          hikingLevel,
+          fitnessLevel,
+          trekTechnicalGrade
         )
         .subscribe(
           (response) => {
-            this.form.reset();
+            this.formBasicGroup.reset();
+            this.formLocationGroup.reset();
+            this.formAmenitiesGroup.reset();
 
             /** Notifiy edit campground */
             this._socketService.sendMessage('edit-campground', {
@@ -250,11 +364,11 @@ export class CampgroundCreateComponent implements OnInit {
     this.displayImageName = file.name;
 
     // Set the file object in the FormControl 'campgroundImage' declared above
-    this.form.patchValue({ campgroundImage: file });
+    this.formBasicGroup.patchValue({ campgroundImage: file });
 
     // Recalculates the value and validation controls for this control
     // Also, emit the value to valueChange event subscribers
-    this.form.get('campgroundImage').updateValueAndValidity();
+    this.formBasicGroup.get('campgroundImage').updateValueAndValidity();
 
     // Read the file and show the preview
     const reader = new FileReader();
@@ -271,17 +385,17 @@ export class CampgroundCreateComponent implements OnInit {
   disableFormControls(condition: boolean) {
     // disable for condition === true
     if (condition) {
-      this.form.controls.campgroundName.disable();
-      this.form.controls.campgroundPrice.disable();
-      this.form.controls.campgroundDescription.disable();
-      this.form.controls.campgroundLocation.disable();
-      this.form.controls.campgroundAmenities.disable();
+      this.formBasicGroup.controls.campgroundName.disable();
+      this.formBasicGroup.controls.campgroundPrice.disable();
+      this.formBasicGroup.controls.campgroundDescription.disable();
+      this.formLocationGroup.controls.campgroundLocation.disable();
+      this.formAmenitiesGroup.controls.campgroundAmenities.disable();
     } else {
-      this.form.controls.campgroundName.enable();
-      this.form.controls.campgroundPrice.enable();
-      this.form.controls.campgroundDescription.enable();
-      this.form.controls.campgroundLocation.enable();
-      this.form.controls.campgroundAmenities.enable();
+      this.formBasicGroup.controls.campgroundName.enable();
+      this.formBasicGroup.controls.campgroundPrice.enable();
+      this.formBasicGroup.controls.campgroundDescription.enable();
+      this.formLocationGroup.controls.campgroundLocation.enable();
+      this.formAmenitiesGroup.controls.campgroundAmenities.enable();
     }
   }
 }

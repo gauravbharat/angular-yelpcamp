@@ -37,6 +37,22 @@ export interface AmenityGroups {
 }
 /** Amenity list specially for create/edit camps - Ends */
 
+export interface Seasons {
+  id: number;
+  indianName: string;
+  englishName: string;
+}
+
+interface LevelsSkeleton {
+  level: number;
+  levelName: string;
+  levelDesc: string;
+}
+
+export interface FitnessLevels extends LevelsSkeleton {}
+export interface HikingLevels extends LevelsSkeleton {}
+export interface TrekTechnicalGrades extends LevelsSkeleton {}
+
 export interface CountriesList {
   Continent_Code: string;
   Continent_Name: string;
@@ -46,6 +62,24 @@ export interface CountriesList {
   Two_Letter_Country_Code: string;
   majorVersion: number;
   _id: string;
+}
+
+export interface CampStaticData {
+  amenitiesList: AmenityList[];
+  countriesList: CountriesList[];
+  seasons: Seasons[];
+  hikingLevels: HikingLevels[];
+  trekTechnicalGrades: TrekTechnicalGrades[];
+  fitnessLevels: FitnessLevels[];
+}
+
+export interface BestSeasonsModel {
+  vasanta: boolean;
+  grishma: boolean;
+  varsha: boolean;
+  sharat: boolean;
+  hemant: boolean;
+  shishira: boolean;
 }
 
 export interface Campground {
@@ -71,8 +105,8 @@ export interface Campground {
     Country_Name: string;
     Two_Letter_Country_Code: string;
   };
-  bestSeason?: number[];
-  hikingLevels?: number[];
-  trekTechnicalGrades?: number[];
-  fitnessLevels?: number[];
+  bestSeasons?: BestSeasonsModel;
+  hikingLevel?: LevelsSkeleton;
+  trekTechnicalGrade?: LevelsSkeleton;
+  fitnessLevel?: LevelsSkeleton;
 }

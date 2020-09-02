@@ -8,7 +8,15 @@ import { map } from 'rxjs/operators';
 
 import { SocketService } from '../socket.service';
 
-import { Campground, AmenityList, CountriesList } from './campground.model';
+import {
+  Campground,
+  AmenityList,
+  CampStaticData,
+  BestSeasonsModel,
+  HikingLevels,
+  FitnessLevels,
+  TrekTechnicalGrades,
+} from './campground.model';
 import { environment } from '../../environments/environment';
 
 const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
@@ -16,6 +24,7 @@ const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
 @Injectable({ providedIn: 'root' })
 export class CampgroundsService {
   private campgrounds: Campground[] = [];
+  private campStaticData: CampStaticData;
 
   /** Using Subject observable to multicast campgrounds fetched */
   private campgroundsUpdated = new Subject<{
@@ -36,18 +45,10 @@ export class CampgroundsService {
     private _socketService: SocketService
   ) {}
 
-  getAllAmenities() {
-    /** Get the list of all campground amenities from the database */
-    return this._http.get<{ message: string; amenitiesList: AmenityList[] }>(
-      `${BACKEND_URL}/amenities`
-    );
-  }
-
-  /** 31082020 - Enhancement to select country */
-  getAllCountries() {
-    /** Get the list of all campground countries list from the database */
-    return this._http.get<{ message: string; countriesList: CountriesList[] }>(
-      `${BACKEND_URL}/countries`
+  getAllStaticData() {
+    /** Get the list of all campground static data from the database */
+    return this._http.get<{ message: string; campStaticData: CampStaticData }>(
+      `${BACKEND_URL}/static`
     );
   }
 
@@ -87,6 +88,10 @@ export class CampgroundsService {
                     username: campground?.author?.username,
                   },
                   amenities: campground?.amenities,
+                  bestSeasons: campground?.bestSeasons,
+                  hikingLevel: campground?.hikingLevel,
+                  fitnessLevel: campground?.fitnessLevel,
+                  trekTechnicalGrade: campground?.trekTechnicalGrade,
                 };
               }
             ),
@@ -129,6 +134,10 @@ export class CampgroundsService {
       image: string;
       amenities: AmenityList[] | null | undefined;
       comments: string[];
+      bestSeasons: BestSeasonsModel;
+      hikingLevel: HikingLevels;
+      fitnessLevel: FitnessLevels;
+      trekTechnicalGrade: TrekTechnicalGrades;
     }>(`${BACKEND_URL}/${campgroundId}`);
   }
 
@@ -156,7 +165,11 @@ export class CampgroundsService {
     description: string,
     location: string,
     image: File,
-    amenities: string[] | null | undefined
+    amenities: string[] | null | undefined,
+    bestSeasons: BestSeasonsModel,
+    hikingLevel: HikingLevels,
+    fitnessLevel: FitnessLevels,
+    trekTechnicalGrade: TrekTechnicalGrades
   ) {
     // Instead of sending json object 'post', send form data to include image file
     // FormData is a JavaScript object
@@ -167,6 +180,18 @@ export class CampgroundsService {
     newCampData.append('location', location);
     newCampData.append('image', image, name.substring(0, 6));
     amenities && newCampData.append('amenities', JSON.stringify(amenities));
+    bestSeasons &&
+      newCampData.append('bestSeasons', JSON.stringify(bestSeasons));
+
+    hikingLevel &&
+      newCampData.append('hikingLevel', JSON.stringify(hikingLevel));
+    fitnessLevel &&
+      newCampData.append('fitnessLevel', JSON.stringify(fitnessLevel));
+    trekTechnicalGrade &&
+      newCampData.append(
+        'trekTechnicalGrade',
+        JSON.stringify(trekTechnicalGrade)
+      );
 
     return this._http.post<{ campgroundId: string; campground: Campground }>(
       `${BACKEND_URL}/create`,
@@ -182,7 +207,11 @@ export class CampgroundsService {
     description: string,
     location: string,
     image: File | string,
-    amenities: string[] | null | undefined
+    amenities: string[] | null | undefined,
+    bestSeasons: BestSeasonsModel,
+    hikingLevel: HikingLevels,
+    fitnessLevel: FitnessLevels,
+    trekTechnicalGrade: TrekTechnicalGrades
   ) {
     let editCampData: Campground | FormData;
 
@@ -198,6 +227,17 @@ export class CampgroundsService {
       editCampData.append('location', location);
       editCampData.append('image', image, name.substring(0, 6));
       amenities && editCampData.append('amenities', JSON.stringify(amenities));
+      bestSeasons &&
+        editCampData.append('bestSeasons', JSON.stringify(bestSeasons));
+      hikingLevel &&
+        editCampData.append('hikingLevel', JSON.stringify(hikingLevel));
+      fitnessLevel &&
+        editCampData.append('fitnessLevel', JSON.stringify(fitnessLevel));
+      trekTechnicalGrade &&
+        editCampData.append(
+          'trekTechnicalGrade',
+          JSON.stringify(trekTechnicalGrade)
+        );
     } else {
       editCampData = {
         _id,
@@ -207,6 +247,10 @@ export class CampgroundsService {
         location,
         image,
         amenities,
+        bestSeasons,
+        hikingLevel,
+        fitnessLevel,
+        trekTechnicalGrade,
       };
     }
 

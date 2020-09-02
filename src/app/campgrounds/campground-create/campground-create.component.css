@@ -23,6 +23,7 @@ form {
   width: 100%;
   text-align: center;
   margin-top: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .campground-create-submit {
@@ -49,6 +50,50 @@ input[type="file"] {
   height: 100%;
 }
 
+.navigation-buttons {
+  margin-top: 10px;
+}
+
+.seasons-checkbox-div,
+.hiking-radio-div,
+.fitness-radio-div,
+.trek-grade-radio-div {
+  margin-top: 1.5rem;
+  display: inline-block;
+  position: relative;
+  text-align: left;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.trek-grade-radio-div {
+  margin-bottom: 1rem;
+}
+
+.hiking-radio-group,
+.fitness-radio-group,
+.trek-grade-radio-group {
+  display: flex;
+}
+
+.hiking-radio-button,
+.fitness-radio-button,
+.trek-grade-radio-button {
+  margin: 5px;
+}
+
+.courtesy-footer {
+  text-align: center;
+  margin: 10px auto;
+  font-size: 0.75em;
+  color: #383a3b;
+}
+
+.courtesy-footer a {
+  color: #383a3b;
+  text-decoration: none;
+}
+
+/* Media Queries */
 @media screen and (max-width: 1200px) {
   .campground-create {
     width: 70%;
@@ -71,4 +116,18 @@ input[type="file"] {
   .campground-create-image button {
     margin-top: 20px;
   }
+}
+
+@media screen and (max-width: 650px) {
+  .hiking-radio-group,
+  .fitness-radio-group,
+  .trek-grade-radio-group {
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  /* .mat-select-panel {
+    min-width: 80% !important;
+  } */
 }

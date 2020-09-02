@@ -47,6 +47,7 @@ export class ShowCampgroundComponent
   userAvatar: string;
   private campgroundId: string;
   campground: Campground;
+  bestSeasonsText: string;
 
   addCommentOpenState = false;
   newComment: string;
@@ -578,9 +579,44 @@ export class ShowCampgroundComponent
       .getCampground(this.campgroundId)
       .subscribe(
         (campgroundData) => {
-          console.log(campgroundData);
+          // console.log(campgroundData);
           this.campground = campgroundData;
           // console.log('campground daata from database', this.campground);
+
+          if (this.campground?.bestSeasons) {
+            let seasons = Object.entries(this.campground.bestSeasons);
+            this.bestSeasonsText = '';
+            for (let [index, [key, value]] of seasons.entries()) {
+              if (value) {
+                switch (key) {
+                  case 'vasanta':
+                    this.bestSeasonsText += 'Vasanta(Spring) ';
+                    break;
+                  case 'grishma':
+                    this.bestSeasonsText += 'Grishma(Summer) ';
+                    break;
+                  case 'varsha':
+                    this.bestSeasonsText += 'Varsha(Monsoon) ';
+                    break;
+                  case 'sharat':
+                    this.bestSeasonsText += 'Sharat(Autumn) ';
+                    break;
+                  case 'hemant':
+                    this.bestSeasonsText += 'Hemant(Pre-Winter) ';
+                    break;
+                  case 'shishira':
+                    this.bestSeasonsText += 'Shishira(Winter) ';
+                    break;
+                  default:
+                  //
+                }
+              }
+            }
+
+            this.bestSeasonsText = this.bestSeasonsText.trim();
+            this.bestSeasonsText = this.bestSeasonsText.replace(/ /g, ', ');
+          }
+
           this.isLoading = false;
         },
         (error) => {

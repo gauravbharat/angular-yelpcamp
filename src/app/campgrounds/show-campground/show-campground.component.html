@@ -113,7 +113,9 @@
       </div>
 
       <div class="map-display" *ngIf="!isLoading">
-        <ay-map [mapLocation]="campground?.location"></ay-map>
+        <ay-map
+          [mapLocation]="campground?.location ? campground.location : ''"
+        ></ay-map>
       </div>
     </div>
   </div>
@@ -142,6 +144,29 @@
           ></mat-card-title
         >
         <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
+        <mat-card-subtitle>{{
+          "Best season to visit: " + (bestSeasonsText ? bestSeasonsText : "")
+        }}</mat-card-subtitle>
+        <mat-card-subtitle *ngIf="campground?.hikingLevel"
+          >{{ "Hiking Level: " + campground?.hikingLevel?.levelName }}
+          <mat-icon [matTooltip]="campground?.hikingLevel?.levelDesc"
+            >help_outline</mat-icon
+          ></mat-card-subtitle
+        >
+        <mat-card-subtitle *ngIf="campground?.fitnessLevel"
+          >{{
+            "Required Fitness Level: " + campground?.fitnessLevel?.levelName
+          }}
+          <mat-icon [matTooltip]="campground?.fitnessLevel?.levelDesc"
+            >help_outline</mat-icon
+          ></mat-card-subtitle
+        >
+        <mat-card-subtitle *ngIf="campground?.trekTechnicalGrade"
+          >{{ "Trek Grade: " + campground?.trekTechnicalGrade?.levelName }}
+          <mat-icon [matTooltip]="campground?.trekTechnicalGrade?.levelDesc"
+            >help_outline</mat-icon
+          >
+        </mat-card-subtitle>
         <mat-card-content>{{ campground?.description }}</mat-card-content>
       </div>
       <div class="chips-display">
@@ -423,4 +448,29 @@
       </div>
     </mat-card>
   </div>
+</div>
+<div class="courtesy-footer" *ngIf="!isLoading">
+  <p>
+    Seasons info courtesy:
+    <a
+      href="https://www.nationalgeographic.org/encyclopedia/season/"
+      target="_blank"
+      title="National Geographic"
+      ><strong>National Geographic</strong></a
+    >
+    | Hiking levels info courtesy:
+    <a
+      href="https://www.eurohike.at/en/travel-information/during-the-tour/level-of-hiking"
+      target="_blank"
+      title="EuroHike"
+      ><strong>EuroHike</strong></a
+    >
+    | Fitness levels and Trek Technical Grades info courtesy:
+    <a
+      href="https://www.kantoadventures.com/hiking-difficulty-scale.html"
+      target="_blank"
+      title="Kanto Adventures"
+      ><strong>Kanto Adventures</strong></a
+    >
+  </p>
 </div>

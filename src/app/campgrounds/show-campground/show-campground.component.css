@@ -328,6 +328,18 @@ mat-panel-description .comment-text-overview {
   white-space: pre-line;
 }
 
+.courtesy-footer {
+  text-align: center;
+  margin: 10px auto;
+  font-size: 0.75em;
+  color: #383a3b;
+}
+
+.courtesy-footer a {
+  color: #383a3b;
+  text-decoration: none;
+}
+
 /* Media queries */
 @media screen and (max-width: 1200px) {
   .grid-container {

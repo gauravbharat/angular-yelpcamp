@@ -6,151 +6,296 @@
 ></mat-progress-bar>
 <app-header></app-header>
 
-<div class="campground-create">
+<div class="campground-create" *ngIf="!isLoading">
   <h1 class="mat-display-1 campground-create-header">
-    {{ formHeading }}
+    {{ formTitle }}
   </h1>
   <mat-divider color="accent"></mat-divider>
-  <!-- <hr class="campground-create-hr" /> -->
-  <form
-    [formGroup]="form"
-    class="campground-create-form"
-    (submit)="onFormSubmit()"
-  >
-    <mat-form-field>
-      <input
-        matInput
-        type="text"
-        [formControlName]="['campgroundName']"
-        placeholder="Campground Name"
-        #campgroundName
-      />
-      <mat-hint align="end">{{ campgroundName.value.length }} / 30</mat-hint>
-      <mat-error *ngIf="form.get('campgroundName').invalid"
-        >Please enter a campground name of at least 6 characters or max 30
-        characters.</mat-error
-      >
-    </mat-form-field>
 
-    <!-- <div class="spinner">
-      <mat-spinner *ngIf="isLoading"></mat-spinner>
-    </div> -->
-
-    <mat-form-field>
-      <mat-label>Price in $</mat-label>
-      <input
-        matInput
-        type="number"
-        [formControlName]="['campgroundPrice']"
-        placeholder="Ex. $5.99"
-      />
-    </mat-form-field>
-    <div class="campground-create-image">
-      <button
-        mat-raised-button
-        type="button"
-        (click)="filePicker.click()"
-        [disabled]="isLoading"
-      >
-        Pick Image
-      </button>
-
-      <mat-form-field class="show-image-path">
-        <input
-          matInput
-          type="text"
-          [placeholder]="
-            imagePreview ? 'Picked image name...' : 'Last saved image path..'
-          "
-          value="{{ displayImageName }}"
-          disabled
-        />
-      </mat-form-field>
-
-      <input
-        type="file"
-        accept="image/*"
-        #filePicker
-        (change)="onImagePicked($event)"
-      />
-    </div>
-    <div
-      class="image-preview"
-      *ngIf="
-        !isEditMode() &&
-        imagePreview &&
-        imagePreview !== '' &&
-        form.get('campgroundImage').valid
-      "
-    >
-      <img [src]="imagePreview" [alt]="form.value.campgroundName" />
-    </div>
-    <mat-form-field>
-      <textarea
-        matInput
-        rows="3"
-        type="text"
-        [formControlName]="['campgroundDescription']"
-        placeholder="Campground Description"
-      ></textarea>
-      <mat-hint align="start"
-        >Please briefly describe the campground site
-      </mat-hint>
-      <mat-error *ngIf="form.get('campgroundDescription').invalid"
-        >Please briefly describe the campground site.</mat-error
-      >
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Campground Location</mat-label>
-      <input
-        matInput
-        type="text"
-        [formControlName]="['campgroundLocation']"
-        placeholder="Ex. Yosemite National Park, CA"
-      />
-      <mat-hint align="start"
-        >Please help others with the campground location</mat-hint
-      >
-      <mat-error *ngIf="form.get('campgroundLocation').invalid"
-        >Please help others with the campground location.</mat-error
-      >
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Campground Amenities</mat-label>
-      <mat-select [formControlName]="['campgroundAmenities']" multiple>
-        <!-- <mat-option
-          *ngFor="let amenity of amenitiesList"
-          [value]="amenity._id"
-          >{{ amenity.name }}</mat-option
-        > -->
-        <mat-optgroup
-          *ngFor="let amenityGroup of amenitiesGroup"
-          [label]="amenityGroup.group.toUpperCase()"
-        >
-          <mat-option
-            *ngFor="let amenity of amenityGroup.amenity"
-            [value]="amenity._id"
+  <mat-vertical-stepper class="campground-stepper" #stepper>
+    <mat-step label="Basics" state="basic" errorMessage="Missing information.">
+      <form [formGroup]="formBasicGroup" class="basic-form">
+        <mat-form-field>
+          <input
+            matInput
+            type="text"
+            [formControlName]="['campgroundName']"
+            placeholder="Campground Name"
+            #campgroundName
+          />
+          <mat-hint align="end"
+            >{{ campgroundName.value.length }} / 30</mat-hint
           >
-            {{ amenity.name }}
-          </mat-option>
-        </mat-optgroup>
-      </mat-select>
-      <mat-hint align="start"
-        ><strong>Please select campground amenities</strong>
-      </mat-hint>
-    </mat-form-field>
-    <br />
-    <button
-      mat-raised-button
-      class="campground-create-submit"
-      color="primary"
-      type="submit"
-      [disabled]="isLoading || !form.valid"
+          <mat-error *ngIf="formBasicGroup.get('campgroundName').invalid"
+            >Please enter a campground name of at least 6 characters or max 30
+            characters.</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Price in $</mat-label>
+          <input
+            matInput
+            type="number"
+            [formControlName]="['campgroundPrice']"
+            placeholder="Ex. $5.99"
+          />
+        </mat-form-field>
+        <div class="campground-create-image">
+          <button
+            mat-raised-button
+            type="button"
+            (click)="filePicker.click()"
+            [disabled]="isLoading"
+          >
+            Pick Image
+          </button>
+
+          <mat-form-field class="show-image-path">
+            <input
+              matInput
+              type="text"
+              [placeholder]="
+                imagePreview
+                  ? 'Picked image name...'
+                  : 'Last saved image path..'
+              "
+              value="{{ displayImageName }}"
+              disabled
+            />
+          </mat-form-field>
+
+          <input
+            type="file"
+            accept="image/*"
+            #filePicker
+            (change)="onImagePicked($event)"
+          />
+        </div>
+        <div
+          class="image-preview"
+          *ngIf="
+            !isEditMode() &&
+            imagePreview &&
+            imagePreview !== '' &&
+            formBasicGroup.get('campgroundImage').valid
+          "
+        >
+          <img
+            [src]="imagePreview"
+            [alt]="formBasicGroup.value.campgroundName"
+          />
+        </div>
+        <mat-form-field>
+          <textarea
+            matInput
+            rows="3"
+            type="text"
+            [formControlName]="['campgroundDescription']"
+            placeholder="Campground Description"
+          ></textarea>
+          <mat-hint align="start"
+            >Please briefly describe the campground site
+          </mat-hint>
+          <mat-error *ngIf="formBasicGroup.get('campgroundDescription').invalid"
+            >Please briefly describe the campground site.</mat-error
+          >
+        </mat-form-field>
+        <div class="navigation-buttons">
+          <button color="primary" type="button" mat-button matStepperPrevious>
+            Back
+          </button>
+          <button color="primary" type="button" mat-button matStepperNext>
+            Next
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step
+      label="Location"
+      state="location"
+      errorMessage="Location details are required."
     >
-      Submit
-    </button>
-    <br />
-  </form>
+      <form [formGroup]="formLocationGroup" class="location-form">
+        <mat-form-field>
+          <mat-label>Campground Location</mat-label>
+          <input
+            matInput
+            type="text"
+            [formControlName]="['campgroundLocation']"
+            placeholder="Ex. Yosemite National Park, CA"
+          />
+          <mat-hint align="start"
+            >Please help others with the campground location</mat-hint
+          >
+          <mat-error *ngIf="formLocationGroup.get('campgroundLocation').invalid"
+            >Please help others with the campground location.</mat-error
+          >
+        </mat-form-field>
+
+        <div class="seasons-checkbox-div">
+          <mat-label>Best season to visit:</mat-label>
+          <mat-divider></mat-divider>
+          <ng-container formArrayName="bestSeasons">
+            <div *ngFor="let season of campStaticData.seasons; let i = index">
+              <mat-checkbox class="example-margin" [formControlName]="i">
+                {{ season.indianName + " | " + season.englishName }}
+              </mat-checkbox>
+            </div>
+          </ng-container>
+        </div>
+
+        <br />
+        <div class="hiking-radio-div">
+          <mat-label>Hiking level:</mat-label>
+          <mat-divider></mat-divider>
+          <mat-radio-group
+            class="hiking-radio-group"
+            [formControlName]="['hikingLevel']"
+          >
+            <mat-radio-button class="hiking-radio-button" [value]="null">
+              None
+            </mat-radio-button>
+            <mat-radio-button
+              class="hiking-radio-button"
+              *ngFor="let hikeLevel of campStaticData.hikingLevels"
+              [value]="hikeLevel"
+            >
+              {{ hikeLevel.levelName }}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <br />
+        <div class="fitness-radio-div">
+          <mat-label>Required fitness level:</mat-label>
+          <mat-divider></mat-divider>
+          <mat-radio-group
+            class="fitness-radio-group"
+            [formControlName]="['fitnessLevel']"
+          >
+            <mat-radio-button class="fitness-radio-button" [value]="null">
+              None
+            </mat-radio-button>
+            <mat-radio-button
+              class="fitness-radio-button"
+              *ngFor="let fitLevel of campStaticData.fitnessLevels"
+              [value]="fitLevel"
+            >
+              {{ fitLevel.levelName }}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <br />
+        <div class="trek-grade-radio-div">
+          <mat-label>Trek techincal grade:</mat-label>
+          <mat-divider></mat-divider>
+          <mat-radio-group
+            class="trek-grade-radio-group"
+            [formControlName]="['trekTechnicalGrade']"
+          >
+            <mat-radio-button class="trek-grade-radio-button" [value]="null">
+              None
+            </mat-radio-button>
+            <mat-radio-button
+              class="trek-grade-radio-button"
+              *ngFor="let trekGrade of campStaticData.trekTechnicalGrades"
+              [value]="trekGrade"
+            >
+              {{ trekGrade.levelName }}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <div class="navigation-buttons">
+          <button color="primary" type="button" mat-button matStepperPrevious>
+            Back
+          </button>
+          <button color="primary" type="button" mat-button matStepperNext>
+            Next
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step label="Amenities" state="amenities">
+      <form [formGroup]="formAmenitiesGroup" class="amenities-form">
+        <mat-form-field>
+          <mat-label>Campground Amenities</mat-label>
+          <mat-select [formControlName]="['campgroundAmenities']" multiple>
+            <mat-optgroup
+              *ngFor="let amenityGroup of amenitiesGroup"
+              [label]="amenityGroup.group.toUpperCase()"
+            >
+              <mat-option
+                *ngFor="let amenity of amenityGroup.amenity"
+                [value]="amenity._id"
+              >
+                {{ amenity.name }}
+              </mat-option>
+            </mat-optgroup>
+          </mat-select>
+          <mat-hint align="start"
+            ><strong>Please select campground amenities</strong>
+          </mat-hint>
+        </mat-form-field>
+        <div class="navigation-buttons">
+          <button color="primary" type="button" mat-button matStepperPrevious>
+            Back
+          </button>
+          <button color="primary" type="button" mat-button matStepperNext>
+            Next
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step label="Save Changes" state="save">
+      <div>
+        <button color="primary" type="button" mat-button matStepperPrevious>
+          Back
+        </button>
+        <button
+          mat-button
+          type="submit"
+          color="primary"
+          [disabled]="isLoading"
+          (click)="onFormSubmit()"
+        >
+          Submit
+        </button>
+        <!-- <button
+          mat-button
+          type="submit"
+          color="primary"
+          [disabled]="
+            !formBasicGroup.valid ||
+            !formLocationGroup.valid ||
+            !formAmenitiesGroup.valid ||
+            isLoading
+          "
+          (click)="onFormSubmit()"
+        >
+          Submit
+        </button> -->
+      </div>
+    </mat-step>
+
+    <!-- Icon overrides. -->
+    <ng-template matStepperIcon="basic">
+      <mat-icon>change_history</mat-icon>
+    </ng-template>
+    <ng-template matStepperIcon="location">
+      <mat-icon>location_on</mat-icon>
+    </ng-template>
+    <ng-template matStepperIcon="amenities">
+      <mat-icon>assignment</mat-icon>
+    </ng-template>
+    <ng-template matStepperIcon="save">
+      <mat-icon>save</mat-icon>
+    </ng-template>
+  </mat-vertical-stepper>
 </div>
 
 <div class="campground-back-link">
@@ -162,4 +307,30 @@
     [routerLink]="['/campgrounds']"
     >Back to Campground's Page</a
   >
+</div>
+
+<div class="courtesy-footer" *ngIf="!isLoading">
+  <p>
+    Seasons info courtesy:
+    <a
+      href="https://www.nationalgeographic.org/encyclopedia/season/"
+      target="_blank"
+      title="National Geographic"
+      ><strong>National Geographic</strong></a
+    >
+    | Hiking levels info courtesy:
+    <a
+      href="https://www.eurohike.at/en/travel-information/during-the-tour/level-of-hiking"
+      target="_blank"
+      title="EuroHike"
+      ><strong>EuroHike</strong></a
+    >
+    | Fitness levels and Trek Technical Grades info courtesy:
+    <a
+      href="https://www.kantoadventures.com/hiking-difficulty-scale.html"
+      target="_blank"
+      title="Kanto Adventures"
+      ><strong>Kanto Adventures</strong></a
+    >
+  </p>
 </div>

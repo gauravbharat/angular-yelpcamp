@@ -60,7 +60,7 @@ import { SocketService } from './socket.service';
     SocketService,
     {
       provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: { displayDefaultIndicatorType: false },
+      useValue: { displayDefaultIndicatorType: false, showError: true },
     },
   ],
   bootstrap: [AppComponent],

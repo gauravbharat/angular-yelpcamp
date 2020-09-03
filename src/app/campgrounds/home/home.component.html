@@ -7,12 +7,10 @@
 <app-header></app-header>
 <mat-card
   class="banner"
-  [ngStyle]="
-    isUserAuthenticated
-      ? { 'background-color': 'rgba(255, 64, 129, 0.1)' }
-      : { 'background-color': '#e9ecef' }
-  "
-  [ngClass]="hideStatsDashboard ? ['banner-single'] : ['banner-duplex']"
+  [ngClass]="[
+    hideStatsDashboard ? 'banner-single' : 'banner-duplex',
+    isUserAuthenticated ? 'user' : 'guest'
+  ]"
 >
   <div class="heading">
     <div class="heading-top">

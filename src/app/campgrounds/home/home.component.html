@@ -7,6 +7,11 @@
 <app-header></app-header>
 <mat-card
   class="banner"
+  [ngStyle]="
+    isUserAuthenticated
+      ? { 'background-color': 'rgba(255, 64, 129, 0.1)' }
+      : { 'background-color': '#e9ecef' }
+  "
   [ngClass]="hideStatsDashboard ? ['banner-single'] : ['banner-duplex']"
 >
   <div class="heading">
@@ -117,17 +122,33 @@
 </mat-card>
 
 <div class="campgrounds-list">
-  <mat-card class="grid-card" *ngIf="isLoading">
+  <mat-card
+    class="grid-card"
+    [ngClass]="isUserAuthenticated ? ['user'] : ['guest']"
+    *ngIf="isLoading"
+  >
     <div class="loading-campground-image">🏕 loading...</div>
   </mat-card>
-  <mat-card class="grid-card" *ngIf="isLoading">
+  <mat-card
+    class="grid-card"
+    [ngClass]="isUserAuthenticated ? ['user'] : ['guest']"
+    *ngIf="isLoading"
+  >
     <div class="loading-campground-image">🏕 loading...</div>
   </mat-card>
-  <mat-card class="grid-card" *ngIf="isLoading">
+  <mat-card
+    class="grid-card"
+    [ngClass]="isUserAuthenticated ? ['user'] : ['guest']"
+    *ngIf="isLoading"
+  >
     <div class="loading-campground-image">🏕 loading...</div>
   </mat-card>
 
-  <mat-card class="grid-card heartbeat" *ngFor="let campground of campgrounds">
+  <mat-card
+    class="grid-card heartbeat"
+    [ngClass]="isUserAuthenticated ? ['user'] : ['guest']"
+    *ngFor="let campground of campgrounds"
+  >
     <img
       class="campground-preview-image"
       mat-card-image

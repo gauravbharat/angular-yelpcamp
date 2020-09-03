@@ -8,8 +8,11 @@ import { AngularMaterialModule } from '../angular-material.module';
 import { HomeComponent } from './home/home.component';
 import { HeaderModule } from '../header/header.module';
 
+import { InfoDialogComponent } from './dialog/dialog.component';
+
 @NgModule({
-  declarations: [HomeComponent],
+  declarations: [HomeComponent, InfoDialogComponent],
+  entryComponents: [InfoDialogComponent],
   imports: [
     HeaderModule,
     CommonModule,

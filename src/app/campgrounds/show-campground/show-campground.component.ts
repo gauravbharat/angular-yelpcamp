@@ -21,10 +21,14 @@ import { CampgroundsService } from '../campgrounds.service';
 import { CommentsService } from '../comments.service';
 import { SocketService, ChatMessage } from '../../socket.service';
 
+/** Material Dialog */
+import { MatDialog } from '@angular/material/dialog';
+import { InfoDialogComponent } from '../dialog/dialog.component';
+
 /** Material Snackbar */
 import { SnackbarService } from '../../error/snackbar.service';
 
-import { Campground } from '../campground.model';
+import { Campground, CampLevelsData } from '../campground.model';
 
 interface ChatMessageList {
   chatId: number;
@@ -48,6 +52,8 @@ export class ShowCampgroundComponent
   private campgroundId: string;
   campground: Campground;
   bestSeasonsText: string;
+  countryNameRearranged = '';
+  campLevelsData: CampLevelsData;
 
   addCommentOpenState = false;
   newComment: string;
@@ -91,7 +97,8 @@ export class ShowCampgroundComponent
     private _route: ActivatedRoute,
     private _commentsService: CommentsService,
     private _socketService: SocketService,
-    private _snackbarService: SnackbarService
+    private _snackbarService: SnackbarService,
+    private _dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -116,6 +123,13 @@ export class ShowCampgroundComponent
         this.username = authStatus.username;
         this.userAvatar = authStatus.userAvatar;
       });
+
+    this._campgroundsService.getCampLevelsData().subscribe(
+      (r: { message: string; campLevelsData: CampLevelsData }) => {
+        this.campLevelsData = r.campLevelsData;
+      },
+      (error) => {}
+    );
 
     // Get the campground id passed as paramter
     this._route.paramMap.subscribe((paramMap: ParamMap) => {
@@ -564,6 +578,13 @@ export class ShowCampgroundComponent
   }
   /** Comment Like methods - Ends */
 
+  onOpenDialog(option: string) {
+    this._dialog.open(InfoDialogComponent, {
+      width: '250px',
+      data: { option, dataArray: this.campLevelsData },
+    });
+  }
+
   private _isProfane(text: string) {
     if (this._filter.isProfane(text)) {
       this._snackbarService.showError('Profanity is not allowed!');
@@ -616,6 +637,22 @@ export class ShowCampgroundComponent
             this.bestSeasonsText = this.bestSeasonsText.trim();
             this.bestSeasonsText = this.bestSeasonsText.replace(/ /g, ', ');
           }
+
+          const splitCountryName = this.campground?.country?.Country_Name?.split(
+            ','
+          );
+
+          if (Array.isArray(splitCountryName) && splitCountryName.length > 0) {
+            if (splitCountryName.length > 1) {
+              for (let i = splitCountryName.length - 1; i >= 0; i--) {
+                this.countryNameRearranged += splitCountryName[i] + ' ';
+              }
+            } else {
+              this.countryNameRearranged = splitCountryName[0];
+            }
+          }
+
+          this.countryNameRearranged = this.countryNameRearranged.trim();
 
           this.isLoading = false;
         },

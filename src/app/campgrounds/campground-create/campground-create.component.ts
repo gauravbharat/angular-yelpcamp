@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 
+import { MatDialog } from '@angular/material/dialog';
+import { InfoDialogComponent } from '../dialog/dialog.component';
+
 import {
   Campground,
   AmenityList,
@@ -50,7 +53,8 @@ export class CampgroundCreateComponent implements OnInit {
   constructor(
     private _campgroundsService: CampgroundsService,
     private _route: ActivatedRoute,
-    private _socketService: SocketService
+    private _socketService: SocketService,
+    private _dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -59,7 +63,7 @@ export class CampgroundCreateComponent implements OnInit {
       async (r: { message: string; campStaticData: CampStaticData }) => {
         this.campStaticData = r.campStaticData;
 
-        console.log('campStaticData', this.campStaticData);
+        // console.log('campStaticData', this.campStaticData);
 
         const uniqueGroups = [
           ...new Set(
@@ -112,6 +116,15 @@ export class CampgroundCreateComponent implements OnInit {
               validators: [Validators.required],
             }
           ),
+          campgroundCountryData: new FormControl(
+            {
+              value: null,
+              disabled: false,
+            },
+            {
+              validators: [Validators.required],
+            }
+          ),
           bestSeasons: new FormArray([
             new FormControl(false),
             new FormControl(false),
@@ -135,13 +148,11 @@ export class CampgroundCreateComponent implements OnInit {
             this.formTitle = 'Edit Campground';
             this.campgroundId = paramMap.get('campgroundId');
             this.isLoading = true;
-            this.disableFormControls(true);
 
             this._campgroundsService.getCampground(this.campgroundId).subscribe(
               (campgroundData) => {
                 // stop spinner
                 this.isLoading = false;
-                this.disableFormControls(false);
 
                 // console.log(campgroundData);
 
@@ -153,6 +164,7 @@ export class CampgroundCreateComponent implements OnInit {
                   image: campgroundData.image,
                   location: campgroundData.location,
                   description: campgroundData.description,
+                  country: campgroundData.country,
                   bestSeasons: campgroundData.bestSeasons,
                   hikingLevel: campgroundData.hikingLevel,
                   fitnessLevel: campgroundData.fitnessLevel,
@@ -180,6 +192,7 @@ export class CampgroundCreateComponent implements OnInit {
                 let hikingLevel = null;
                 let fitnessLevel = null;
                 let trekTechnicalGrade = null;
+                let country = null;
 
                 /** Duh! Object comparison. Get it from campStaticData!! */
                 if (this.campground.hikingLevel) {
@@ -204,8 +217,15 @@ export class CampgroundCreateComponent implements OnInit {
                   );
                 }
 
+                if (this.campground?.country) {
+                  country = this.campStaticData.countriesList.find(
+                    (item) => item._id === this.campground.country.id
+                  );
+                }
+
                 this.formLocationGroup.setValue({
                   campgroundLocation: this.campground.location,
+                  campgroundCountryData: country ? country : null,
                   bestSeasons,
                   hikingLevel: hikingLevel ? hikingLevel : null,
                   fitnessLevel: fitnessLevel ? fitnessLevel : null,
@@ -282,8 +302,17 @@ export class CampgroundCreateComponent implements OnInit {
       i++;
     }
 
+    const country = {
+      id: this.formLocationGroup.value.campgroundCountryData._id,
+      Continent_Name: this.formLocationGroup.value.campgroundCountryData
+        .Continent_Name,
+      Country_Name: this.formLocationGroup.value.campgroundCountryData
+        .Country_Name,
+      Two_Letter_Country_Code: this.formLocationGroup.value
+        .campgroundCountryData.Two_Letter_Country_Code,
+    };
+
     this.isLoading = true;
-    this.disableFormControls(true);
 
     if (this.mode === 'create') {
       this._campgroundsService
@@ -294,6 +323,7 @@ export class CampgroundCreateComponent implements OnInit {
           location,
           image,
           amenities,
+          country,
           bestSeasons,
           hikingLevel,
           fitnessLevel,
@@ -315,7 +345,6 @@ export class CampgroundCreateComponent implements OnInit {
           },
           (error) => {
             this.isLoading = false;
-            this.disableFormControls(false);
             console.log('error creating campground', error);
           }
         );
@@ -329,6 +358,7 @@ export class CampgroundCreateComponent implements OnInit {
           location,
           image,
           amenities,
+          country,
           bestSeasons,
           hikingLevel,
           fitnessLevel,
@@ -350,11 +380,17 @@ export class CampgroundCreateComponent implements OnInit {
           },
           (error) => {
             this.isLoading = false;
-            this.disableFormControls(false);
             console.log('error editing campground', error);
           }
         );
     }
+  }
+
+  onOpenDialog(option: string) {
+    this._dialog.open(InfoDialogComponent, {
+      width: '250px',
+      data: { option, dataArray: this.campStaticData },
+    });
   }
 
   onImagePicked(e: Event) {
@@ -380,22 +416,5 @@ export class CampgroundCreateComponent implements OnInit {
 
   isEditMode(): boolean {
     return this.mode === 'edit';
-  }
-
-  disableFormControls(condition: boolean) {
-    // disable for condition === true
-    if (condition) {
-      this.formBasicGroup.controls.campgroundName.disable();
-      this.formBasicGroup.controls.campgroundPrice.disable();
-      this.formBasicGroup.controls.campgroundDescription.disable();
-      this.formLocationGroup.controls.campgroundLocation.disable();
-      this.formAmenitiesGroup.controls.campgroundAmenities.disable();
-    } else {
-      this.formBasicGroup.controls.campgroundName.enable();
-      this.formBasicGroup.controls.campgroundPrice.enable();
-      this.formBasicGroup.controls.campgroundDescription.enable();
-      this.formLocationGroup.controls.campgroundLocation.enable();
-      this.formAmenitiesGroup.controls.campgroundAmenities.enable();
-    }
   }
 }

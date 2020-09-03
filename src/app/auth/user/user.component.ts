@@ -60,7 +60,7 @@ export class UserComponent implements OnInit, OnDestroy {
   constructor(
     private _authService: AuthService,
     private _userService: UserService,
-    public dialog: MatDialog,
+    public _dialog: MatDialog,
     private _snackbarService: SnackbarService,
     private _router: Router
   ) {}
@@ -295,7 +295,7 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   onUpdateUserAvatar() {
-    const changeAvatarDialogRef = this.dialog.open(ImageDialogComponent, {
+    const changeAvatarDialogRef = this._dialog.open(ImageDialogComponent, {
       width: '250px',
       data: { message: '' },
     });
@@ -318,7 +318,7 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   onChangePassword() {
-    const changePasswordDialogRef = this.dialog.open(PasswordDialogComponent, {
+    const changePasswordDialogRef = this._dialog.open(PasswordDialogComponent, {
       width: '250px',
       data: { userId: this.currentUserId },
     });

@@ -169,6 +169,11 @@ mat-card-title {
   border-radius: 2px;
 }
 
+.info-icon {
+  font-size: 1rem;
+  cursor: pointer;
+}
+
 .chips-display {
   padding-bottom: 20px;
 }
@@ -338,6 +343,10 @@ mat-panel-description .comment-text-overview {
 .courtesy-footer a {
   color: #383a3b;
   text-decoration: none;
+}
+
+.courtesy-footer a:hover {
+  text-decoration: underline;
 }
 
 /* Media queries */

@@ -130,12 +130,27 @@
             >Please help others with the campground location</mat-hint
           >
           <mat-error *ngIf="formLocationGroup.get('campgroundLocation').invalid"
-            >Please help others with the campground location.</mat-error
+            >Please enter complete location address including campground
+            name.</mat-error
           >
         </mat-form-field>
 
+        <mat-form-field>
+          <mat-label>Select country</mat-label>
+          <mat-select [formControlName]="['campgroundCountryData']" required>
+            <mat-option
+              *ngFor="let country of campStaticData.countriesList"
+              [value]="country"
+              >{{ country.Country_Name }}</mat-option
+            >
+          </mat-select>
+        </mat-form-field>
+
         <div class="seasons-checkbox-div">
-          <mat-label>Best season to visit:</mat-label>
+          <mat-label>Best season to visit: </mat-label
+          ><mat-icon class="info-icon" (click)="onOpenDialog('bestSeasons')">
+            help_outline</mat-icon
+          >
           <mat-divider></mat-divider>
           <ng-container formArrayName="bestSeasons">
             <div *ngFor="let season of campStaticData.seasons; let i = index">
@@ -148,7 +163,10 @@
 
         <br />
         <div class="hiking-radio-div">
-          <mat-label>Hiking level:</mat-label>
+          <mat-label>Hiking level: </mat-label
+          ><mat-icon class="info-icon" (click)="onOpenDialog('hikingLevel')">
+            help_outline</mat-icon
+          >
           <mat-divider></mat-divider>
           <mat-radio-group
             class="hiking-radio-group"
@@ -169,7 +187,10 @@
 
         <br />
         <div class="fitness-radio-div">
-          <mat-label>Required fitness level:</mat-label>
+          <mat-label>Required fitness level: </mat-label
+          ><mat-icon class="info-icon" (click)="onOpenDialog('fitnessLevel')">
+            help_outline</mat-icon
+          >
           <mat-divider></mat-divider>
           <mat-radio-group
             class="fitness-radio-group"
@@ -190,7 +211,13 @@
 
         <br />
         <div class="trek-grade-radio-div">
-          <mat-label>Trek techincal grade:</mat-label>
+          <mat-label>Trek techincal grade: </mat-label
+          ><mat-icon
+            class="info-icon"
+            (click)="onOpenDialog('trekTechnicalGrade')"
+          >
+            help_outline</mat-icon
+          >
           <mat-divider></mat-divider>
           <mat-radio-group
             class="trek-grade-radio-group"
@@ -265,20 +292,6 @@
         >
           Submit
         </button>
-        <!-- <button
-          mat-button
-          type="submit"
-          color="primary"
-          [disabled]="
-            !formBasicGroup.valid ||
-            !formLocationGroup.valid ||
-            !formAmenitiesGroup.valid ||
-            isLoading
-          "
-          (click)="onFormSubmit()"
-        >
-          Submit
-        </button> -->
       </div>
     </mat-step>
 

@@ -22,7 +22,7 @@ form {
 .campground-back-link {
   width: 100%;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 3rem;
   margin-bottom: 1.5rem;
 }
 
@@ -52,6 +52,11 @@ input[type="file"] {
 
 .navigation-buttons {
   margin-top: 10px;
+}
+
+.info-icon {
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 .seasons-checkbox-div,
@@ -93,6 +98,10 @@ input[type="file"] {
   text-decoration: none;
 }
 
+.courtesy-footer a:hover {
+  text-decoration: underline;
+}
+
 /* Media Queries */
 @media screen and (max-width: 1200px) {
   .campground-create {
@@ -129,5 +138,8 @@ input[type="file"] {
 @media screen and (max-width: 400px) {
   /* .mat-select-panel {
     min-width: 80% !important;
+  } */
+  /* .campground-back-link {
+    text-align: center;
   } */
 }

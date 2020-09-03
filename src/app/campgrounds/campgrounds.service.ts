@@ -16,6 +16,8 @@ import {
   HikingLevels,
   FitnessLevels,
   TrekTechnicalGrades,
+  CountryData,
+  CampLevelsData,
 } from './campground.model';
 import { environment } from '../../environments/environment';
 
@@ -49,6 +51,13 @@ export class CampgroundsService {
     /** Get the list of all campground static data from the database */
     return this._http.get<{ message: string; campStaticData: CampStaticData }>(
       `${BACKEND_URL}/static`
+    );
+  }
+
+  getCampLevelsData() {
+    /** Get the list of campground levels static data from the database */
+    return this._http.get<{ message: string; campLevelsData: CampLevelsData }>(
+      `${BACKEND_URL}/camp-levels`
     );
   }
 
@@ -88,6 +97,7 @@ export class CampgroundsService {
                     username: campground?.author?.username,
                   },
                   amenities: campground?.amenities,
+                  country: campground?.country,
                   bestSeasons: campground?.bestSeasons,
                   hikingLevel: campground?.hikingLevel,
                   fitnessLevel: campground?.fitnessLevel,
@@ -134,6 +144,7 @@ export class CampgroundsService {
       image: string;
       amenities: AmenityList[] | null | undefined;
       comments: string[];
+      country: CountryData;
       bestSeasons: BestSeasonsModel;
       hikingLevel: HikingLevels;
       fitnessLevel: FitnessLevels;
@@ -166,6 +177,7 @@ export class CampgroundsService {
     location: string,
     image: File,
     amenities: string[] | null | undefined,
+    country: CountryData,
     bestSeasons: BestSeasonsModel,
     hikingLevel: HikingLevels,
     fitnessLevel: FitnessLevels,
@@ -180,6 +192,7 @@ export class CampgroundsService {
     newCampData.append('location', location);
     newCampData.append('image', image, name.substring(0, 6));
     amenities && newCampData.append('amenities', JSON.stringify(amenities));
+    country && newCampData.append('country', JSON.stringify(country));
     bestSeasons &&
       newCampData.append('bestSeasons', JSON.stringify(bestSeasons));
 
@@ -208,6 +221,7 @@ export class CampgroundsService {
     location: string,
     image: File | string,
     amenities: string[] | null | undefined,
+    country: CountryData,
     bestSeasons: BestSeasonsModel,
     hikingLevel: HikingLevels,
     fitnessLevel: FitnessLevels,
@@ -227,6 +241,7 @@ export class CampgroundsService {
       editCampData.append('location', location);
       editCampData.append('image', image, name.substring(0, 6));
       amenities && editCampData.append('amenities', JSON.stringify(amenities));
+      country && editCampData.append('country', JSON.stringify(country));
       bestSeasons &&
         editCampData.append('bestSeasons', JSON.stringify(bestSeasons));
       hikingLevel &&
@@ -247,6 +262,7 @@ export class CampgroundsService {
         location,
         image,
         amenities,
+        country,
         bestSeasons,
         hikingLevel,
         fitnessLevel,

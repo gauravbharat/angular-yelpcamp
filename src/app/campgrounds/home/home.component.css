@@ -145,6 +145,15 @@
   box-sizing: border-box;
 }
 
+.stats-card-active {
+  cursor: pointer;
+  transition: opacity 0.5s;
+}
+
+.stats-card-active:hover {
+  opacity: 70%;
+}
+
 .stats-card .count {
   font-size: 3.5rem;
   font-weight: 300;

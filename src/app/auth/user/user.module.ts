@@ -16,6 +16,7 @@ import {
 
 @NgModule({
   declarations: [UserComponent, ImageDialogComponent, PasswordDialogComponent],
+  entryComponents: [ImageDialogComponent, PasswordDialogComponent],
   imports: [
     CommonModule,
     FormsModule,

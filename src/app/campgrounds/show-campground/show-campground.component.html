@@ -145,26 +145,41 @@
         >
         <mat-card-subtitle>{{ campground?.location }}</mat-card-subtitle>
         <mat-card-subtitle>{{
-          "Best season to visit: " + (bestSeasonsText ? bestSeasonsText : "")
+          "Country: " + (countryNameRearranged ? countryNameRearranged : "")
         }}</mat-card-subtitle>
+        <mat-card-subtitle>{{
+          "Geographical Area: " +
+            (campground?.country?.Continent_Name
+              ? campground.country.Continent_Name
+              : "")
+        }}</mat-card-subtitle>
+        <mat-card-subtitle
+          >{{ "Best season to visit:" }}
+          <mat-icon class="info-icon" (click)="onOpenDialog('bestSeasons')">
+            help_outline</mat-icon
+          >{{ bestSeasonsText ? bestSeasonsText : "" }}</mat-card-subtitle
+        >
         <mat-card-subtitle *ngIf="campground?.hikingLevel"
           >{{ "Hiking Level: " + campground?.hikingLevel?.levelName }}
-          <mat-icon [matTooltip]="campground?.hikingLevel?.levelDesc"
-            >help_outline</mat-icon
-          ></mat-card-subtitle
-        >
+          <mat-icon class="info-icon" (click)="onOpenDialog('hikingLevel')">
+            help_outline</mat-icon
+          >
+        </mat-card-subtitle>
         <mat-card-subtitle *ngIf="campground?.fitnessLevel"
           >{{
             "Required Fitness Level: " + campground?.fitnessLevel?.levelName
           }}
-          <mat-icon [matTooltip]="campground?.fitnessLevel?.levelDesc"
-            >help_outline</mat-icon
+          <mat-icon class="info-icon" (click)="onOpenDialog('fitnessLevel')">
+            help_outline</mat-icon
           ></mat-card-subtitle
         >
         <mat-card-subtitle *ngIf="campground?.trekTechnicalGrade"
           >{{ "Trek Grade: " + campground?.trekTechnicalGrade?.levelName }}
-          <mat-icon [matTooltip]="campground?.trekTechnicalGrade?.levelDesc"
-            >help_outline</mat-icon
+          <mat-icon
+            class="info-icon"
+            (click)="onOpenDialog('trekTechnicalGrade')"
+          >
+            help_outline</mat-icon
           >
         </mat-card-subtitle>
         <mat-card-content>{{ campground?.description }}</mat-card-content>

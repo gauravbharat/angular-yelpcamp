@@ -1,5 +1,5 @@
 /** Dialog for user avatar change */
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { AuthService } from '../../auth.service';
@@ -33,7 +33,7 @@ export class PasswordDialogComponent {
   hide = true;
 
   constructor(
-    public dialogRef: MatDialogRef<ImageDialogComponent>,
+    public dialogRef: MatDialogRef<PasswordDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: { userId: string },
     private authService: AuthService,

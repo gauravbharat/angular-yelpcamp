@@ -64,6 +64,13 @@ export interface CountriesList {
   _id: string;
 }
 
+export interface CampLevelsData {
+  seasons: Seasons[];
+  hikingLevels: HikingLevels[];
+  trekTechnicalGrades: TrekTechnicalGrades[];
+  fitnessLevels: FitnessLevels[];
+}
+
 export interface CampStaticData {
   amenitiesList: AmenityList[];
   countriesList: CountriesList[];
@@ -82,6 +89,13 @@ export interface BestSeasonsModel {
   shishira: boolean;
 }
 
+export interface CountryData {
+  id: string;
+  Continent_Name: string;
+  Country_Name: string;
+  Two_Letter_Country_Code: string;
+}
+
 export interface Campground {
   _id: string;
   name: string;
@@ -98,13 +112,7 @@ export interface Campground {
   created?: Date;
   comments?: any[] | Comments[];
   amenities?: AmenityList[] | string[];
-  country?: {
-    id: string;
-    Continent_Code: string;
-    Continent_Name: string;
-    Country_Name: string;
-    Two_Letter_Country_Code: string;
-  };
+  country?: CountryData;
   bestSeasons?: BestSeasonsModel;
   hikingLevel?: LevelsSkeleton;
   trekTechnicalGrade?: LevelsSkeleton;

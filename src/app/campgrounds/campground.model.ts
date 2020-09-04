@@ -121,4 +121,16 @@ export interface Campground {
   hikingLevel?: LevelsSkeleton;
   trekTechnicalGrade?: LevelsSkeleton;
   fitnessLevel?: LevelsSkeleton;
+  rating?: number;
+  campRatingDisplay?: CampRatingDisplay[];
+}
+
+export interface CampRatingDisplay {
+  rating: number;
+  icon: string;
+}
+
+export interface RatingCountUsers {
+  ratingsCount: number;
+  ratedBy: string[];
 }

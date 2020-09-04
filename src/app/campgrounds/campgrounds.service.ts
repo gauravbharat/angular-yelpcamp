@@ -10,7 +10,6 @@ import { SocketService } from '../socket.service';
 
 import {
   Campground,
-  AmenityList,
   CampStaticData,
   BestSeasonsModel,
   HikingLevels,
@@ -18,6 +17,7 @@ import {
   TrekTechnicalGrades,
   CountryData,
   CampLevelsData,
+  RatingCountUsers,
 } from './campground.model';
 import { environment } from '../../environments/environment';
 
@@ -58,6 +58,12 @@ export class CampgroundsService {
     /** Get the list of campground levels static data from the database */
     return this._http.get<{ message: string; campLevelsData: CampLevelsData }>(
       `${BACKEND_URL}/camp-levels`
+    );
+  }
+
+  getUserCampgroundRating(campgroundId: string) {
+    return this._http.get<{ message: string; rating: number }>(
+      `${BACKEND_URL}/rating/${campgroundId}`
     );
   }
 
@@ -102,6 +108,10 @@ export class CampgroundsService {
                   hikingLevel: campground?.hikingLevel,
                   fitnessLevel: campground?.fitnessLevel,
                   trekTechnicalGrade: campground?.trekTechnicalGrade,
+                  rating: campground?.rating,
+                  campRatingDisplay: this._getCampRatingDisplay(
+                    campground?.rating
+                  ),
                 };
               }
             ),
@@ -128,6 +138,34 @@ export class CampgroundsService {
       });
   }
 
+  private _getCampRatingDisplay(rating: number) {
+    let campRating = [
+      { rating: 1, icon: 'star_outline' },
+      { rating: 2, icon: 'star_outline' },
+      { rating: 3, icon: 'star_outline' },
+      { rating: 4, icon: 'star_outline' },
+      { rating: 5, icon: 'star_outline' },
+    ];
+
+    if (rating && rating > 0) {
+      for (let i = 0.5; i <= rating; i += 0.5) {
+        if (i > 5) break; //expect rating between 1 - 5
+
+        // if current iteration is whole integer, set full star
+        if (Number.isInteger(i)) {
+          campRating[i - 1].icon = 'star';
+        }
+
+        // if current iteration is a decimal and to end of this loop, set half star
+        if (!Number.isInteger(i) && i == rating) {
+          campRating[Math.ceil(i - 1)].icon = 'star_half';
+        }
+      }
+    }
+
+    return campRating;
+  }
+
   getCampground(campgroundId: string) {
     // console.log('campground service getCampground by ID');
 
@@ -136,19 +174,8 @@ export class CampgroundsService {
      * So, pass the subscription instead to campground-create and get the campground values there */
 
     return this._http.get<{
-      _id: string;
-      name: string;
-      price: number;
-      description: string;
-      location: string;
-      image: string;
-      amenities: AmenityList[] | null | undefined;
-      comments: string[];
-      country: CountryData;
-      bestSeasons: BestSeasonsModel;
-      hikingLevel: HikingLevels;
-      fitnessLevel: FitnessLevels;
-      trekTechnicalGrade: TrekTechnicalGrades;
+      campground: any;
+      ratingData: RatingCountUsers;
     }>(`${BACKEND_URL}/${campgroundId}`);
   }
 
@@ -289,6 +316,13 @@ export class CampgroundsService {
         console.log('Error deleting campground', error);
       }
     );
+  }
+
+  updateCampgroundRating(campgroundId: string, rating: number) {
+    return this._http.post<{ message: string }>(`${BACKEND_URL}/rating`, {
+      campgroundId,
+      rating,
+    });
   }
 
   redirectToCampgrounds() {

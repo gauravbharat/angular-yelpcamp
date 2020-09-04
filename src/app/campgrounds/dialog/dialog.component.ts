@@ -1,6 +1,9 @@
 /**  02092020 - Gaurav - Dialog for display of Camp properties information */
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
+/** Material Snackbar */
+import { SnackbarService } from '../../error/snackbar.service';
 
 interface InforArray {
   level: number;
@@ -128,6 +131,143 @@ export class InfoDialogComponent {
         link: 'https://www.kantoadventures.com/hiking-difficulty-scale.html',
         title: 'Kanto Adventures',
       };
+    }
+  }
+}
+
+import { CampgroundsService } from '../campgrounds.service';
+
+@Component({
+  templateUrl: './rating-dialog.component.html',
+  styles: [
+    `
+      .title {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .title-emojis {
+        font-size: 1.5rem;
+      }
+
+      .icon-close {
+        cursor: pointer;
+      }
+
+      mat-dialog-content {
+        text-align: center;
+      }
+
+      .icon-rating {
+        cursor: pointer;
+        font-size: 2.5rem;
+        padding-right: 10px;
+        margin: 10px auto;
+      }
+
+      .icon-rating:last-of-type {
+        padding-right: 0;
+      }
+
+      mat-dialog-actions {
+        justify-content: center;
+      }
+    `,
+  ],
+})
+export class RatingDialogComponent implements OnInit {
+  isLoading = false;
+  campRating = [
+    { rating: 1, icon: 'star_outline' },
+    { rating: 2, icon: 'star_outline' },
+    { rating: 3, icon: 'star_outline' },
+    { rating: 4, icon: 'star_outline' },
+    { rating: 5, icon: 'star_outline' },
+  ];
+  currentRating = 0;
+  isUpdated = false;
+
+  constructor(
+    private _campgroundService: CampgroundsService,
+    private _snackbarService: SnackbarService,
+    public dialogRef: MatDialogRef<RatingDialogComponent>,
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      campgroundId: string;
+    }
+  ) {
+    dialogRef.disableClose = true;
+  }
+
+  ngOnInit() {
+    this.isLoading = true;
+    this._campgroundService
+      .getUserCampgroundRating(this.data.campgroundId)
+      .subscribe(
+        (response) => {
+          // Set last saved user rating for this camp
+          if (response && response.rating > 0) {
+            this.currentRating = response.rating;
+            this._resetRatingDisplay(response.rating, false);
+          }
+
+          this.isLoading = false;
+        },
+        (error) => {
+          this.isLoading = false;
+          console.log('Error getting last campground rating', error);
+
+          this._snackbarService.showError(
+            'Error getting last campground rating!'
+          );
+          this.dialogRef.close();
+        }
+      );
+  }
+
+  onChangeRating(rating: number) {
+    this._resetRatingDisplay(rating, true);
+    this.currentRating = rating;
+  }
+
+  onClearRating() {
+    this._resetRatingDisplay(0, true);
+    this.currentRating = 0;
+  }
+
+  onSaveRating() {
+    this._campgroundService
+      .updateCampgroundRating(this.data.campgroundId, this.currentRating)
+      .subscribe(
+        (response) => {
+          this._snackbarService.showSuccess('Camground rating updated!');
+          this.dialogRef.close(true);
+        },
+        (error) => {
+          console.log('Error updating campground rating', error);
+          this._snackbarService.showError('Error updating campground rating!');
+          this.dialogRef.close(false);
+        }
+      );
+  }
+
+  private _resetRatingDisplay(rating: number, reset: boolean) {
+    if (reset) this.campRating.forEach((r) => (r.icon = 'star_outline'));
+
+    // increment .5
+    for (let i = 0.5; i <= rating; i += 0.5) {
+      if (i > 5) break; //expect rating between 1 - 5
+
+      // if current iteration is whole integer, set full star
+      if (Number.isInteger(i)) {
+        this.campRating[i - 1].icon = 'star';
+      }
+
+      // if current iteration is a decimal and to end of this loop, set half star
+      if (!Number.isInteger(i) && i == rating) {
+        this.campRating[Math.ceil(i - 1)].icon = 'star_half';
+      }
     }
   }
 }

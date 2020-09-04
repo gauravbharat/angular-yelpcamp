@@ -94,6 +94,7 @@
   margin: 10px auto;
   padding: 32px;
   display: flex;
+  margin-bottom: 30px;
 }
 
 .banner-single {
@@ -195,7 +196,6 @@
   box-sizing: border-box;
   height: 300px;
   width: 30%;
-  /* width: 240px; */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -240,6 +240,11 @@
 
 .campground-preview-button {
   margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.icon-rating {
+  font-size: 1rem;
 }
 
 /* Campgrounds list - Ends */

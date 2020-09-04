@@ -150,28 +150,26 @@ export class CampgroundCreateComponent implements OnInit {
             this.isLoading = true;
 
             this._campgroundsService.getCampground(this.campgroundId).subscribe(
-              (campgroundData) => {
+              (response) => {
                 // stop spinner
                 this.isLoading = false;
 
-                // console.log(campgroundData);
-
                 // load data in local variable
                 this.campground = {
-                  _id: campgroundData._id,
-                  name: campgroundData.name,
-                  price: campgroundData.price,
-                  image: campgroundData.image,
-                  location: campgroundData.location,
-                  description: campgroundData.description,
-                  country: campgroundData.country,
-                  bestSeasons: campgroundData.bestSeasons,
-                  hikingLevel: campgroundData.hikingLevel,
-                  fitnessLevel: campgroundData.fitnessLevel,
-                  trekTechnicalGrade: campgroundData.trekTechnicalGrade,
+                  _id: response.campground._id,
+                  name: response.campground.name,
+                  price: response.campground.price,
+                  image: response.campground.image,
+                  location: response.campground.location,
+                  description: response.campground.description,
+                  country: response.campground.country,
+                  bestSeasons: response.campground.bestSeasons,
+                  hikingLevel: response.campground.hikingLevel,
+                  fitnessLevel: response.campground.fitnessLevel,
+                  trekTechnicalGrade: response.campground.trekTechnicalGrade,
                 };
 
-                this.savedAmenities = campgroundData.amenities;
+                this.savedAmenities = response.campground.amenities;
                 this.displayImageName = this.campground.image;
 
                 // load data onto form elements

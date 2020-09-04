@@ -182,6 +182,36 @@
             help_outline</mat-icon
           >
         </mat-card-subtitle>
+
+        <div class="camp-rating-div">
+          <!-- <mat-card-subtitle>Rating: </mat-card-subtitle>  -->
+          <mat-icon
+            [color]="campground?.rating > 0 ? 'accent' : ''"
+            class="rated-icon"
+            *ngFor="let r of campRating"
+            >{{ r.icon }}</mat-icon
+          >
+        </div>
+        <mat-card-subtitle
+          ><i
+            *ngIf="campground?.rating > 0"
+            [matTooltip]="getCampgroundRatersList()"
+            class="rated-by"
+            >{{
+              ratingData.ratingsCount +
+                " rating" +
+                (ratingData.ratingsCount > 1 ? "s" : "")
+            }}</i
+          ><i *ngIf="campground?.rating <= 0">No ratings</i>
+          <span *ngIf="isUserAuthenticated">&nbsp; Rate now!</span>
+          <mat-icon
+            *ngIf="isUserAuthenticated"
+            class="info-icon"
+            (click)="onRateCampground()"
+            >open_in_new</mat-icon
+          >
+        </mat-card-subtitle>
+
         <mat-card-content>{{ campground?.description }}</mat-card-content>
       </div>
       <div class="chips-display">

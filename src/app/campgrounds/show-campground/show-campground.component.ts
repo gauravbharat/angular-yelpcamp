@@ -23,12 +23,20 @@ import { SocketService, ChatMessage } from '../../socket.service';
 
 /** Material Dialog */
 import { MatDialog } from '@angular/material/dialog';
-import { InfoDialogComponent } from '../dialog/dialog.component';
+import {
+  InfoDialogComponent,
+  RatingDialogComponent,
+} from '../dialog/dialog.component';
 
 /** Material Snackbar */
 import { SnackbarService } from '../../error/snackbar.service';
 
-import { Campground, CampLevelsData } from '../campground.model';
+import {
+  Campground,
+  CampLevelsData,
+  RatingCountUsers,
+  CampRatingDisplay,
+} from '../campground.model';
 
 interface ChatMessageList {
   chatId: number;
@@ -54,6 +62,8 @@ export class ShowCampgroundComponent
   bestSeasonsText: string;
   countryNameRearranged = '';
   campLevelsData: CampLevelsData;
+  campRating: CampRatingDisplay[];
+  ratingData: RatingCountUsers;
 
   addCommentOpenState = false;
   newComment: string;
@@ -585,10 +595,37 @@ export class ShowCampgroundComponent
     });
   }
 
+  onRateCampground() {
+    const ratingDialogRef = this._dialog.open(RatingDialogComponent, {
+      data: { campgroundId: this.campgroundId },
+      width: '250px',
+    });
+
+    ratingDialogRef.afterClosed().subscribe((response) => {
+      if (response) {
+        // Refresh campground page data
+        this._getCampgroundFromServer();
+      }
+    });
+  }
+
+  getCampgroundRatersList() {
+    if (this.ratingData && this.ratingData.ratedBy.length > 0) {
+      return this.ratingData.ratedBy
+        .map((username, index, arr) => {
+          if (index < 9) {
+            return username;
+          } else if (index === 9) {
+            return `and ${arr.length - 9} other${arr.length > 10 ? 's' : ''}`;
+          }
+        })
+        .join('\n');
+    }
+  }
+
   private _isProfane(text: string) {
     if (this._filter.isProfane(text)) {
       this._snackbarService.showError('Profanity is not allowed!');
-
       return true;
     }
 
@@ -599,10 +636,39 @@ export class ShowCampgroundComponent
     this.getCampFromServerSub$ = this._campgroundsService
       .getCampground(this.campgroundId)
       .subscribe(
-        (campgroundData) => {
-          // console.log(campgroundData);
-          this.campground = campgroundData;
+        (response) => {
+          // console.log(response);
+          this.campground = response.campground;
+          this.ratingData = response.ratingData;
+
           // console.log('campground daata from database', this.campground);
+
+          // Init rating stars
+          this.campRating = [
+            { rating: 1, icon: 'star_outline' },
+            { rating: 2, icon: 'star_outline' },
+            { rating: 3, icon: 'star_outline' },
+            { rating: 4, icon: 'star_outline' },
+            { rating: 5, icon: 'star_outline' },
+          ];
+
+          // display stars per rating, taking care of half_stars
+          if (this.campground.rating > 0) {
+            // increment .5
+            for (let i = 0.5; i <= this.campground.rating; i += 0.5) {
+              if (i > 5) break; //expect rating between 1 - 5
+
+              // if current iteration is whole integer, set full star
+              if (Number.isInteger(i)) {
+                this.campRating[i - 1].icon = 'star';
+              }
+
+              // if current iteration is a decimal and to end of this loop, set half star
+              if (!Number.isInteger(i) && i == this.campground.rating) {
+                this.campRating[Math.ceil(i - 1)].icon = 'star_half';
+              }
+            }
+          }
 
           if (this.campground?.bestSeasons) {
             let seasons = Object.entries(this.campground.bestSeasons);

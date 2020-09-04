@@ -158,6 +158,14 @@
       <mat-card-title class="campground-preview-title">{{
         campground.name
       }}</mat-card-title>
+      <div class="camp-rating-div">
+        <mat-icon
+          [color]="campground?.rating > 0 ? 'accent' : ''"
+          class="icon-rating"
+          *ngFor="let r of campground?.campRatingDisplay"
+          >{{ r.icon }}</mat-icon
+        >
+      </div>
       <button
         class="campground-preview-button"
         mat-raised-button

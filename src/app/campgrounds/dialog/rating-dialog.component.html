@@ -1,0 +1,52 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  [ngStyle]="{ height: '2px' }"
+  *ngIf="isLoading"
+></mat-progress-bar>
+<div class="title">
+  <div class="title-emojis">
+    {{
+      currentRating > 4
+        ? "😍"
+        : currentRating > 3
+        ? "🤩"
+        : currentRating > 2
+        ? "🙂"
+        : currentRating > 1
+        ? "😐"
+        : "😥"
+    }}
+  </div>
+  <mat-icon class="icon-close" [mat-dialog-close]="false">clear</mat-icon>
+</div>
+
+<mat-dialog-content>
+  <mat-icon
+    color="accent"
+    class="icon-rating"
+    [disabled]="isLoading"
+    (click)="onChangeRating(r.rating)"
+    *ngFor="let r of campRating"
+    >{{ r.icon }}</mat-icon
+  >
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button
+    mat-button
+    color="primary"
+    [disabled]="isLoading"
+    (click)="onSaveRating()"
+  >
+    Save
+  </button>
+  <button
+    mat-button
+    color="warn"
+    matTooltip="You need to save this clear!"
+    (click)="onClearRating()"
+    [disabled]="isLoading"
+  >
+    Clear
+  </button>
+</mat-dialog-actions>

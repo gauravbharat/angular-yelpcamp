@@ -17,6 +17,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isUserAuthenticated = false;
   userFirstName: string;
   campgrounds: Campground[] = [];
+
   private _campgroundsSubscription$: Subscription;
   private _authStatusSub$: Subscription;
 

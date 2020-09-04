@@ -174,6 +174,10 @@ mat-card-title {
   cursor: pointer;
 }
 
+.rated-by {
+  text-decoration: underline;
+}
+
 .chips-display {
   padding-bottom: 20px;
 }

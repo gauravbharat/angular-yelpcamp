@@ -237,14 +237,17 @@ export class RatingDialogComponent implements OnInit {
   }
 
   onSaveRating() {
+    this.isLoading = true;
     this._campgroundService
       .updateCampgroundRating(this.data.campgroundId, this.currentRating)
       .subscribe(
         (response) => {
+          this.isLoading = false;
           this._snackbarService.showSuccess('Camground rating updated!');
           this.dialogRef.close(true);
         },
         (error) => {
+          this.isLoading = false;
           console.log('Error updating campground rating', error);
           this._snackbarService.showError('Error updating campground rating!');
           this.dialogRef.close(false);

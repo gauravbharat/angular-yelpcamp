@@ -10,8 +10,10 @@ interface Comments {
     id: string;
     username: string;
   };
-  created: string;
-  edited: string;
+  created?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  edited?: string;
   isEdited: boolean;
   text: string;
   _id: string;
@@ -110,6 +112,8 @@ export interface Campground {
     username: string;
   };
   created?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   comments?: any[] | Comments[];
   amenities?: AmenityList[] | string[];
   country?: CountryData;

@@ -201,7 +201,12 @@
           "
           class="camp-author"
           >{{ campground?.author?.username }}</a
-        >, {{ getLastEdited(campground?.created) }}
+        >,
+        {{
+          getLastEdited(
+            campground?.updatedAt ? campground?.updatedAt : campground?.created
+          )
+        }}
       </div>
       <mat-divider
         *ngIf="isUserAuthenticated && campground?.author?.id === userId"
@@ -323,7 +328,11 @@
                   </span>
                   <span class="last-edited">
                     &#9679;
-                    {{ getLastEdited(comment?.edited) }}
+                    {{
+                      getLastEdited(
+                        comment?.edited ? comment?.edited : comment?.updatedAt
+                      )
+                    }}
                     {{ comment?.isEdited ? "(edited)" : "" }}
                   </span>
                 </div>

@@ -23,6 +23,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { CdkTableModule } from '@angular/cdk/table';
 
 @NgModule({
   exports: [
@@ -49,6 +52,9 @@ import { MatRadioModule } from '@angular/material/radio';
     MatTooltipModule,
     MatCheckboxModule,
     MatRadioModule,
+    MatTableModule,
+    MatSortModule,
+    CdkTableModule,
   ],
 })
 export class AngularMaterialModule {}

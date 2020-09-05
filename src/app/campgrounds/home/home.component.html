@@ -80,11 +80,17 @@
     <mat-card
       [ngStyle]="getFlagColor()?.top"
       class="stats-card"
+      [matTooltip]="
+        isUserAuthenticated
+          ? 'View Total Campgrounds'
+          : 'Login to view all campgrounds'
+      "
       [ngClass]="
         isUserAuthenticated
           ? ['mat-elevation-z2', 'stats-card-active']
           : ['mat-card-flat', 'mat-elevation-z0']
       "
+      (click)="isUserAuthenticated && onStatsClick('/stats/campgrounds/all')"
     >
       <div class="count" *ngIf="isLoading">--</div>
       <div class="count" *ngIf="!isLoading">{{ campgroundsCount }}</div>
@@ -98,6 +104,10 @@
           : ['mat-card-flat', 'mat-elevation-z0']
       "
       [ngStyle]="getFlagColor()?.middle"
+      (click)="isUserAuthenticated && onStatsClick('/stats/users/all')"
+      [matTooltip]="
+        isUserAuthenticated ? 'View Total Users' : 'Login to view all users'
+      "
     >
       <div class="count" *ngIf="isLoading">--</div>
       <div class="count" *ngIf="!isLoading">{{ usersCount }}</div>
@@ -111,6 +121,10 @@
           : ['mat-card-flat', 'mat-elevation-z0']
       "
       [ngStyle]="getFlagColor()?.bottom"
+      (click)="isUserAuthenticated && onStatsClick('/stats/users/all')"
+      [matTooltip]="
+        isUserAuthenticated ? 'View Total Users' : 'Login to view all users'
+      "
     >
       <div class="count" *ngIf="isLoading">--</div>
       <div class="count" *ngIf="!isLoading">{{ contributorsCount }}</div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 
 import { AuthService } from '../../auth/auth.service';
@@ -45,7 +46,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private _campgroundsService: CampgroundsService,
     private _authService: AuthService,
-    private _socketService: SocketService
+    private _socketService: SocketService,
+    private _router: Router
   ) {}
 
   ngOnInit() {
@@ -286,5 +288,9 @@ export class HomeComponent implements OnInit, OnDestroy {
           bottom: { 'background-color': 'green', color: 'white' },
         };
     }
+  }
+
+  onStatsClick(routerLink: string) {
+    this._router.navigate([routerLink]);
   }
 }

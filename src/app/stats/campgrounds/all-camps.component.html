@@ -1,0 +1,87 @@
+<mat-progress-bar
+  mode="indeterminate"
+  color="warn"
+  [ngStyle]="{ height: '2px' }"
+  *ngIf="isLoading"
+></mat-progress-bar>
+<app-header></app-header>
+<div class="container" *ngIf="isUserAuthenticated">
+  <div class="container-title">
+    <h1 class="mat-display-1 title-header">All Campgrounds</h1>
+    <mat-form-field>
+      <mat-label>Filter</mat-label>
+      <input
+        matInput
+        (keyup)="applyFilter($event)"
+        placeholder="Ex. Camp"
+        #input
+      />
+    </mat-form-field>
+  </div>
+
+  <div class="container-campgrounds mat-elevation-z8">
+    <div class="campground-table">
+      <table mat-table [dataSource]="dataSource" multiTemplateDataRows matSort>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Campground Name
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <a [routerLink]="['/campgrounds/show/', row._id]">{{ row.name }}</a>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="rating">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Rating</th>
+          <td mat-cell *matCellDef="let row">{{ row.rating }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>$Price</th>
+          <td mat-cell *matCellDef="let row">{{ row.price }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="countryCode">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Country Code
+          </th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.countryCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="continentName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Geo Area</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.continentName }}
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="[
+            'name',
+            'rating',
+            'price',
+            'countryCode',
+            'continentName'
+          ]"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="
+            let row;
+            columns: ['name', 'rating', 'price', 'countryCode', 'continentName']
+          "
+        ></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4">
+            No data matching the filter "{{ input.value }}"
+          </td>
+        </tr>
+      </table>
+      <mat-paginator [pageSizeOptions]="[10, 25, 100]"></mat-paginator>
+    </div>
+  </div>
+</div>

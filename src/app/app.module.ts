@@ -8,6 +8,7 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { AppRoutingModule } from './app-routing.module';
 import { AngularMaterialModule } from './angular-material.module';
 import { CampgroundsModule } from './campgrounds/campgrounds.module';
+import { StatsModule } from './stats/stats.module';
 
 /** Custom Angular Components */
 import { AppComponent } from './app.component';
@@ -53,6 +54,7 @@ import { SocketService } from './socket.service';
     CampgroundsModule,
     NgxIndexedDBModule.forRoot(dbConfig),
     SocketIoModule.forRoot(socketConfig),
+    StatsModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },

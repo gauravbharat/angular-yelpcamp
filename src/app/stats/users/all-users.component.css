@@ -1,0 +1,35 @@
+.container {
+  box-sizing: border-box;
+  width: 90%;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.container-title {
+  text-align: center;
+}
+
+.title-header {
+  margin-bottom: 1rem;
+  font-weight: 300;
+}
+
+table {
+  width: 100%;
+}
+
+th.mat-sort-header-sorted {
+  color: black;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+td,
+th {
+  width: 25%;
+}

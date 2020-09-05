@@ -317,8 +317,8 @@
     mat-button
     color="accent"
     class=".mat-body-strong campground-page-link"
-    [routerLink]="['/campgrounds']"
-    >Back to Campground's Page</a
+    (click)="onGoBack()"
+    >Back to {{ isEditMode() ? "Campground's" : "Home" }} Page</a
   >
 </div>
 

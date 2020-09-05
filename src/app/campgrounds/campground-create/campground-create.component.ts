@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from '../dialog/dialog.component';
@@ -54,7 +55,9 @@ export class CampgroundCreateComponent implements OnInit {
     private _campgroundsService: CampgroundsService,
     private _route: ActivatedRoute,
     private _socketService: SocketService,
-    private _dialog: MatDialog
+    private _dialog: MatDialog,
+    private _router: Router,
+    private _location: Location
   ) {}
 
   ngOnInit() {
@@ -414,5 +417,13 @@ export class CampgroundCreateComponent implements OnInit {
 
   isEditMode(): boolean {
     return this.mode === 'edit';
+  }
+
+  onGoBack() {
+    if (this.isEditMode()) {
+      this._location.back();
+    } else {
+      this._router.navigate(['/campgrounds']);
+    }
   }
 }

@@ -17,7 +17,10 @@
 }
 
 table {
-  width: 100%;
+  table-layout: auto;
+  /* width: 100%; */
+  overflow-x: auto;
+  min-width: 320px;
 }
 
 th.mat-sort-header-sorted {
@@ -32,4 +35,22 @@ th.mat-sort-header-sorted {
 td,
 th {
   width: 25%;
+}
+
+/* Add media queries to reduce font when width is below 1200px */
+/* Add media queries to reduce font when width reduces */
+@media screen and (max-width: 500px) {
+  ::ng-deep .mat-header-cell,
+  ::ng-deep .mat-cell,
+  ::ng-deep .mat-footer-cell {
+    font-size: 80%;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  ::ng-deep .mat-header-cell,
+  ::ng-deep .mat-cell,
+  ::ng-deep .mat-footer-cell {
+    font-size: 60%;
+  }
 }

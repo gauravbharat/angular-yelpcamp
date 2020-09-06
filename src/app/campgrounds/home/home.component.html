@@ -87,7 +87,7 @@
       "
       [ngClass]="
         isUserAuthenticated
-          ? ['mat-elevation-z2', 'stats-card-active']
+          ? ['mat-elevation-z5', 'stats-card-active']
           : ['mat-card-flat', 'mat-elevation-z0']
       "
       (click)="isUserAuthenticated && onStatsClick('/stats/campgrounds/all')"
@@ -100,7 +100,7 @@
       class="stats-card"
       [ngClass]="
         isUserAuthenticated
-          ? ['mat-elevation-z2', 'stats-card-active']
+          ? ['mat-elevation-z5', 'stats-card-active']
           : ['mat-card-flat', 'mat-elevation-z0']
       "
       [ngStyle]="getFlagColor()?.middle"
@@ -117,7 +117,7 @@
       class="stats-card"
       [ngClass]="
         isUserAuthenticated
-          ? ['mat-elevation-z2', 'stats-card-active']
+          ? ['mat-elevation-z5', 'stats-card-active']
           : ['mat-card-flat', 'mat-elevation-z0']
       "
       [ngStyle]="getFlagColor()?.bottom"

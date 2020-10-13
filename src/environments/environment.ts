@@ -4,7 +4,9 @@
 // 25082020 - Gaurav - Added MapBox access token
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
+  // apiUrl: 'http://localhost:4000/graphql', // GraphQL API
+  apiUrl: 'http://localhost:3000/api', // REST API
+  useApi: 'GRAPHQL', // REST or GRAPHQL
   // apiUrl: 'https://garyd-angular-yelpcamp.herokuapp.com/api',
   mapbox: {
     accessToken:

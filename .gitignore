@@ -46,6 +46,8 @@ node_modules
 backend
 /backend
 /environments
+graphql-api/
+backend/
 
 # System Files
 .DS_Store

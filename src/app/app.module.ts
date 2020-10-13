@@ -42,6 +42,7 @@ const socketConfig: SocketIoConfig = {
   options: {},
 };
 import { SocketService } from './socket.service';
+import { GraphQLModule } from './graphql.module';
 
 @NgModule({
   declarations: [TextTruncateEllipsisDirective, AppComponent, LandingComponent],
@@ -55,6 +56,7 @@ import { SocketService } from './socket.service';
     NgxIndexedDBModule.forRoot(dbConfig),
     SocketIoModule.forRoot(socketConfig),
     StatsModule,
+    GraphQLModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },

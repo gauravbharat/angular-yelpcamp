@@ -31,7 +31,9 @@
               "socket.io-parser",
               "bad-words",
               "badwords-list",
-              "moment"
+              "moment",
+              "zen-observable",
+              "graphql-tag"
             ]
           },
           "configurations": {

@@ -8,6 +8,7 @@ import { CampgroundsService } from '../campgrounds.service';
 import { SocketService } from '../../socket.service';
 
 import { Campground } from '../campground.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -70,24 +71,33 @@ export class HomeComponent implements OnInit, OnDestroy {
         (campgroundData: {
           campgrounds: Campground[];
           maxCampgrounds: number;
+          campgroundsCount: number;
+          usersCount: number; 
+          contributorsCount: number;
         }) => {
           this.isLoading = false;
           this.totalCampgrounds = campgroundData.maxCampgrounds;
           this.campgrounds = campgroundData.campgrounds;
+          this.campgroundsCount = campgroundData.campgroundsCount;
+          this.usersCount = campgroundData.usersCount;
+          this.contributorsCount = campgroundData.contributorsCount;
         }
       );
 
     /** Get dashboards stats */
-    this._campgroundsService.getCampgroundStats().subscribe(
-      (data) => {
-        this.campgroundsCount = data.campgroundsCount;
-        this.usersCount = data.usersCount;
-        this.contributorsCount = data.contributorsCount;
-      },
-      (error) => {
-        // do nothing, shall be intercepted
-      }
-    );
+    /** 13102020 - Gaurav - GraphQL API changes */
+    if(environment.useApi === 'REST') {
+      this._campgroundsService.getCampgroundStats().subscribe(
+        (data) => {
+          this.campgroundsCount = data.campgroundsCount;
+          this.usersCount = data.usersCount;
+          this.contributorsCount = data.contributorsCount;
+        },
+        (error) => {
+          // do nothing, shall be intercepted
+        }
+      );
+    }  
 
     this.userCountryCode = 'IN';
 
@@ -96,49 +106,51 @@ export class HomeComponent implements OnInit, OnDestroy {
     //   this.userCountryCode = data?.country ? data.country : 'IN';
     // });
 
-    /** 24082020 - Subscribe to new/edit/delete campground socket observables */
-    this._newCampSub$ = this._socketService.newCampListener().subscribe(
-      (response) => {
-        //Refresh campgrounds only when the new campground is not currently displayed
-        if (
-          !this.campgrounds ||
-          this.campgrounds.findIndex(
-            (campground) => campground._id === response.campgroundId
-          ) === -1
-        ) {
-          this.getCampgrounds();
+    if(environment.useApi === 'REST') {
+      /** 24082020 - Subscribe to new/edit/delete campground socket observables */
+      this._newCampSub$ = this._socketService.newCampListener().subscribe(
+        (response) => {
+          //Refresh campgrounds only when the new campground is not currently displayed
+          if (
+            !this.campgrounds ||
+            this.campgrounds.findIndex(
+              (campground) => campground._id === response.campgroundId
+            ) === -1
+          ) {
+            this.getCampgrounds();
+          }
+        },
+        (error) => {
+          console.log('socketService newCampListener error', error);
         }
-      },
-      (error) => {
-        console.log('socketService newCampListener error', error);
-      }
-    );
+      );
 
-    this._editCampSub$ = this._socketService.editCampListener().subscribe(
-      (response) => {
-        this.getCampgrounds();
-      },
-      (error) => {
-        console.log('socketService newCampListener error', error);
-      }
-    );
-
-    this._deleteCampSub$ = this._socketService.deleteCampListener().subscribe(
-      (response) => {
-        //Refresh campgrounds only if the deleted campground is currently displayed
-        if (
-          this.campgrounds &&
-          this.campgrounds.findIndex(
-            (campground) => campground._id === response.campgroundId
-          ) !== -1
-        ) {
+      this._editCampSub$ = this._socketService.editCampListener().subscribe(
+        (response) => {
           this.getCampgrounds();
+        },
+        (error) => {
+          console.log('socketService newCampListener error', error);
         }
-      },
-      (error) => {
-        console.log('socketService newCampListener error', error);
-      }
-    );
+      );
+
+      this._deleteCampSub$ = this._socketService.deleteCampListener().subscribe(
+        (response) => {
+          //Refresh campgrounds only if the deleted campground is currently displayed
+          if (
+            this.campgrounds &&
+            this.campgrounds.findIndex(
+              (campground) => campground._id === response.campgroundId
+            ) !== -1
+          ) {
+            this.getCampgrounds();
+          }
+        },
+        (error) => {
+          console.log('socketService newCampListener error', error);
+        }
+      );
+    }  
   }
 
   ngOnDestroy() {

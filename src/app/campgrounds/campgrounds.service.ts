@@ -2,8 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
+/** 13102020 - Gaurav - GraphQL API changes */
+import { Apollo } from 'apollo-angular';
+import gql from 'graphql-tag';
+
 //Observables and operators
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { SocketService } from '../socket.service';
@@ -25,6 +29,7 @@ const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
 
 @Injectable({ providedIn: 'root' })
 export class CampgroundsService {
+  campgroundDataPayload: Observable<any>;
   private campgrounds: Campground[] = [];
   private campStaticData: CampStaticData;
 
@@ -32,6 +37,9 @@ export class CampgroundsService {
   private campgroundsUpdated = new Subject<{
     campgrounds: Campground[];
     maxCampgrounds: number;
+    campgroundsCount: number;
+    usersCount: number;
+    contributorsCount: number;
   }>();
 
   // 07082020 - Show Campgrounds
@@ -44,7 +52,8 @@ export class CampgroundsService {
   constructor(
     private _http: HttpClient,
     private _router: Router,
-    private _socketService: SocketService
+    private _socketService: SocketService,
+    private _apollo: Apollo
   ) {}
 
   getAllStaticData() {
@@ -72,70 +81,145 @@ export class CampgroundsService {
     currentPage: number,
     search: string
   ) {
-    // console.log('campground service getCampgrounds');
+    /** 13102020 - Gaurav - GraphQL API changes */
+    if(environment.useApi === 'GRAPHQL') {
+      const getAllCampgrounds = gql`
+        query allCampgrounds($pagination: PaginationParams! $query: String) {
+          campgrounds(pagination: $pagination, query: $query) {
+            maxCampgrounds
+            campgroundsCount
+            usersCount
+            contributorsCount
+            campgrounds {
+              _id
+              name
+              rating
+              image
+            } 
+          }
+        }
+      `;
 
-    const queryParms = `?pagesize=${campgroundsPerPage}&page=${currentPage}${
-      search ? `&search=${search}` : ''
-    }`;
-
-    // console.log(queryParms);
-
-    this._http
-      .get<{ message: string; campgrounds: any; maxCampgrounds: number }>(
-        `${BACKEND_URL}${queryParms}`
-      )
+      this._apollo
+      .watchQuery<{ campgrounds: {
+        campgrounds: any; 
+        maxCampgrounds: number; 
+        campgroundsCount: number;
+        usersCount: number; 
+        contributorsCount: number;
+      } }>({
+        query: getAllCampgrounds,
+        variables: {
+          pagination: {
+            limit: campgroundsPerPage,
+            skip: campgroundsPerPage * (currentPage - 1)
+          },
+          query: search
+        }
+      })
+      .valueChanges
       .pipe(
-        map((campgroundsData) => {
-          // console.log(campgroundsData);
+        map(({ data: { campgrounds: { 
+          campgrounds, 
+          maxCampgrounds,
+          campgroundsCount,
+          usersCount,
+          contributorsCount 
+        } } }) => {
           return {
-            mappedCampgrounds: campgroundsData?.campgrounds.map(
-              (campground) => {
-                return {
-                  _id: campground._id,
-                  name: campground.name,
-                  price: +campground.price,
-                  image: campground.image,
-                  location: campground?.location,
-                  description: campground?.description,
-                  comments: campground?.comments,
-                  author: {
-                    id: campground?.author?.id,
-                    username: campground?.author?.username,
-                  },
-                  amenities: campground?.amenities,
-                  country: campground?.country,
-                  bestSeasons: campground?.bestSeasons,
-                  hikingLevel: campground?.hikingLevel,
-                  fitnessLevel: campground?.fitnessLevel,
-                  trekTechnicalGrade: campground?.trekTechnicalGrade,
-                  rating: campground?.rating,
-                  campRatingDisplay: this._getCampRatingDisplay(
-                    campground?.rating
-                  ),
-                };
+            mappedCampgrounds: campgrounds.map(campground => {
+              return {
+                ...campground,
+                campRatingDisplay: this._getCampRatingDisplay(
+                  campground.rating
+                )
               }
-            ),
-            maxCampgrounds: campgroundsData?.maxCampgrounds,
-          };
+            }),
+            maxCampgrounds,
+            campgroundsCount,
+            usersCount,
+            contributorsCount
+          }
         })
       )
-      .subscribe((transformedData) => {
-        if (!transformedData.mappedCampgrounds) {
-          transformedData.mappedCampgrounds = [];
-        }
-        if (!transformedData.maxCampgrounds) {
-          transformedData.maxCampgrounds = 0;
-        }
-        // console.log(transformedData.mappedCampgrounds);
-        // console.log(transformedData.maxCampgrounds);
+      .subscribe(
+        (transformedData)  => {
         this.campgrounds = transformedData.mappedCampgrounds;
         this.campgroundsUpdated.next({
           campgrounds: [...this.campgrounds],
           maxCampgrounds: transformedData.maxCampgrounds,
+          campgroundsCount: transformedData.campgroundsCount,
+          usersCount: transformedData.usersCount,
+          contributorsCount: transformedData.contributorsCount,
         });
-
-        this.campgroundsListSource.next([...this.campgrounds]); // 07082020 - Show Campgrounds
       });
+    } else 
+    // REST API
+    {
+      const queryParms = `?pagesize=${campgroundsPerPage}&page=${currentPage}${
+        search ? `&search=${search}` : ''
+      }`;
+  
+      this._http
+        .get<{ message: string; campgrounds: any; maxCampgrounds: number }>(
+          `${BACKEND_URL}${queryParms}`
+        )
+        .pipe(
+          map((campgroundsData) => {
+            // console.log(campgroundsData);
+            return {
+              mappedCampgrounds: campgroundsData?.campgrounds.map(
+                (campground) => {
+                  return {
+                    _id: campground._id,
+                    name: campground.name,
+                    price: +campground.price,
+                    image: campground.image,
+                    location: campground?.location,
+                    description: campground?.description,
+                    comments: campground?.comments,
+                    author: {
+                      id: campground?.author?.id,
+                      username: campground?.author?.username,
+                    },
+                    amenities: campground?.amenities,
+                    country: campground?.country,
+                    bestSeasons: campground?.bestSeasons,
+                    hikingLevel: campground?.hikingLevel,
+                    fitnessLevel: campground?.fitnessLevel,
+                    trekTechnicalGrade: campground?.trekTechnicalGrade,
+                    rating: campground?.rating,
+                    campRatingDisplay: this._getCampRatingDisplay(
+                      campground?.rating
+                    ),
+                  };
+                }
+              ),
+              maxCampgrounds: campgroundsData?.maxCampgrounds,
+            };
+          })
+        )
+        .subscribe((transformedData) => {
+          if (!transformedData.mappedCampgrounds) {
+            transformedData.mappedCampgrounds = [];
+          }
+          if (!transformedData.maxCampgrounds) {
+            transformedData.maxCampgrounds = 0;
+          }
+          // console.log(transformedData.mappedCampgrounds);
+          // console.log(transformedData.maxCampgrounds);
+          this.campgrounds = transformedData.mappedCampgrounds;
+          this.campgroundsUpdated.next({
+            campgrounds: [...this.campgrounds],
+            maxCampgrounds: transformedData.maxCampgrounds,
+            campgroundsCount: 0,
+            usersCount: 0,
+            contributorsCount: 0,
+          });
+  
+          this.campgroundsListSource.next([...this.campgrounds]); // 07082020 - Show Campgrounds
+        });
+    }
   }
 
   private _getCampRatingDisplay(rating: number) {
@@ -167,16 +251,133 @@ export class CampgroundsService {
   }
 
   getCampground(campgroundId: string) {
-    // console.log('campground service getCampground by ID');
 
-    /** Instead of getting the edit-campground record from the array, fetch it from database.
-     * NOW, the campground-create component expects a post synchronously from this asynchornous call
-     * So, pass the subscription instead to campground-create and get the campground values there */
+    // 13102020 - Gaurav - GraphQL API changes
+    if(environment.useApi === 'GRAPHQL') {
+      const getCampgroundData = gql`
+          query getCampground($campgroundId: ID!) {
+            campground(_id: $campgroundId) {
+              ratingData {
+                ratingsCount
+                ratedBy
+              }
+              campground {
+                _id
+                name
+                price
+                image
+                location
+                description
+                rating
+                bestSeasons {
+                  vasanta
+                  grishma	
+                  varsha	
+                  sharat	
+                  hemant	
+                  shishira	
+                }
+                country {
+                  Continent_Name
+                  Two_Letter_Country_Code
+                  Country_Name
+                }
+                fitnessLevel {
+                  level
+                  levelName
+                }
+                hikingLevel {
+                  level
+                  levelName
+                }
+                trekTechnicalGrade {
+                  level
+                  levelName
+                }
+                author {
+                  _id
+                  username
+                }
+                amenities {
+                  name
+                  group
+                }
+                updatedAt
+                comments {
+                  _id
+                  text
+                  updatedAt
+                  isEdited
+                  author {
+                    _id
+                    username
+                    avatar
+                  }
+                  likes {
+                    _id
+                    username
+                    avatar
+                  }
+                }
+              }
+            }
+          }
+        `;
 
-    return this._http.get<{
-      campground: any;
-      ratingData: RatingCountUsers;
-    }>(`${BACKEND_URL}/${campgroundId}`);
+      this.campgroundDataPayload = this._apollo
+        .watchQuery<{ campground: {
+          campground: any; 
+          ratingData: any;
+        } }>({
+          query: getCampgroundData,
+          variables: {
+            campgroundId
+          }
+        })
+        .valueChanges
+        .pipe(map(({data: {campground: { campground, ratingData }}}) => {
+          return {
+            campground: {
+              ...campground,
+              author: {
+                ...campground.author,
+                id: campground?.author?._id
+              },
+              comments: campground.comments.map(comment => {
+                return {
+                  ...comment,
+                  author: {
+                    ...comment.author,
+                    id: comment.author._id
+                  },
+                  likes: comment.likes.map(like => {
+                    return {
+                      ...like,
+                      id: like._id
+                    }
+                  })
+                }
+              })
+            },
+            ratingData
+          }
+          
+        }));
+       
+      return this.campgroundDataPayload;  
+    
+    } else {
+      /** Instead of getting the edit-campground record from the array, fetch it from database.
+       * NOW, the campground-create component expects a post synchronously from this asynchornous call
+       * So, pass the subscription instead to campground-create and get the campground values there */
+
+      return this._http.get<{
+        campground: any;
+        ratingData: RatingCountUsers;
+      }>(`${BACKEND_URL}/${campgroundId}`);
+    }    
+
+    
   }
 
   getCampgroundStats() {

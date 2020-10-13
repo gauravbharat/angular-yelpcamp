@@ -637,7 +637,6 @@ export class ShowCampgroundComponent
       .getCampground(this.campgroundId)
       .subscribe(
         (response) => {
-          // console.log(response);
           this.campground = response.campground;
           this.ratingData = response.ratingData;
 

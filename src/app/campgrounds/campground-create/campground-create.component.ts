@@ -63,7 +63,11 @@ export class CampgroundCreateComponent implements OnInit {
   ngOnInit() {
     this.isLoading = true;
     this._campgroundsService.getAllStaticData().subscribe(
-      async (r: { message: string; campStaticData: CampStaticData }) => {
+      async (
+        r:
+          | { message: string; campStaticData: CampStaticData }
+          | { campStaticData: CampStaticData }
+      ) => {
         this.campStaticData = r.campStaticData;
 
         // console.log('campStaticData', this.campStaticData);
@@ -152,103 +156,111 @@ export class CampgroundCreateComponent implements OnInit {
             this.campgroundId = paramMap.get('campgroundId');
             this.isLoading = true;
 
-            this._campgroundsService.getCampground(this.campgroundId).subscribe(
-              (response) => {
-                // stop spinner
-                this.isLoading = false;
+            /** 14102020 - Gaurav - GraphQL: Pass isEditMode as true calling getCampground to skip fetching
+             * the fields not relevant when editing the campground */
+            this._campgroundsService
+              .getCampground(this.campgroundId, true)
+              .subscribe(
+                (response) => {
+                  // stop spinner
+                  this.isLoading = false;
 
-                // load data in local variable
-                this.campground = {
-                  _id: response.campground._id,
-                  name: response.campground.name,
-                  price: response.campground.price,
-                  image: response.campground.image,
-                  location: response.campground.location,
-                  description: response.campground.description,
-                  country: response.campground.country,
-                  bestSeasons: response.campground.bestSeasons,
-                  hikingLevel: response.campground.hikingLevel,
-                  fitnessLevel: response.campground.fitnessLevel,
-                  trekTechnicalGrade: response.campground.trekTechnicalGrade,
-                };
+                  console.log('get camp data inside edit camp', response);
 
-                this.savedAmenities = response.campground.amenities;
-                this.displayImageName = this.campground.image;
+                  // load data in local variable
+                  this.campground = {
+                    _id: response.campground._id,
+                    name: response.campground.name,
+                    price: response.campground.price,
+                    image: response.campground.image,
+                    location: response.campground.location,
+                    description: response.campground.description,
+                    country: response.campground.country,
+                    bestSeasons: response.campground.bestSeasons,
+                    hikingLevel: response.campground.hikingLevel,
+                    fitnessLevel: response.campground.fitnessLevel,
+                    trekTechnicalGrade: response.campground.trekTechnicalGrade,
+                  };
 
-                // load data onto form elements
-                this.formBasicGroup.setValue({
-                  campgroundName: this.campground.name,
-                  campgroundPrice: this.campground.price,
-                  campgroundImage: this.campground.image,
-                  campgroundDescription: this.campground.description,
-                });
+                  this.savedAmenities = response.campground.amenities;
+                  this.displayImageName = this.campground.image;
 
-                let bestSeasons = [false, false, false, false, false, false];
-                if (this.campground.bestSeasons) {
-                  bestSeasons = Object.values(this.campground.bestSeasons).map(
-                    (value) => value
-                  );
+                  // load data onto form elements
+                  this.formBasicGroup.setValue({
+                    campgroundName: this.campground.name,
+                    campgroundPrice: this.campground.price,
+                    campgroundImage: this.campground.image,
+                    campgroundDescription: this.campground.description,
+                  });
+
+                  let bestSeasons = [false, false, false, false, false, false];
+                  /** 14102020 - Gaurav - GraphQL: Remove graphql __typename value from the array */
+                  if (this.campground.bestSeasons) {
+                    bestSeasons = Object.values(this.campground.bestSeasons)
+                      .filter((value) => typeof value === 'boolean')
+                      .map((value) => value);
+                  }
+
+                  let hikingLevel = null;
+                  let fitnessLevel = null;
+                  let trekTechnicalGrade = null;
+                  let country = null;
+
+                  /** Duh! Object comparison. Get it from campStaticData!! */
+                  if (this.campground.hikingLevel) {
+                    hikingLevel = this.campStaticData.hikingLevels.find(
+                      (hikingLevel) =>
+                        hikingLevel.level === this.campground.hikingLevel.level
+                    );
+                  }
+
+                  if (this.campground.fitnessLevel) {
+                    fitnessLevel = this.campStaticData.fitnessLevels.find(
+                      (fitnessLevel) =>
+                        fitnessLevel.level ===
+                        this.campground.fitnessLevel.level
+                    );
+                  }
+
+                  if (this.campground.trekTechnicalGrade) {
+                    trekTechnicalGrade = this.campStaticData.trekTechnicalGrades.find(
+                      (trekTechnicalGrade) =>
+                        trekTechnicalGrade.level ===
+                        this.campground.trekTechnicalGrade.level
+                    );
+                  }
+
+                  if (this.campground?.country) {
+                    country = this.campStaticData.countriesList.find(
+                      (item) => item._id === this.campground.country.id
+                    );
+                  }
+
+                  this.formLocationGroup.setValue({
+                    campgroundLocation: this.campground.location,
+                    campgroundCountryData: country ? country : null,
+                    bestSeasons,
+                    hikingLevel: hikingLevel ? hikingLevel : null,
+                    fitnessLevel: fitnessLevel ? fitnessLevel : null,
+                    trekTechnicalGrade: trekTechnicalGrade
+                      ? trekTechnicalGrade
+                      : null,
+                  });
+
+                  this.formAmenitiesGroup.setValue({
+                    campgroundAmenities: this.savedAmenities
+                      ? this.savedAmenities.map((amenity) => {
+                          return amenity._id;
+                        })
+                      : [],
+                  });
+                },
+                (error) => {
+                  this.isLoading = false;
+                  // console.log(error);
+                  this._campgroundsService.redirectToCampgrounds();
                 }
-
-                let hikingLevel = null;
-                let fitnessLevel = null;
-                let trekTechnicalGrade = null;
-                let country = null;
-
-                /** Duh! Object comparison. Get it from campStaticData!! */
-                if (this.campground.hikingLevel) {
-                  hikingLevel = this.campStaticData.hikingLevels.find(
-                    (hikingLevel) =>
-                      hikingLevel.level === this.campground.hikingLevel.level
-                  );
-                }
-
-                if (this.campground.fitnessLevel) {
-                  fitnessLevel = this.campStaticData.fitnessLevels.find(
-                    (fitnessLevel) =>
-                      fitnessLevel.level === this.campground.fitnessLevel.level
-                  );
-                }
-
-                if (this.campground.trekTechnicalGrade) {
-                  trekTechnicalGrade = this.campStaticData.trekTechnicalGrades.find(
-                    (trekTechnicalGrade) =>
-                      trekTechnicalGrade.level ===
-                      this.campground.trekTechnicalGrade.level
-                  );
-                }
-
-                if (this.campground?.country) {
-                  country = this.campStaticData.countriesList.find(
-                    (item) => item._id === this.campground.country.id
-                  );
-                }
-
-                this.formLocationGroup.setValue({
-                  campgroundLocation: this.campground.location,
-                  campgroundCountryData: country ? country : null,
-                  bestSeasons,
-                  hikingLevel: hikingLevel ? hikingLevel : null,
-                  fitnessLevel: fitnessLevel ? fitnessLevel : null,
-                  trekTechnicalGrade: trekTechnicalGrade
-                    ? trekTechnicalGrade
-                    : null,
-                });
-
-                this.formAmenitiesGroup.setValue({
-                  campgroundAmenities: this.savedAmenities
-                    ? this.savedAmenities.map((amenity) => {
-                        return amenity._id;
-                      })
-                    : [],
-                });
-              },
-              (error) => {
-                this.isLoading = false;
-                // console.log(error);
-                this._campgroundsService.redirectToCampgrounds();
-              }
-            );
+              );
           } else {
             this.mode = 'create';
             this.formTitle = 'Create a New Campground';

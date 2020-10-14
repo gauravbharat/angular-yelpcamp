@@ -30,6 +30,9 @@ const BACKEND_URL = `${environment.apiUrl}/campgrounds`;
 @Injectable({ providedIn: 'root' })
 export class CampgroundsService {
   campgroundDataPayload: Observable<any>;
+  hikesDataPayload: Observable<any>;
+  allStaticDataPayload: Observable<any>;
+
   private campgrounds: Campground[] = [];
   private campStaticData: CampStaticData;
 
@@ -58,16 +61,104 @@ export class CampgroundsService {
 
   getAllStaticData() {
     /** Get the list of all campground static data from the database */
-    return this._http.get<{ message: string; campStaticData: CampStaticData }>(
-      `${BACKEND_URL}/static`
-    );
+    if (environment.useApi === 'GRAPHQL') {
+      const getStaticData = gql`
+        {
+          campStaticData {
+            countriesList {
+              _id
+              Two_Letter_Country_Code
+              Country_Name
+              Continent_Code
+              Continent_Name
+            }
+            amenitiesList {
+              _id
+              name
+              group
+            }
+            seasons {
+              id
+              indianName
+              englishName
+            }
+            hikingLevels {
+              level
+              levelName
+              levelDesc
+            }
+            trekTechnicalGrades {
+              level
+              levelName
+              levelDesc
+            }
+            fitnessLevels {
+              level
+              levelName
+              levelDesc
+            }
+          }
+        }
+      `;
+
+      this.allStaticDataPayload = this._apollo
+        .watchQuery({
+          query: getStaticData,
+        })
+        .valueChanges.pipe(map(({ data }) => data));
+
+      return this.allStaticDataPayload;
+    } else {
+      return this._http.get<{
+        message: string;
+        campStaticData: CampStaticData;
+      }>(`${BACKEND_URL}/static`);
+    }
   }
 
   getCampLevelsData() {
     /** Get the list of campground levels static data from the database */
-    return this._http.get<{ message: string; campLevelsData: CampLevelsData }>(
-      `${BACKEND_URL}/camp-levels`
-    );
+    if (environment.useApi === 'GRAPHQL') {
+      const getHikesData = gql`
+        {
+          campLevelsData {
+            seasons {
+              id
+              indianName
+              englishName
+            }
+            hikingLevels {
+              level
+              levelName
+              levelDesc
+            }
+            trekTechnicalGrades {
+              level
+              levelName
+              levelDesc
+            }
+            fitnessLevels {
+              level
+              levelName
+              levelDesc
+            }
+          }
+        }
+      `;
+
+      this.hikesDataPayload = this._apollo
+        .watchQuery({
+          query: getHikesData,
+        })
+        .valueChanges.pipe(map(({ data }) => data));
+
+      return this.hikesDataPayload;
+    } else {
+      return this._http.get<{
+        message: string;
+        campLevelsData: CampLevelsData;
+      }>(`${BACKEND_URL}/camp-levels`);
+    }
   }
 
   getUserCampgroundRating(campgroundId: string) {
@@ -82,9 +173,9 @@ export class CampgroundsService {
     search: string
   ) {
     /** 13102020 - Gaurav - GraphQL API changes */
-    if(environment.useApi === 'GRAPHQL') {
+    if (environment.useApi === 'GRAPHQL') {
       const getAllCampgrounds = gql`
-        query allCampgrounds($pagination: PaginationParams! $query: String) {
+        query allCampgrounds($pagination: PaginationParams!, $query: String) {
           campgrounds(pagination: $pagination, query: $query) {
             maxCampgrounds
             campgroundsCount
@@ -95,71 +186,77 @@ export class CampgroundsService {
               name
               rating
               image
-            } 
+            }
           }
         }
       `;
 
       this._apollo
-      .watchQuery<{ campgrounds: {
-        campgrounds: any; 
-        maxCampgrounds: number; 
-        campgroundsCount: number;
-        usersCount: number; 
-        contributorsCount: number;
-      } }>({
-        query: getAllCampgrounds,
-        variables: {
-          pagination: {
-            limit: campgroundsPerPage,
-            skip: campgroundsPerPage * (currentPage - 1)
+        .watchQuery<{
+          campgrounds: {
+            campgrounds: any;
+            maxCampgrounds: number;
+            campgroundsCount: number;
+            usersCount: number;
+            contributorsCount: number;
+          };
+        }>({
+          query: getAllCampgrounds,
+          variables: {
+            pagination: {
+              limit: campgroundsPerPage,
+              skip: campgroundsPerPage * (currentPage - 1),
+            },
+            query: search,
           },
-          query: search
-        }
-      })
-      .valueChanges
-      .pipe(
-        map(({ data: { campgrounds: { 
-          campgrounds, 
-          maxCampgrounds,
-          campgroundsCount,
-          usersCount,
-          contributorsCount 
-        } } }) => {
-          return {
-            mappedCampgrounds: campgrounds.map(campground => {
-              return {
-                ...campground,
-                campRatingDisplay: this._getCampRatingDisplay(
-                  campground.rating
-                )
-              }
-            }),
-            maxCampgrounds,
-            campgroundsCount,
-            usersCount,
-            contributorsCount
-          }
         })
-      )
-      .subscribe(
-        (transformedData)  => {
-        this.campgrounds = transformedData.mappedCampgrounds;
-        this.campgroundsUpdated.next({
-          campgrounds: [...this.campgrounds],
-          maxCampgrounds: transformedData.maxCampgrounds,
-          campgroundsCount: transformedData.campgroundsCount,
-          usersCount: transformedData.usersCount,
-          contributorsCount: transformedData.contributorsCount,
+        .valueChanges.pipe(
+          map(
+            ({
+              data: {
+                campgrounds: {
+                  campgrounds,
+                  maxCampgrounds,
+                  campgroundsCount,
+                  usersCount,
+                  contributorsCount,
+                },
+              },
+            }) => {
+              return {
+                mappedCampgrounds: campgrounds.map((campground) => {
+                  return {
+                    ...campground,
+                    campRatingDisplay: this._getCampRatingDisplay(
+                      campground.rating
+                    ),
+                  };
+                }),
+                maxCampgrounds,
+                campgroundsCount,
+                usersCount,
+                contributorsCount,
+              };
+            }
+          )
+        )
+        .subscribe((transformedData) => {
+          this.campgrounds = transformedData.mappedCampgrounds;
+          this.campgroundsUpdated.next({
+            campgrounds: [...this.campgrounds],
+            maxCampgrounds: transformedData.maxCampgrounds,
+            campgroundsCount: transformedData.campgroundsCount,
+            usersCount: transformedData.usersCount,
+            contributorsCount: transformedData.contributorsCount,
+          });
         });
-      });
-    } else 
+    }
     // REST API
-    {
+    else {
       const queryParms = `?pagesize=${campgroundsPerPage}&page=${currentPage}${
         search ? `&search=${search}` : ''
       }`;
-  
+
       this._http
         .get<{ message: string; campgrounds: any; maxCampgrounds: number }>(
           `${BACKEND_URL}${queryParms}`
@@ -216,7 +313,7 @@ export class CampgroundsService {
             usersCount: 0,
             contributorsCount: 0,
           });
-  
+
           this.campgroundsListSource.next([...this.campgrounds]); // 07082020 - Show Campgrounds
         });
     }
@@ -250,122 +347,143 @@ export class CampgroundsService {
     return campRating;
   }
 
-  getCampground(campgroundId: string) {
-
+  getCampground(campgroundId: string, isEditMode: boolean = false) {
     // 13102020 - Gaurav - GraphQL API changes
-    if(environment.useApi === 'GRAPHQL') {
+    if (environment.useApi === 'GRAPHQL') {
       const getCampgroundData = gql`
-          query getCampground($campgroundId: ID!) {
-            campground(_id: $campgroundId) {
-              ratingData {
-                ratingsCount
-                ratedBy
+        query getCampground($campgroundId: ID!, $isEditMode: Boolean = false) {
+          campground(_id: $campgroundId, isEditMode: $isEditMode) {
+            ratingData @skip(if: $isEditMode) {
+              ratingsCount
+              ratedBy
+            }
+            campground {
+              _id
+              name
+              price
+              image
+              location
+              description
+              rating @skip(if: $isEditMode)
+              bestSeasons {
+                vasanta
+                grishma
+                varsha
+                sharat
+                hemant
+                shishira
               }
-              campground {
+              country {
+                _id
+                Two_Letter_Country_Code
+                Country_Name
+                Continent_Name
+              }
+              fitnessLevel {
+                level
+                levelName
+                levelDesc
+              }
+              hikingLevel {
+                level
+                levelName
+                levelDesc
+              }
+              trekTechnicalGrade {
+                level
+                levelName
+                levelDesc
+              }
+              author {
+                _id
+                username
+              }
+              amenities {
                 _id
                 name
-                price
-                image
-                location
-                description
-                rating
-                bestSeasons {
-                  vasanta
-                  grishma	
-                  varsha	
-                  sharat	
-                  hemant	
-                  shishira	
-                }
-                country {
-                  Continent_Name
-                  Two_Letter_Country_Code
-                  Country_Name
-                }
-                fitnessLevel {
-                  level
-                  levelName
-                }
-                hikingLevel {
-                  level
-                  levelName
-                }
-                trekTechnicalGrade {
-                  level
-                  levelName
-                }
+                group
+              }
+              updatedAt
+              comments @skip(if: $isEditMode) {
+                _id
+                text
+                updatedAt
+                isEdited
                 author {
                   _id
                   username
+                  avatar
                 }
-                amenities {
-                  name
-                  group
-                }
-                updatedAt
-                comments {
+                likes {
                   _id
-                  text
-                  updatedAt
-                  isEdited
-                  author {
-                    _id
-                    username
-                    avatar
-                  }
-                  likes {
-                    _id
-                    username
-                    avatar
-                  }
+                  username
+                  avatar
                 }
               }
             }
           }
-        `;
+        }
+      `;
 
       this.campgroundDataPayload = this._apollo
-        .watchQuery<{ campground: {
-          campground: any; 
-          ratingData: any;
-        } }>({
+        .watchQuery<{
+          campground: {
+            campground: any;
+            ratingData: any;
+          };
+        }>({
           query: getCampgroundData,
           variables: {
-            campgroundId
-          }
+            campgroundId,
+            isEditMode,
+          },
         })
-        .valueChanges
-        .pipe(map(({data: {campground: { campground, ratingData }}}) => {
-          return {
-            campground: {
-              ...campground,
-              author: {
-                ...campground.author,
-                id: campground?.author?._id
+        .valueChanges.pipe(
+          map(
+            ({
+              data: {
+                campground: { campground, ratingData },
               },
-              comments: campground.comments.map(comment => {
-                return {
-                  ...comment,
+            }) => {
+              return {
+                campground: {
+                  ...campground,
                   author: {
-                    ...comment.author,
-                    id: comment.author._id
+                    ...campground.author,
+                    id: campground?.author?._id,
                   },
-                  likes: comment.likes.map(like => {
-                    return {
-                      ...like,
-                      id: like._id
-                    }
-                  })
-                }
-              })
-            },
-            ratingData
-          }
-          
-        }));
-       
-      return this.campgroundDataPayload;  
-    
+                  country: {
+                    ...campground.country,
+                    id: campground?.country?._id,
+                  },
+                  comments: isEditMode
+                    ? null
+                    : campground.comments.map((comment) => {
+                        return {
+                          ...comment,
+                          author: {
+                            ...comment.author,
+                            id: comment.author._id,
+                          },
+                          likes: comment.likes.map((like) => {
+                            return {
+                              ...like,
+                              id: like._id,
+                            };
+                          }),
+                        };
+                      }),
+                },
+                ratingData: isEditMode ? null : ratingData,
+              };
+            }
+          )
+        );
+
+      // this.campgroundDataPayload.subscribe((result) => {
+      //   console.log('campgroundDataPayload from camp service', result);
+      // });
+      return this.campgroundDataPayload;
     } else {
       /** Instead of getting the edit-campground record from the array, fetch it from database.
        * NOW, the campground-create component expects a post synchronously from this asynchornous call
@@ -375,9 +493,7 @@ export class CampgroundsService {
         campground: any;
         ratingData: RatingCountUsers;
       }>(`${BACKEND_URL}/${campgroundId}`);
-    }    
-
-    
+    }
   }
 
   getCampgroundStats() {

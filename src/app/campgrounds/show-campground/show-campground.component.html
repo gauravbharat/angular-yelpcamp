@@ -233,9 +233,7 @@
           >{{ campground?.author?.username }}</a
         >,
         {{
-          getLastEdited(
-            campground?.updatedAt ? campground?.updatedAt : campground?.created
-          )
+          campground?.updatedAt ? getLastEdited(campground?.updatedAt) : 'loading...'
         }}
       </div>
       <mat-divider
@@ -359,9 +357,7 @@
                   <span class="last-edited">
                     &#9679;
                     {{
-                      getLastEdited(
-                        comment?.edited ? comment?.edited : comment?.updatedAt
-                      )
+                      comment?.updatedAt ? getLastEdited(comment?.updatedAt) : 'loading...'
                     }}
                     {{ comment?.isEdited ? "(edited)" : "" }}
                   </span>

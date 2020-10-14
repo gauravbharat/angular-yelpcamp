@@ -135,7 +135,11 @@ export class ShowCampgroundComponent
       });
 
     this._campgroundsService.getCampLevelsData().subscribe(
-      (r: { message: string; campLevelsData: CampLevelsData }) => {
+      (
+        r:
+          | { message: string; campLevelsData: CampLevelsData }
+          | { campLevelsData: CampLevelsData }
+      ) => {
         this.campLevelsData = r.campLevelsData;
       },
       (error) => {}
@@ -596,6 +600,13 @@ export class ShowCampgroundComponent
   }
 
   onRateCampground() {
+    /** 14102020 - Gaurav - GraphQL: TODO => send token to RatingDialogComponent and then to
+     * getUserCampgroundRating call to validate the logged in user.
+     * There doesn't seem to be a way to send the header along with an apollo client query
+     * and has to be provided in the graphql module at init
+     */
+    console.log('this._authService.getToken()', this._authService.getToken());
+
     const ratingDialogRef = this._dialog.open(RatingDialogComponent, {
       data: { campgroundId: this.campgroundId },
       width: '250px',

@@ -165,7 +165,7 @@ export class CampgroundCreateComponent implements OnInit {
                   // stop spinner
                   this.isLoading = false;
 
-                  console.log('get camp data inside edit camp', response);
+                  // console.log('get camp data inside edit camp', response);
 
                   // load data in local variable
                   this.campground = {

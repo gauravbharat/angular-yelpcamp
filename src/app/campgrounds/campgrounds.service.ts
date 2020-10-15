@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 /** 13102020 - Gaurav - GraphQL API changes */
@@ -8,7 +8,7 @@ import gql from 'graphql-tag';
 
 //Observables and operators
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 import { SocketService } from '../socket.service';
 
@@ -120,7 +120,7 @@ export class CampgroundsService {
     /** Get the list of campground levels static data from the database */
     if (environment.useApi === 'GRAPHQL') {
       const getHikesData = gql`
-        {
+        query GetCampLevelData {
           campLevelsData {
             seasons {
               id
@@ -149,6 +149,7 @@ export class CampgroundsService {
       this.hikesDataPayload = this._apollo
         .watchQuery({
           query: getHikesData,
+          errorPolicy: 'all',
         })
         .valueChanges.pipe(map(({ data }) => data));
 

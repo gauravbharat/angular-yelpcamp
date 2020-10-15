@@ -593,10 +593,12 @@ export class ShowCampgroundComponent
   /** Comment Like methods - Ends */
 
   onOpenDialog(option: string) {
-    this._dialog.open(InfoDialogComponent, {
-      width: '250px',
-      data: { option, dataArray: this.campLevelsData },
-    });
+    if (this.campLevelsData) {
+      this._dialog.open(InfoDialogComponent, {
+        width: '250px',
+        data: { option, dataArray: this.campLevelsData },
+      });
+    }
   }
 
   onRateCampground() {

@@ -42,7 +42,12 @@ const socketConfig: SocketIoConfig = {
   options: {},
 };
 import { SocketService } from './socket.service';
-import { GraphQLModule } from './graphql.module';
+
+// import { GraphQLModule } from './graphql.module';
+import { APOLLO_OPTIONS } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
+import { InMemoryCache } from '@apollo/client/core';
+import { onError } from '@apollo/client/link/error';
 
 @NgModule({
   declarations: [TextTruncateEllipsisDirective, AppComponent, LandingComponent],
@@ -56,7 +61,6 @@ import { GraphQLModule } from './graphql.module';
     NgxIndexedDBModule.forRoot(dbConfig),
     SocketIoModule.forRoot(socketConfig),
     StatsModule,
-    GraphQLModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInteceptor, multi: true },
@@ -65,6 +69,40 @@ import { GraphQLModule } from './graphql.module';
     {
       provide: STEPPER_GLOBAL_OPTIONS,
       useValue: { displayDefaultIndicatorType: false, showError: true },
+    },
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: (_httpLink: HttpLink) => {
+        const link = _httpLink.create({ uri: 'http://localhost:4000/graphql' });
+        // const error = onError(({ graphQLErrors, networkError }) => {
+        //   let error;
+        //   if (graphQLErrors) {
+        //     error = graphQLErrors[0];
+        //   }
+        //   if (networkError) {
+        //     error = networkError;
+        //   }
+        //   console.log('from app module: apollo settings: error', error);
+
+        //   // if (error) {
+        //   //   throw new HttpErrorResponse({
+        //   //     error,
+        //   //   });
+        //   // }
+        // });
+        // const link = error.concat(http);
+
+        return {
+          cache: new InMemoryCache(),
+          link,
+          defaultOptions: {
+            watchQuery: {
+              errorPolicy: 'all',
+            },
+          },
+        };
+      },
+      deps: [HttpLink],
     },
   ],
   bootstrap: [AppComponent],

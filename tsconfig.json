@@ -17,7 +17,12 @@
       "compilerOptions": {
         "paths": {
           "rxjs": ["node_modules/rxjs"]
-        }
+        },
+        "lib": [
+          "es2017",
+          "dom",
+          "esnext.asynciterable"
+        ]
       }
     }
   ]

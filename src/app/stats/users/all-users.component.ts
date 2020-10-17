@@ -39,6 +39,8 @@ export class AllUsersComponent implements OnInit, OnDestroy {
 
     this._statsService.getAllUsers().subscribe(
       async (response) => {
+        console.log('allusers', response);
+
         this.dataSource = await new MatTableDataSource(response.allUsers);
 
         this.dataSource.paginator = await this.paginator;

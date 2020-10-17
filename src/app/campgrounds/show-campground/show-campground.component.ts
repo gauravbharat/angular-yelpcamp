@@ -31,6 +31,8 @@ import {
 /** Material Snackbar */
 import { SnackbarService } from '../../error/snackbar.service';
 
+import { environment } from '../../../environments/environment';
+
 import {
   Campground,
   CampLevelsData,
@@ -51,6 +53,7 @@ interface ChatMessageList {
 })
 export class ShowCampgroundComponent
   implements OnInit, OnDestroy, AfterViewChecked {
+  isGraphQLAPI = environment.useApi === 'GRAPHQL';
   isUserAuthenticated = false;
   isLoading = false;
   isCommentTriggered = false;

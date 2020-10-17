@@ -1,12 +1,17 @@
 import { Injectable, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, NavigationEnd } from '@angular/router';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription, Observable } from 'rxjs';
 
 import { AuthService } from '../auth.service';
 
 import { DisplayCoUser } from '../auth-data.model';
 import { environment } from '../../../environments/environment';
+
+/** 16102020 - Gaurav - GraphQL API changes */
+import { Apollo } from 'apollo-angular';
+import gql from 'graphql-tag';
+import { map } from 'rxjs/operators';
 
 const BACKEND_URL = `${environment.apiUrl}/users`;
 
@@ -17,6 +22,10 @@ export class UserService implements OnDestroy {
     USER_CAMPGROUNDS: 'USER_CAMPGROUNDS',
     USER_NOTIFICATIONS: 'USER_NOTIFICATIONS',
   });
+
+  UserActivityPayload: Observable<any>;
+  CoUserDataPayload: Observable<any>;
+  ToggleUserUpdate: Observable<any>;
 
   private authStatusSub$: Subscription;
   private currentUserId: string;
@@ -35,7 +44,8 @@ export class UserService implements OnDestroy {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private _apollo: Apollo
   ) {
     // Calling this subscription DID NOT work in ngOnInit()
     this.authStatusSub$ = this.authService
@@ -96,19 +106,96 @@ export class UserService implements OnDestroy {
   }
 
   getCoUserData() {
-    return this.http.get<{
-      message: string;
-      coUserData: DisplayCoUser;
-      userCampgrounds: [];
-    }>(`${BACKEND_URL}/${this.coUserId}`);
+    if (environment.useApi === 'GRAPHQL') {
+      this.CoUserDataPayload = this._apollo
+        .watchQuery<{
+          coUser: { coUserData: any; userCampgrounds: any };
+        }>({
+          query: gql`
+            query GetCoUserDataPayload($userId: ID!) {
+              coUser(_id: $userId) {
+                coUserData {
+                  coUserId
+                  email
+                  username
+                  firstname
+                  lastname
+                  avatar
+                  followers
+                }
+                userCampgrounds {
+                  campgroundId
+                  campgroundName
+                }
+              }
+            }
+          `,
+          variables: {
+            userId: this.coUserId,
+          },
+        })
+        .valueChanges.pipe(map(({ data: { coUser } }) => coUser));
+
+      return this.CoUserDataPayload;
+    } else {
+      return this.http.get<{
+        message: string;
+        coUserData: DisplayCoUser;
+        userCampgrounds: [];
+      }>(`${BACKEND_URL}/${this.coUserId}`);
+    }
   }
 
   getUserActivity(userId: string) {
-    return this.http.get<{
-      message: string;
-      userCampgrounds: [];
-      userComments: [];
-    }>(`${BACKEND_URL}/activity/${userId}`);
+    if (environment.useApi === 'GRAPHQL') {
+      this.UserActivityPayload = this._apollo
+        .watchQuery<{
+          userActivity: { userCampgrounds: any; userComments: any };
+        }>({
+          query: gql`
+            query GetUserActivity {
+              userActivity {
+                userCampgrounds {
+                  _id
+                  name
+                  createdAt
+                }
+                userComments {
+                  _id
+                }
+              }
+            }
+          `,
+        })
+        .valueChanges.pipe(
+          map(
+            ({
+              data: {
+                userActivity: { userCampgrounds, userComments },
+              },
+            }) => {
+              return {
+                userCampgrounds: userCampgrounds.map((record) => {
+                  return {
+                    campgroundId: record._id,
+                    campgroundName: record.name,
+                    campgroundCreatedAt: record.createdAt,
+                  };
+                }),
+                userComments,
+              };
+            }
+          )
+        );
+
+      return this.UserActivityPayload;
+    } else {
+      return this.http.get<{
+        message: string;
+        userCampgrounds: [];
+        userComments: [];
+      }>(`${BACKEND_URL}/activity/${userId}`);
+    }
   }
 
   toggleFollowUser(
@@ -116,16 +203,31 @@ export class UserService implements OnDestroy {
     followerUserId: string,
     follow: boolean
   ) {
-    return this.http.post<{ message: string }>(`${BACKEND_URL}/follow`, {
-      userToFollowId,
-      followerUserId,
-      follow,
-    });
-  }
+    if (environment.useApi === 'GRAPHQL') {
+      this.ToggleUserUpdate = this._apollo.mutate({
+        mutation: gql`
+          mutation ToggleFollowUser(
+            $userToFollowId: String!
+            $follow: Boolean!
+          ) {
+            toggleFollowUser(userToFollowId: $userToFollowId, follow: $follow)
+          }
+        `,
+        variables: {
+          userToFollowId,
+          follow,
+        },
+      });
 
-  // getUserCampgrounds(userId: string) {
-  //   //
-  // }
+      return this.ToggleUserUpdate;
+    } else {
+      return this.http.post<{ message: string }>(`${BACKEND_URL}/follow`, {
+        userToFollowId,
+        followerUserId,
+        follow,
+      });
+    }
+  }
 
   redirectToHomePage(): void {
     this.router.navigate(['/campgrounds']);

@@ -16,6 +16,8 @@ import { SnackbarService } from '../../error/snackbar.service';
 import { AuthService } from '../auth.service';
 import { UserService } from './user.service';
 
+import { environment } from '../../../environments/environment';
+
 import {
   CurrentUser,
   DisplayCoUser,
@@ -34,6 +36,7 @@ export class UserComponent implements OnInit, OnDestroy {
   basicFormGroup = new FormGroup({});
   displayPrefFormGroup = new FormGroup({});
   emailPrefFormGroup = new FormGroup({});
+  isGraphQLAPI = environment.useApi === 'GRAPHQL';
 
   private _showOnInitTab: string;
   private _tabIndex = {
@@ -86,8 +89,7 @@ export class UserComponent implements OnInit, OnDestroy {
         if (this.showCoUser) {
           this._userService.getCoUserData().subscribe(
             (response) => {
-              // console.log(response);
-              this.displayCoUser = response.coUserData;
+              this.displayCoUser = { ...response.coUserData };
               this.displayCoUserCampgrounds = response.userCampgrounds;
               this.isLoading = false;
             },
@@ -227,11 +229,25 @@ export class UserComponent implements OnInit, OnDestroy {
             );
 
             /** Instead of fetching user again for the follower array update,
-             * modify the local array of displayed co-user */
-            isFollow && this.displayCoUser.followers.push(this.currentUserId);
+             *  modify the local array of displayed co-user */
+
+            if (isFollow) {
+              /** 17102020 - Gaurav - the array.push which worked with the REST API return value
+               * did not work with the GraphQL return value. Gave an error of immutability -
+               * "cannot add property 1: object is not extensible"
+               *
+               * Created a copy and appended the new value
+               */
+              // this.displayCoUser.followers.push(String(this.currentUserId));
+              this.displayCoUser.followers = [
+                ...this.displayCoUser.followers,
+                String(this.currentUserId),
+              ];
+            }
+
             !isFollow &&
               (this.displayCoUser.followers = this.displayCoUser.followers.filter(
-                (id) => id !== this.currentUserId
+                (id) => String(id) !== String(this.currentUserId)
               ));
             this.isLoading = false;
           },
@@ -335,6 +351,8 @@ export class UserComponent implements OnInit, OnDestroy {
      * 2. navigate user to notification type related source
      */
     if (notification) {
+      console.log('onNotificationClick notification', notification);
+
       switch (notification.notificationType) {
         case 0: //new campground
         case 1: //new campground comment
@@ -342,14 +360,21 @@ export class UserComponent implements OnInit, OnDestroy {
             this._authService.updateNotification([notification._id], true);
           this._router.navigate([
             '/campgrounds/show/',
-            notification.campgroundId,
+            this.isGraphQLAPI
+              ? notification.campgroundId._id
+              : notification.campgroundId,
           ]);
           break;
 
         case 3: // new follower
           !notification.isRead &&
             this._authService.updateNotification([notification._id], true);
-          this._router.navigate(['/user/other', notification.follower.id]);
+          this._router.navigate([
+            '/user/other',
+            this.isGraphQLAPI
+              ? notification.follower.id._id
+              : notification.follower.id,
+          ]);
           break;
 
         default:
@@ -359,12 +384,40 @@ export class UserComponent implements OnInit, OnDestroy {
     }
   }
 
-  onNotificationRead(notificationId: string, isSetRead: boolean): void {
-    this._authService.updateNotification([notificationId], isSetRead);
+  onNotificationRead(notificationId: string, isSetRead: boolean) {
+    this.isLoading = true;
+    this._authService.updateNotification([notificationId], isSetRead).subscribe(
+      async (response) => {
+        await this._authService.resetNotifications(
+          [notificationId],
+          isSetRead,
+          'UPDATE'
+        );
+        this.isLoading = false;
+      },
+      (error) => {
+        this.isLoading = false;
+        console.log('auth: user notification update', error);
+      }
+    );
   }
 
-  onNotificationDelete(notificationId: string): void {
-    this._authService.deleteNotification([notificationId]);
+  onNotificationDelete(notificationId: string) {
+    this.isLoading = true;
+    this._authService.deleteNotification([notificationId]).subscribe(
+      async (response) => {
+        await this._authService.resetNotifications(
+          [notificationId],
+          false,
+          'DELETE'
+        );
+        this.isLoading = false;
+      },
+      (error) => {
+        this.isLoading = false;
+        console.log('auth: user notification delete', error);
+      }
+    );
   }
 
   // https://relevantmagazine.com/wp-content/uploads/2017/05/rambop.jpg

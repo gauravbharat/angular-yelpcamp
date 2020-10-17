@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, NavigationEnd } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+
+/** 16102020 - Gaurav - GraphQL API changes */
+import { Apollo } from 'apollo-angular';
+import gql from 'graphql-tag';
+import { fragments } from './auth.graphql';
+import { map } from 'rxjs/operators';
 
 import {
   AuthData,
@@ -16,6 +22,8 @@ const BACKEND_URL = `${environment.apiUrl}/users`;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  mutateObs: Observable<any>;
+
   private readonly indexedDbStore = 'currentUser';
   private readonly UPDATE_USER = 'UPDATE_USER';
   private readonly RESET_USER = 'RESET_USER';
@@ -54,7 +62,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private dbService: NgxIndexedDBService
+    private dbService: NgxIndexedDBService,
+    private _apollo: Apollo
   ) {
     /** Get the current url to navigate user to campgrounds page on logout ONLY IF
      * user is on the camgpround create or edit form page
@@ -113,33 +122,152 @@ export class AuthService {
       email,
       password,
     };
-    return new Promise((resolve, reject) => {
-      this.http
-        .post<{ message: string; userData: CurrentUser }>(
-          `${BACKEND_URL}/login`,
-          authData
-        )
-        .subscribe(
-          (response) => {
-            this.currentUser = response.userData;
-            // console.log('auth service', this.currentUser);
-            this._updateListeners(this.UPDATE_USER, false, null);
-            this.setTimerAndStorage();
-            this.router.navigate(['/campgrounds']);
-            resolve({ isSuccess: true, username: this.currentUser.username });
-          },
-          (error) => {
-            // console.log('error logging in', error);
-            this.currentUser = null;
-            this._updateListeners(
-              this.RESET_USER,
-              false,
-              'Login failed, invalid credentials!'
-            );
-            reject({ isSuccess: false, error });
+
+    if (environment.useApi === 'GRAPHQL') {
+      const GET_AUTH_PAYLOAD = gql`
+        mutation GetAuthPayload($credentials: LoginUserInput!) {
+          login(credentials: $credentials) {
+            expiresIn
+            token
+            user {
+              ...UserBasicInfo
+              enableNotificationEmails {
+                system
+                newCampground
+                newComment
+                newFollower
+              }
+              enableNotifications {
+                newCampground
+                newComment
+                newFollower
+                newCommentLike
+              }
+              followers {
+                _id
+              }
+              hideStatsDashboard
+              isAdmin
+              notifications {
+                _id
+                campgroundId {
+                  _id
+                  name
+                }
+                commentId {
+                  _id
+                  text
+                }
+                createdAt
+                updatedAt
+                isCommentLike
+                isRead
+                notificationType
+                notificationTypeDesc
+
+                userId {
+                  _id
+                  username
+                  avatar
+                }
+                follower {
+                  id {
+                    _id
+                    username
+                    avatar
+                  }
+                  followingUserId {
+                    _id
+                    username
+                    avatar
+                  }
+                }
+              }
+            }
           }
-        );
-    });
+        }
+
+        ${fragments.User.UserBasicInfo}
+      `;
+      return new Promise((resolve, reject) => {
+        this._apollo
+          .mutate<{ login: any }>({
+            mutation: GET_AUTH_PAYLOAD,
+            variables: {
+              credentials: {
+                ...authData,
+              },
+            },
+          })
+          .pipe(
+            map(({ data: { login } }) => {
+              return {
+                userData: {
+                  token: login.token,
+                  expiresIn: login.expiresIn,
+                  ...login.user,
+                  userId: login.user._id,
+                  firstname: login.user.firstName,
+                  lastname: login.user.lastName,
+                  followers: login.user.followers.map(
+                    (follower) => follower._id
+                  ),
+                },
+              };
+            })
+          )
+          .subscribe(
+            (response) => {
+              this.currentUser = response.userData;
+
+              // console.log('auth service', this.currentUser);
+              this._updateListeners(this.UPDATE_USER, false, null);
+              this.setTimerAndStorage();
+              this.router.navigate(['/campgrounds']);
+              resolve({ isSuccess: true, username: this.currentUser.username });
+            },
+            (error) => {
+              console.log('error', error);
+              this.currentUser = null;
+              this._updateListeners(
+                this.RESET_USER,
+                false,
+                'Login failed, invalid credentials!'
+              );
+              reject({ isSuccess: false, error });
+            }
+          );
+      });
+    } else {
+      return new Promise((resolve, reject) => {
+        this.http
+          .post<{ message: string; userData: CurrentUser }>(
+            `${BACKEND_URL}/login`,
+            authData
+          )
+          .subscribe(
+            (response) => {
+              this.currentUser = response.userData;
+
+              // console.log('auth service', this.currentUser);
+              this._updateListeners(this.UPDATE_USER, false, null);
+              this.setTimerAndStorage();
+              this.router.navigate(['/campgrounds']);
+              resolve({ isSuccess: true, username: this.currentUser.username });
+            },
+            (error) => {
+              // console.log('error logging in', error);
+              this.currentUser = null;
+              this._updateListeners(
+                this.RESET_USER,
+                false,
+                'Login failed, invalid credentials!'
+              );
+              reject({ isSuccess: false, error });
+            }
+          );
+      });
+    }
   }
 
   logout() {
@@ -164,23 +292,49 @@ export class AuthService {
    */
   updateUserAvatar(userId: string, avatar: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.http
-        .put<{ message: string }>(`${BACKEND_URL}/avatar/me`, {
-          userId,
-          avatar,
-        })
-        .subscribe(
-          (result) => {
-            this.currentUser.avatar = avatar;
-            // Update the local store as well
-            this._updateListeners(this.UPDATE_USER, true, null);
-            resolve('User avatar updated!');
-          },
-          (error) => {
-            console.log('authservice: update user avatar', error);
-            reject('Error updating user avatar!');
-          }
-        );
+      if (environment.useApi === 'GRAPHQL') {
+        this._apollo
+          .mutate({
+            mutation: gql`
+              mutation ChangeUserAvatar($avatar: String!) {
+                updateUserAvatar(avatar: $avatar)
+              }
+            `,
+            variables: {
+              avatar,
+            },
+          })
+          .subscribe(
+            (result) => {
+              this.currentUser.avatar = avatar;
+              // Update the local store as well
+              this._updateListeners(this.UPDATE_USER, true, null);
+              resolve('User avatar updated!');
+            },
+            (error) => {
+              console.log('authservice: update user avatar', error);
+              reject('Error updating user avatar!');
+            }
+          );
+      } else {
+        this.http
+          .put<{ message: string }>(`${BACKEND_URL}/avatar/me`, {
+            userId,
+            avatar,
+          })
+          .subscribe(
+            (result) => {
+              this.currentUser.avatar = avatar;
+              // Update the local store as well
+              this._updateListeners(this.UPDATE_USER, true, null);
+              resolve('User avatar updated!');
+            },
+            (error) => {
+              console.log('authservice: update user avatar', error);
+              reject('Error updating user avatar!');
+            }
+          );
+      }
     });
   }
 
@@ -228,70 +382,172 @@ export class AuthService {
     newpass: string
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.http
-        .put<{ message: string }>(`${BACKEND_URL}/pwd/me`, {
-          userId,
-          oldpass,
-          newpass,
-        })
-        .subscribe(
-          (response) => {
-            resolve('Password changed!');
-          },
-          (error) => {
-            console.log('auth: user pw change', error);
-            reject(error.message);
-          }
-        );
+      if (environment.useApi === 'GRAPHQL') {
+        this._apollo
+          .mutate({
+            mutation: gql`
+              mutation ChangeUserPassword(
+                $oldpass: String!
+                $newpass: String!
+              ) {
+                updateUserPassword(oldPassword: $oldpass, newPassword: $newpass)
+              }
+            `,
+            variables: {
+              oldpass,
+              newpass,
+            },
+          })
+          .subscribe(
+            (response) => {
+              resolve('Password changed!');
+            },
+            (error) => {
+              console.log('auth: user pw change', error);
+              reject(error.message);
+            }
+          );
+      } else {
+        this.http
+          .put<{ message: string }>(`${BACKEND_URL}/pwd/me`, {
+            userId,
+            oldpass,
+            newpass,
+          })
+          .subscribe(
+            (response) => {
+              resolve('Password changed!');
+            },
+            (error) => {
+              console.log('auth: user pw change', error);
+              reject(error.message);
+            }
+          );
+      }
     });
   }
 
-  updateNotification(notificationIdArr: string[], isSetRead: boolean): void {
-    this.http
-      .put<{ message: string }>(`${BACKEND_URL}/notifications/update`, {
-        notificationIdArr,
-        isSetRead,
-      })
-      .subscribe(
-        async (response) => {
-          // console.log(response);
-
-          await this.currentUser.notifications.forEach((notification) => {
-            if (notificationIdArr.includes(notification._id)) {
-              notification.isRead = isSetRead;
+  updateNotification(notificationIdArr: string[], isSetRead: boolean) {
+    this.mutateObs =
+      environment.useApi === 'GRAPHQL'
+        ? this._apollo.mutate({
+            mutation: gql`
+              mutation UpdateNotification(
+                $notificationIdArr: [ID!]!
+                $isSetRead: Boolean!
+              ) {
+                updateNotification(
+                  notificationIdArr: $notificationIdArr
+                  isSetRead: $isSetRead
+                )
+              }
+            `,
+            variables: {
+              notificationIdArr,
+              isSetRead,
+            },
+          })
+        : this.http.put<{ message: string }>(
+            `${BACKEND_URL}/notifications/update`,
+            {
+              notificationIdArr,
+              isSetRead,
             }
-          });
-
-          // Update the local store as well
-          this._updateListeners(this.UPDATE_USER, true, null);
-        },
-        (error) => {
-          console.log('auth: user notification update', error);
-        }
-      );
-  }
-
-  deleteNotification(notificationIdArr: string[]): void {
-    this.http
-      .post<{ message: string }>(`${BACKEND_URL}/notifications/remove`, {
-        notificationIdArr,
-      })
-      .subscribe(
-        async (response) => {
-          // console.log(response);
-
-          this.currentUser.notifications = await this.currentUser.notifications.filter(
-            (notification) => !notificationIdArr.includes(notification._id)
           );
 
-          // Update the local store as well
-          this._updateListeners(this.UPDATE_USER, true, null);
-        },
-        (error) => {
-          console.log('auth: user notification update', error);
-        }
-      );
+    return this.mutateObs;
+
+    // if (environment.useApi === 'GRAPHQL') {
+    //   return this._apollo.mutate<{ message: string }>({
+    //     mutation: gql`
+    //       mutation UpdateNotification(
+    //         $notificationIdArr: [ID!]!
+    //         $isSetRead: Boolean!
+    //       ) {
+    //         updateNotification(
+    //           notificationIdArr: $notificationIdArr
+    //           isSetRead: $isSetRead
+    //         )
+    //       }
+    //     `,
+    //     variables: {
+    //       notificationIdArr,
+    //       isSetRead,
+    //     },
+    //   });
+    // } else {
+    //   return this.http.put<{ message: string }>(
+    //     `${BACKEND_URL}/notifications/update`,
+    //     {
+    //       notificationIdArr,
+    //       isSetRead,
+    //     }
+    //   );
+    // }
   }
+
+  deleteNotification(notificationIdArr: string[]) {
+    this.mutateObs =
+      environment.useApi === 'GRAPHQL'
+        ? this._apollo.mutate({
+            mutation: gql`
+              mutation DeleteNotification($notificationIdArr: [ID!]!) {
+                deleteNotification(notificationIdArr: $notificationIdArr)
+              }
+            `,
+            variables: {
+              notificationIdArr,
+            },
+          })
+        : this.http.post<{ message: string }>(
+            `${BACKEND_URL}/notifications/remove`,
+            {
+              notificationIdArr,
+            }
+          );
+
+    return this.mutateObs;
+    // .subscribe(
+    //   async (response) => {
+    //     // console.log(response);
+
+    //     this.currentUser.notifications = await this.currentUser.notifications.filter(
+    //       (notification) => !notificationIdArr.includes(notification._id)
+    //     );
+
+    //     // Update the local store as well
+    //     this._updateListeners(this.UPDATE_USER, true, null);
+    //   },
+    //   (error) => {
+    //     console.log('auth: user notification update', error);
+    //   }
+    // );
+  }
+
+  async resetNotifications(
+    notificationIdArr: string[],
+    isSetRead: boolean,
+    action: string
+  ) {
+    if (action === 'UPDATE') {
+      await this.currentUser.notifications.forEach((notification) => {
+        if (notificationIdArr.includes(notification._id)) {
+          notification.isRead = isSetRead;
+        }
+      });
+
+      // Update the local store as well
+      this._updateListeners(this.UPDATE_USER, true, null);
+    } else {
+      this.currentUser.notifications = await this.currentUser.notifications.filter(
+        (notification) => !notificationIdArr.includes(notification._id)
+      );
+
+      // Update the local store as well
+      this._updateListeners(this.UPDATE_USER, true, null);
+    }
+  }
+
   /** Update User Specific Requests - ENDs */
 
   /** User password reset methods - Start */

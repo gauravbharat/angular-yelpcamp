@@ -27,6 +27,8 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     return next.handle(req).pipe(
       map((event: HttpEvent<any>) => {
+        console.log(event);
+
         /** 15102020 - Gaurav - Intercept Apollo client errors for GRAPHQL
          * For a test error from the graphql server from the query resolver =>
          * catchError did not work below,

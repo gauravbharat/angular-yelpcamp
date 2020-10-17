@@ -63,7 +63,7 @@ export class CampgroundsService {
     /** Get the list of all campground static data from the database */
     if (environment.useApi === 'GRAPHQL') {
       const getStaticData = gql`
-        {
+        query CreateEditCampgroundStaticData {
           campStaticData {
             countriesList {
               _id
@@ -120,7 +120,7 @@ export class CampgroundsService {
     /** Get the list of campground levels static data from the database */
     if (environment.useApi === 'GRAPHQL') {
       const getHikesData = gql`
-        query GetCampLevelData {
+        query GetCampLevelsData {
           campLevelsData {
             seasons {
               id

@@ -1,19 +1,34 @@
 export interface Notifications {
   _id: string;
-  campgroundId?: string;
+  campgroundId?: NotificationCampgroundDetails | any;
   campgroundName?: string;
-  commentId?: string;
+  commentId?: NotificationCommentDetails | any;
   created: Date;
   isRead: boolean;
   notificationType: number;
-  userId?: string;
+  userId?: ShortUser | any;
   username?: string;
   follower?: {
     followerAvatar: string;
-    followingUserId: string;
-    id: string;
+    followingUserId: ShortUser | any;
+    id: ShortUser | any;
   };
   isCommentLike?: boolean;
+}
+interface ShortUser {
+  _id: string;
+  username: string;
+  avatar: string;
+}
+
+interface NotificationCampgroundDetails {
+  _id: string;
+  name: string;
+}
+
+interface NotificationCommentDetails {
+  _id: string;
+  text: string;
 }
 
 export interface RegisterUser {

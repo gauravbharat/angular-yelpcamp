@@ -10,13 +10,6 @@
     <mat-card>
       <div [ngClass]="!showCoUser ? 'imagehandler' : ''">
         <img
-          *ngIf="isLoading"
-          mat-card-image
-          src="assets/images/avatar_generic.png"
-          alt="generic avatar placeholder"
-        />
-        <img
-          *ngIf="!isLoading"
           mat-card-image
           [src]="showCoUser ? displayCoUser?.avatar : currentUser?.avatar"
           [alt]="showCoUser ? displayCoUser?.username : currentUser?.username"
@@ -348,9 +341,17 @@
                 >
                   <div *ngSwitchCase="0" class="notification-switch-case">
                     <span class="notification-text"
-                      ><strong>{{ notification?.username }}</strong>
+                      ><strong>{{
+                        isGraphQLAPI
+                          ? notification?.userId?.username
+                          : notification?.username
+                      }}</strong>
                       {{ " created a new campground " }}
-                      <strong>{{ notification?.campgroundName }}</strong>
+                      <strong>{{
+                        isGraphQLAPI
+                          ? notification?.campgroundId?.name
+                          : notification?.campgroundName
+                      }}</strong>
                     </span>
                     <span class="notification-action">
                       <button
@@ -392,9 +393,17 @@
                   </div>
                   <div *ngSwitchCase="1" class="notification-switch-case">
                     <span class="notification-text"
-                      ><strong>{{ notification?.username }}</strong>
+                      ><strong>{{
+                        isGraphQLAPI
+                          ? notification?.userId?.username
+                          : notification?.username
+                      }}</strong>
                       {{ " added a review on your campground " }}
-                      <strong>{{ notification?.campgroundName }}</strong></span
+                      <strong>{{
+                        isGraphQLAPI
+                          ? notification?.campgroundId?.name
+                          : notification?.campgroundName
+                      }}</strong></span
                     >
                     <span class="notification-action">
                       <button
@@ -441,11 +450,23 @@
                     <span class="notification-text"
                       ><img
                         class="notification-follower-img"
-                        [src]="notification?.follower?.followerAvatar"
-                        [alt]="notification?.username"
+                        [src]="
+                          isGraphQLAPI
+                            ? notification?.follower?.id?.avatar
+                            : notification?.follower?.followerAvatar
+                        "
+                        [alt]="
+                          isGraphQLAPI
+                            ? notification?.follower?.id?.username
+                            : notification?.username
+                        "
                       />
                       {{ "You have new follower " }}
-                      <strong>{{ notification?.username + "!" }}</strong></span
+                      <strong>{{
+                        isGraphQLAPI
+                          ? notification?.follower?.id?.username
+                          : notification?.username + "!"
+                      }}</strong></span
                     >
                     <span class="notification-action">
                       <button
@@ -487,9 +508,17 @@
                   </div>
                   <div *ngSwitchCase="4" class="notification-switch-case">
                     <span class="notification-text"
-                      ><strong>{{ notification?.username }}</strong>
+                      ><strong>{{
+                        isGraphQLAPI
+                          ? notification?.userId?.username
+                          : notification?.username
+                      }}</strong>
                       {{ " liked your review on campground " }}
-                      <strong>{{ notification?.campgroundName }}</strong></span
+                      <strong>{{
+                        isGraphQLAPI
+                          ? notification?.campgroundId?.name
+                          : notification?.campgroundName
+                      }}</strong></span
                     >
                     <span class="notification-action">
                       <button

@@ -45,6 +45,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
     };
 
     this.isLoading = true;
-    this.authService.register(userData);
+    /** Just catch the error and stop the loading progress bar.
+     * On successful registration, app should login the user */
+    this.authService.register(userData).catch((error) => {
+      this.isLoading = false;
+    });
   }
 }

@@ -91,29 +91,94 @@ export class AuthService {
   }
 
   register(userData: RegisterUser) {
-    this.http
-      .post<{ message: string; newUser: CurrentUser }>(
-        `${BACKEND_URL}/signup`,
-        userData
-      )
-      .subscribe(
-        (result) => {
-          // console.log(result);
-          this.currentUser = result.newUser;
+    const GET_AUTH_PAYLOAD = gql`
+      mutation GetAuthPayload($userData: RegisterUserInput!) {
+        register(registrationData: $userData) {
+          token
+          expiresIn
+          user {
+            ...UserBasicInfo
+            ...UserSettings
+          }
+        }
+      }
+
+      ${fragments.User.UserBasicInfo}
+      ${fragments.User.UserSettings}
+    `;
+
+    this.mutateObs =
+      environment.useApi === 'GRAPHQL'
+        ? this._apollo
+            .mutate<{ data: { register: any } }>({
+              mutation: GET_AUTH_PAYLOAD,
+              variables: {
+                userData,
+              },
+            })
+            .pipe(map(({ data: register }) => register))
+        : this.http.post<{ message: string; newUser: CurrentUser }>(
+            `${BACKEND_URL}/signup`,
+            userData
+          );
+
+    return new Promise((resolve, reject) => {
+      this.mutateObs.subscribe(
+        (result: any) => {
+          console.log(result);
+          if (environment.useApi === 'GRAPHQL') {
+            this.currentUser = {
+              userId: result.register.user._id,
+              email: result.register.user.email,
+              username: result.register.user.username,
+              firstname: result.register.user.firstName,
+              lastname: result.register.user.lastName,
+              isAdmin: true,
+              avatar: result.register.user.avatar,
+              isPublisher: true,
+              enableNotifications: {
+                newCampground:
+                  result.register.user.enableNotifications.newCampground,
+                newComment: result.register.user.enableNotifications.newComment,
+                newFollower:
+                  result.register.user.enableNotifications.newFollower,
+                newCommentLike:
+                  result.register.user.enableNotifications.newCommentLike,
+              },
+              enableNotificationEmails: {
+                system:
+                  result.register.user.enableNotificationEmails.newCampground,
+                newCampground:
+                  result.register.user.enableNotificationEmails.newCampground,
+                newComment:
+                  result.register.user.enableNotificationEmails.newCampground,
+                newFollower:
+                  result.register.user.enableNotificationEmails.newCampground,
+              },
+              hideStatsDashboard: result.register.user.hideStatsDashboard,
+              token: result.register.token,
+              expiresIn: result.register.expiresIn,
+            };
+          } else {
+            this.currentUser = result.newUser;
+          }
           this._updateListeners(this.UPDATE_USER, false, null);
           this.setTimerAndStorage();
           this.router.navigate(['/campgrounds']);
+          // resolve({ success: true, message: 'User created!' });
         },
         (error) => {
-          console.log('error in user signup', error);
+          // console.log('error in user signup', error);
           this.currentUser = null;
           this._updateListeners(
             this.RESET_USER,
             false,
             'Error in registration process!'
           );
+          reject({ success: false, message: error?.message });
         }
       );
+    });
   }
 
   login(username: string, email: string, password: string) {
@@ -123,151 +188,115 @@ export class AuthService {
       password,
     };
 
-    if (environment.useApi === 'GRAPHQL') {
-      const GET_AUTH_PAYLOAD = gql`
-        mutation GetAuthPayload($credentials: LoginUserInput!) {
-          login(credentials: $credentials) {
-            expiresIn
-            token
-            user {
-              ...UserBasicInfo
-              enableNotificationEmails {
-                system
-                newCampground
-                newComment
-                newFollower
-              }
-              enableNotifications {
-                newCampground
-                newComment
-                newFollower
-                newCommentLike
-              }
-              followers {
+    const GET_AUTH_PAYLOAD = gql`
+      mutation GetAuthPayload($credentials: LoginUserInput!) {
+        login(credentials: $credentials) {
+          expiresIn
+          token
+          user {
+            ...UserBasicInfo
+            ...UserSettings
+            followers {
+              _id
+            }
+            isAdmin
+            notifications {
+              _id
+              campgroundId {
                 _id
+                name
               }
-              hideStatsDashboard
-              isAdmin
-              notifications {
+              commentId {
                 _id
-                campgroundId {
-                  _id
-                  name
-                }
-                commentId {
-                  _id
-                  text
-                }
-                createdAt
-                updatedAt
-                isCommentLike
-                isRead
-                notificationType
-                notificationTypeDesc
+                text
+              }
+              createdAt
+              updatedAt
+              isCommentLike
+              isRead
+              notificationType
+              notificationTypeDesc
 
-                userId {
+              userId {
+                _id
+                username
+                avatar
+              }
+              follower {
+                id {
                   _id
                   username
                   avatar
                 }
-                follower {
-                  id {
-                    _id
-                    username
-                    avatar
-                  }
-                  followingUserId {
-                    _id
-                    username
-                    avatar
-                  }
+                followingUserId {
+                  _id
+                  username
+                  avatar
                 }
               }
             }
           }
         }
+      }
 
-        ${fragments.User.UserBasicInfo}
-      `;
-      return new Promise((resolve, reject) => {
-        this._apollo
-          .mutate<{ login: any }>({
-            mutation: GET_AUTH_PAYLOAD,
-            variables: {
-              credentials: {
-                ...authData,
-              },
-            },
-          })
-          .pipe(
-            map(({ data: { login } }) => {
-              return {
-                userData: {
-                  token: login.token,
-                  expiresIn: login.expiresIn,
-                  ...login.user,
-                  userId: login.user._id,
-                  firstname: login.user.firstName,
-                  lastname: login.user.lastName,
-                  followers: login.user.followers.map(
-                    (follower) => follower._id
-                  ),
+      ${fragments.User.UserBasicInfo}
+      ${fragments.User.UserSettings}
+    `;
+
+    return new Promise((resolve, reject) => {
+      this.mutateObs =
+        environment.useApi === 'GRAPHQL'
+          ? this._apollo
+              .mutate<{ login: any }>({
+                mutation: GET_AUTH_PAYLOAD,
+                variables: {
+                  credentials: {
+                    ...authData,
+                  },
                 },
-              };
-            })
-          )
-          .subscribe(
-            (response) => {
-              this.currentUser = response.userData;
+              })
+              .pipe(
+                map(({ data: { login } }) => {
+                  return {
+                    userData: {
+                      token: login.token,
+                      expiresIn: login.expiresIn,
+                      ...login.user,
+                      userId: login.user._id,
+                      firstname: login.user.firstName,
+                      lastname: login.user.lastName,
+                      followers: login.user.followers.map(
+                        (follower) => follower._id
+                      ),
+                    },
+                  };
+                })
+              )
+          : this.http.post<{ message: string; userData: CurrentUser }>(
+              `${BACKEND_URL}/login`,
+              authData
+            );
 
-              // console.log('auth service', this.currentUser);
-              this._updateListeners(this.UPDATE_USER, false, null);
-              this.setTimerAndStorage();
-              this.router.navigate(['/campgrounds']);
-              resolve({ isSuccess: true, username: this.currentUser.username });
-            },
-            (error) => {
-              console.log('error', error);
-              this.currentUser = null;
-              this._updateListeners(
-                this.RESET_USER,
-                false,
-                'Login failed, invalid credentials!'
-              );
-              reject({ isSuccess: false, error });
-            }
+      this.mutateObs.subscribe(
+        (response) => {
+          this.currentUser = response.userData;
+          this._updateListeners(this.UPDATE_USER, false, null);
+          this.setTimerAndStorage();
+          this.router.navigate(['/campgrounds']);
+          resolve({ isSuccess: true, username: this.currentUser.username });
+        },
+        (error) => {
+          console.log('this.mutateObs.subscribe error', error);
+          this.currentUser = null;
+          this._updateListeners(
+            this.RESET_USER,
+            false,
+            'Login failed, invalid credentials!'
           );
-      });
-    } else {
-      return new Promise((resolve, reject) => {
-        this.http
-          .post<{ message: string; userData: CurrentUser }>(
-            `${BACKEND_URL}/login`,
-            authData
-          )
-          .subscribe(
-            (response) => {
-              this.currentUser = response.userData;
-
-              // console.log('auth service', this.currentUser);
-              this._updateListeners(this.UPDATE_USER, false, null);
-              this.setTimerAndStorage();
-              this.router.navigate(['/campgrounds']);
-              resolve({ isSuccess: true, username: this.currentUser.username });
-            },
-            (error) => {
-              // console.log('error logging in', error);
-              this.currentUser = null;
-              this._updateListeners(
-                this.RESET_USER,
-                false,
-                'Login failed, invalid credentials!'
-              );
-              reject({ isSuccess: false, error });
-            }
-          );
-      });
-    }
+          reject({ isSuccess: false, error });
+        }
+      );
+    });
   }
 
   logout() {
@@ -292,87 +321,88 @@ export class AuthService {
    */
   updateUserAvatar(userId: string, avatar: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (environment.useApi === 'GRAPHQL') {
-        this._apollo
-          .mutate({
-            mutation: gql`
-              mutation ChangeUserAvatar($avatar: String!) {
-                updateUserAvatar(avatar: $avatar)
-              }
-            `,
-            variables: {
+      this.mutateObs =
+        environment.useApi === 'GRAPHQL'
+          ? this._apollo.mutate({
+              mutation: gql`
+                mutation ChangeUserAvatar($avatar: String!) {
+                  updateUserAvatar(avatar: $avatar)
+                }
+              `,
+              variables: {
+                avatar,
+              },
+            })
+          : this.http.put<{ message: string }>(`${BACKEND_URL}/avatar/me`, {
+              userId,
               avatar,
-            },
-          })
-          .subscribe(
-            (result) => {
-              this.currentUser.avatar = avatar;
-              // Update the local store as well
-              this._updateListeners(this.UPDATE_USER, true, null);
-              resolve('User avatar updated!');
-            },
-            (error) => {
-              console.log('authservice: update user avatar', error);
-              reject('Error updating user avatar!');
-            }
-          );
-      } else {
-        this.http
-          .put<{ message: string }>(`${BACKEND_URL}/avatar/me`, {
-            userId,
-            avatar,
-          })
-          .subscribe(
-            (result) => {
-              this.currentUser.avatar = avatar;
-              // Update the local store as well
-              this._updateListeners(this.UPDATE_USER, true, null);
-              resolve('User avatar updated!');
-            },
-            (error) => {
-              console.log('authservice: update user avatar', error);
-              reject('Error updating user avatar!');
-            }
-          );
-      }
+            });
+
+      this.mutateObs.subscribe(
+        (result) => {
+          this.currentUser.avatar = avatar;
+          // Update the local store as well
+          this._updateListeners(this.UPDATE_USER, true, null);
+          resolve('User avatar updated!');
+        },
+        (error) => {
+          console.log('authservice: update user avatar', error);
+          reject('Error updating user avatar!');
+        }
+      );
     });
   }
 
   updateUserData(userData: UserSettingsUpdate): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.http
-        .put<{ message: string }>(`${BACKEND_URL}/detail/me`, {
-          userData,
-        })
-        .subscribe(
-          (result) => {
-            this.currentUser.firstname = userData.firstname;
-            this.currentUser.lastname = userData.lastname;
-            this.currentUser.email = userData.email;
-            this.currentUser.hideStatsDashboard = userData.hideStatsDashboard;
-            this.currentUser.enableNotifications.newCampground =
-              userData.enableNotifications.newCampground;
-            this.currentUser.enableNotifications.newComment =
-              userData.enableNotifications.newComment;
-            this.currentUser.enableNotifications.newFollower =
-              userData.enableNotifications.newFollower;
-            this.currentUser.enableNotifications.newCommentLike =
-              userData.enableNotifications.newCommentLike;
-            this.currentUser.enableNotificationEmails.newCampground =
-              userData.enableNotificationEmails.newCampground;
-            this.currentUser.enableNotificationEmails.newComment =
-              userData.enableNotificationEmails.newComment;
-            this.currentUser.enableNotificationEmails.newFollower =
-              userData.enableNotificationEmails.newFollower;
+      // 18102020 - Gaurav - GraphQL changes
+      this.mutateObs =
+        environment.useApi === 'GRAPHQL'
+          ? this._apollo.mutate({
+              mutation: gql`
+                mutation UpdateUserSettings(
+                  $userData: UserSettingsUpdateInput!
+                ) {
+                  updateUserSettings(userData: $userData)
+                }
+              `,
+              variables: {
+                userData,
+              },
+            })
+          : this.http.put<{ message: string }>(`${BACKEND_URL}/detail/me`, {
+              userData,
+            });
 
-            // Update the local store as well
-            this._updateListeners(this.UPDATE_USER, true, null);
-            resolve('User update successful!');
-          },
-          (error) => {
-            reject('User update failed!');
-          }
-        );
+      this.mutateObs.subscribe(
+        (result) => {
+          this.currentUser.firstname = userData.firstname;
+          this.currentUser.lastname = userData.lastname;
+          this.currentUser.email = userData.email;
+          this.currentUser.hideStatsDashboard = userData.hideStatsDashboard;
+          this.currentUser.enableNotifications.newCampground =
+            userData.enableNotifications.newCampground;
+          this.currentUser.enableNotifications.newComment =
+            userData.enableNotifications.newComment;
+          this.currentUser.enableNotifications.newFollower =
+            userData.enableNotifications.newFollower;
+          this.currentUser.enableNotifications.newCommentLike =
+            userData.enableNotifications.newCommentLike;
+          this.currentUser.enableNotificationEmails.newCampground =
+            userData.enableNotificationEmails.newCampground;
+          this.currentUser.enableNotificationEmails.newComment =
+            userData.enableNotificationEmails.newComment;
+          this.currentUser.enableNotificationEmails.newFollower =
+            userData.enableNotificationEmails.newFollower;
+
+          // Update the local store as well
+          this._updateListeners(this.UPDATE_USER, true, null);
+          resolve('User update successful!');
+        },
+        (error) => {
+          reject('User update failed!');
+        }
+      );
     });
   }
 
@@ -382,48 +412,40 @@ export class AuthService {
     newpass: string
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (environment.useApi === 'GRAPHQL') {
-        this._apollo
-          .mutate({
-            mutation: gql`
-              mutation ChangeUserPassword(
-                $oldpass: String!
-                $newpass: String!
-              ) {
-                updateUserPassword(oldPassword: $oldpass, newPassword: $newpass)
-              }
-            `,
-            variables: {
+      this.mutateObs =
+        environment.useApi === 'GRAPHQL'
+          ? this._apollo.mutate({
+              mutation: gql`
+                mutation ChangeUserPassword(
+                  $oldpass: String!
+                  $newpass: String!
+                ) {
+                  updateUserPassword(
+                    oldPassword: $oldpass
+                    newPassword: $newpass
+                  )
+                }
+              `,
+              variables: {
+                oldpass,
+                newpass,
+              },
+            })
+          : this.http.put<{ message: string }>(`${BACKEND_URL}/pwd/me`, {
+              userId,
               oldpass,
               newpass,
-            },
-          })
-          .subscribe(
-            (response) => {
-              resolve('Password changed!');
-            },
-            (error) => {
-              console.log('auth: user pw change', error);
-              reject(error.message);
-            }
-          );
-      } else {
-        this.http
-          .put<{ message: string }>(`${BACKEND_URL}/pwd/me`, {
-            userId,
-            oldpass,
-            newpass,
-          })
-          .subscribe(
-            (response) => {
-              resolve('Password changed!');
-            },
-            (error) => {
-              console.log('auth: user pw change', error);
-              reject(error.message);
-            }
-          );
-      }
+            });
+
+      this.mutateObs.subscribe(
+        (response) => {
+          resolve('Password changed!');
+        },
+        (error) => {
+          console.log('auth: user pw change', error);
+          reject(error.message);
+        }
+      );
     });
   }
 
@@ -456,34 +478,6 @@ export class AuthService {
           );
 
     return this.mutateObs;
-
-    // if (environment.useApi === 'GRAPHQL') {
-    //   return this._apollo.mutate<{ message: string }>({
-    //     mutation: gql`
-    //       mutation UpdateNotification(
-    //         $notificationIdArr: [ID!]!
-    //         $isSetRead: Boolean!
-    //       ) {
-    //         updateNotification(
-    //           notificationIdArr: $notificationIdArr
-    //           isSetRead: $isSetRead
-    //         )
-    //       }
-    //     `,
-    //     variables: {
-    //       notificationIdArr,
-    //       isSetRead,
-    //     },
-    //   });
-    // } else {
-    //   return this.http.put<{ message: string }>(
-    //     `${BACKEND_URL}/notifications/update`,
-    //     {
-    //       notificationIdArr,
-    //       isSetRead,
-    //     }
-    //   );
-    // }
   }
 
   deleteNotification(notificationIdArr: string[]) {
@@ -507,21 +501,6 @@ export class AuthService {
           );
 
     return this.mutateObs;
-    // .subscribe(
-    //   async (response) => {
-    //     // console.log(response);
-
-    //     this.currentUser.notifications = await this.currentUser.notifications.filter(
-    //       (notification) => !notificationIdArr.includes(notification._id)
-    //     );
-
-    //     // Update the local store as well
-    //     this._updateListeners(this.UPDATE_USER, true, null);
-    //   },
-    //   (error) => {
-    //     console.log('auth: user notification update', error);
-    //   }
-    // );
   }
 
   async resetNotifications(
@@ -530,6 +509,7 @@ export class AuthService {
     action: string
   ) {
     if (action === 'UPDATE') {
+      // NOTIFICATION UPDATED - refresh notification array
       await this.currentUser.notifications.forEach((notification) => {
         if (notificationIdArr.includes(notification._id)) {
           notification.isRead = isSetRead;
@@ -539,6 +519,7 @@ export class AuthService {
       // Update the local store as well
       this._updateListeners(this.UPDATE_USER, true, null);
     } else {
+      // NOTIFICATION DELETED - refresh notification array
       this.currentUser.notifications = await this.currentUser.notifications.filter(
         (notification) => !notificationIdArr.includes(notification._id)
       );
@@ -552,14 +533,44 @@ export class AuthService {
 
   /** User password reset methods - Start */
   requestResetPassword(email: string) {
-    return this.http.post<{ message: string }>(`${BACKEND_URL}/reset`, {
-      email,
-    });
+    this.mutateObs =
+      environment.useApi === 'GRAPHQL'
+        ? this._apollo.mutate<{ message: string }>({
+            mutation: gql`
+              mutation InitiateResetPassword($email: String!) {
+                createResetToken(email: $email) {
+                  message
+                }
+              }
+            `,
+            variables: {
+              email,
+            },
+          })
+        : this.http.post<{ message: string }>(`${BACKEND_URL}/reset`, {
+            email,
+          });
+
+    return this.mutateObs;
   }
 
   verifyTokenValidity(token: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      this.http.get(`${BACKEND_URL}/reset/${token}`).subscribe(
+      this.mutateObs =
+        environment.useApi === 'GRAPHQL'
+          ? this._apollo.mutate({
+              mutation: gql`
+                mutation VerifyPasswordResetToken($token: String!) {
+                  verifyResetToken(token: $token)
+                }
+              `,
+              variables: {
+                token,
+              },
+            })
+          : this.http.get(`${BACKEND_URL}/reset/${token}`);
+
+      this.mutateObs.subscribe(
         (result) => {
           resolve(true);
         },
@@ -573,20 +584,36 @@ export class AuthService {
 
   resetPassword(token: string, newpw: string) {
     return new Promise<boolean>((resolve, reject) => {
-      this.http
-        .post(`${BACKEND_URL}/reset/${token}`, {
-          newpw,
-        })
-        .subscribe(
-          (result) => {
-            resolve(true);
-            if (this.isAuthenticated) this.logout();
-            this.router.navigate(['/auth/login']);
-          },
-          (error) => {
-            reject(false);
-          }
-        );
+      this.mutateObs =
+        environment.useApi === 'GRAPHQL'
+          ? this._apollo.mutate({
+              mutation: gql`
+                mutation CompleteResetPasswordProcess(
+                  $token: String!
+                  $newpw: String!
+                ) {
+                  resetPassword(token: $token, newPassword: $newpw)
+                }
+              `,
+              variables: {
+                token,
+                newpw,
+              },
+            })
+          : this.http.post(`${BACKEND_URL}/reset/${token}`, {
+              newpw,
+            });
+
+      this.mutateObs.subscribe(
+        (result) => {
+          resolve(true);
+          if (this.isAuthenticated) this.logout();
+          this.router.navigate(['/auth/login']);
+        },
+        (error) => {
+          reject(false);
+        }
+      );
     });
   }
   /** User password reset methods - Ends */

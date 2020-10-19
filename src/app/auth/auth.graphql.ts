@@ -14,5 +14,22 @@ export const fragments = {
         createdAt
       }
     `,
+    UserSettings: `
+      fragment UserSettings on User {
+        hideStatsDashboard
+        enableNotifications {
+              newFollower
+              newComment
+              newCampground
+              newCommentLike
+            }
+        enableNotificationEmails {
+              system
+              newCampground
+              newComment
+              newFollower
+            }
+      } 
+    `,
   },
 };

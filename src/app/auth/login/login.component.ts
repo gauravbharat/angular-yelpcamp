@@ -84,9 +84,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authService.requestResetPassword(form.value.email).subscribe(
       (result) => {
         this.isLoading = false;
-        this._snackbarService.showSuccess(result.message);
+        this._snackbarService.showSuccess(
+          result.data?.createResetToken?.message
+            ? result.data?.createResetToken?.message
+            : result.message
+        );
       },
       (error) => {
+        // console.log('onForgotPassword error', error);
         // do nothing, handled in http error interceptor
         this.isLoading = false;
       }

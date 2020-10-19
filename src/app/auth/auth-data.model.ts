@@ -63,7 +63,7 @@ export interface UserSettingsUpdate {
 }
 
 export interface CurrentUser {
-  id: number;
+  id?: number;
   userId: string;
   email: string;
   username: string;

@@ -27,7 +27,7 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     return next.handle(req).pipe(
       map((event: HttpEvent<any>) => {
-        console.log(event);
+        // console.log(event);
 
         /** 15102020 - Gaurav - Intercept Apollo client errors for GRAPHQL
          * For a test error from the graphql server from the query resolver =>
@@ -68,6 +68,8 @@ export class ErrorInterceptor implements HttpInterceptor {
         return event;
       }),
       catchError((httpError: HttpErrorResponse) => {
+        // console.log(httpError);
+
         let errorMessage =
           'An unknown error occurred! Either the server may be down or restarting or you may be facing network issues, please refresh page after some time. If issue persists, please contact this webpage administrator or your network provider.';
 
@@ -79,6 +81,10 @@ export class ErrorInterceptor implements HttpInterceptor {
           if (errorMessage.includes('Please try signing-in again')) {
             this._authService.logout();
           }
+        }
+
+        if (httpError.error?.errors?.length > 0) {
+          errorMessage = httpError.error.errors[0].message;
         }
 
         this._snackbarService.showError(errorMessage, 9000);
